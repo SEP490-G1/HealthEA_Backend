@@ -83,7 +83,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Version = "v1",
         Title = "HealthEA API for Group 1",
-        Description = "This is HealthEA API! { \"username\": \"your_username\",  \"password\": \"Ho@ng123\"}",
+        Description = "This is HealthEA API! ",
        
     });
 

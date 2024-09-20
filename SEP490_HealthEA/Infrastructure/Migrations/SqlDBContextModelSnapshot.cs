@@ -21,7 +21,7 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Infrastructure.Entities.Person", b =>
+            modelBuilder.Entity("Domain.Models.Entities.Person", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -43,7 +43,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Persons");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Room", b =>
+            modelBuilder.Entity("Domain.Models.Entities.Room", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -55,14 +55,17 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
+
                     b.HasKey("ID");
 
                     b.ToTable("Rooms");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Person", b =>
+            modelBuilder.Entity("Domain.Models.Entities.Person", b =>
                 {
-                    b.HasOne("Infrastructure.Entities.Room", "Room")
+                    b.HasOne("Domain.Models.Entities.Room", "Room")
                         .WithMany("Persons")
                         .HasForeignKey("roomId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -71,7 +74,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("Room");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Room", b =>
+            modelBuilder.Entity("Domain.Models.Entities.Room", b =>
                 {
                     b.Navigation("Persons");
                 });
