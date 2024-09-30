@@ -1,5 +1,7 @@
 ﻿
 using API.Middlewares;
+using Domain.Common;
+using Infrastructure.Services;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +59,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 //
 
+builder.Services.Configure<AppSettingsOptions>(builder.Configuration.GetSection("TelegramSettings"));
+
+builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<TelegramService>();
 
 //config DB connection
 builder.Services.AddDbContext<SqlDBContext>(option =>
