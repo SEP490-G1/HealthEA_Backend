@@ -1,8 +1,13 @@
 ﻿
 using API.Middlewares;
+using Domain.Common;
+using Domain.Interfaces;
+using Infrastructure.Services;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
@@ -57,6 +62,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 //
 
+builder.Services.Configure<AppSettingsOptions>(builder.Configuration.GetSection("TelegramSettings"));
+
+builder.Services.AddScoped< EmailService>();
+builder.Services.AddScoped< TelegramService>();
+//builder.Services.AddScoped<INotificationService, TelegramService>();
+//builder.Services.AddScoped<INotificationService, TelegramService>(provider =>
+//{
+//    var options = provider.GetRequiredService<IOptions<AppSettingsOptions>>();
+//    return new TelegramService(options);
+//});
+//builder.Services.AddScoped<INotificationService, EmailService>(provider => new EmailService());
+
+builder.Services.AddScoped<INotificationFactory, NotificationFactory>();
 
 //config DB connection
 builder.Services.AddDbContext<SqlDBContext>(option =>
