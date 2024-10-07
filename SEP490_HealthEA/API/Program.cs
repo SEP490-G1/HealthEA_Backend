@@ -2,6 +2,7 @@
 using API.Middlewares;
 using Domain.Common;
 using Domain.Interfaces;
+using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -75,6 +76,9 @@ builder.Services.AddScoped< TelegramService>();
 //builder.Services.AddScoped<INotificationService, EmailService>(provider => new EmailService());
 
 builder.Services.AddScoped<INotificationFactory, NotificationFactory>();
+
+builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
 
 //config DB connection
 builder.Services.AddDbContext<SqlDBContext>(option =>

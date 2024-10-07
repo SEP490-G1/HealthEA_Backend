@@ -16,7 +16,7 @@ namespace Infrastructure.Services
 		public CloudinaryService()
 		{
 			DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
-			cloudinary = new Cloudinary(Environment.GetEnvironmentVariable("CLOUDINARY_URL"));
+			cloudinary = new Cloudinary("cloudinary://398225469868723:HzzRd3taKWKSLB9Mb1dAqb-_RWo@diwqq5hc6");
 			cloudinary.Api.Secure = true;
 		}
 
@@ -24,7 +24,8 @@ namespace Infrastructure.Services
 		{
 			var imgParams = new ImageUploadParams()
 			{
-				File = new FileDescription("", imageStream),
+				File = new FileDescription("upload", imageStream),
+				UseFilename = false,
 			};
 			var result = await cloudinary.UploadAsync(imgParams);
 			return result.Url.ToString();

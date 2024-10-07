@@ -21,6 +21,7 @@ namespace Infrastructure.Repositories
 		public async Task AddImageAsync(Image image)
 		{
 			await context.Images.AddAsync(image);
+			await context.SaveChangesAsync();
 		}
 
 		public async Task<Image?> GetImageAsync(int id)

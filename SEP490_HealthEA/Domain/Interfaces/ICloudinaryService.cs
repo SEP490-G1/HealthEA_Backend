@@ -9,6 +9,6 @@ namespace Domain.Interfaces
 {
 	public interface ICloudinaryService : IBaseServices
 	{
-		
+		Task<string> Upload(Stream imageStream);
 	}
 }

@@ -45,7 +45,12 @@ namespace Infrastructure.SQLServer
             .HasOne(d => d.Room)
             .WithMany(u => u.Persons)
             .HasForeignKey(d => d.roomId);
-        }
+            modelBuilder.Entity<Image>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+
+		}
 
 
     }
