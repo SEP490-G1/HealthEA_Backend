@@ -16,7 +16,7 @@ namespace Infrastructure.Services
 		public CloudinaryService()
 		{
 			DotEnv.Load(options: new DotEnvOptions(probeForEnv: true));
-			cloudinary = new Cloudinary("cloudinary://398225469868723:HzzRd3taKWKSLB9Mb1dAqb-_RWo@diwqq5hc6");
+			cloudinary = new Cloudinary(Environment.GetEnvironmentVariable("CLOUDINARY_URL"));
 			cloudinary.Api.Secure = true;
 		}
 
