@@ -79,6 +79,7 @@ builder.Services.AddScoped<INotificationFactory, NotificationFactory>();
 
 builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
+builder.Services.AddHttpClient();
 
 //config DB connection
 builder.Services.AddDbContext<SqlDBContext>(option =>

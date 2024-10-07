@@ -13,11 +13,13 @@ namespace API.Controllers
 	{
 		private readonly ICloudinaryService cloudinaryService;
 		private readonly IImageRepository imageRepository;
+		private readonly HttpClient httpClient;
 
-		public ImagesController(ICloudinaryService cloudinaryService, IImageRepository imageRepository)
+		public ImagesController(ICloudinaryService cloudinaryService, IImageRepository imageRepository, HttpClient httpClient)
 		{
 			this.cloudinaryService = cloudinaryService;
 			this.imageRepository = imageRepository;
+			this.httpClient = httpClient;
 		}
 
 		[HttpPost]
@@ -32,6 +34,43 @@ namespace API.Controllers
 			return Ok();
 		}
 
+		[HttpGet("get/{id}")]
+		public async Task<IActionResult> Get(int id)
+		{
+			Image? image = await imageRepository.GetImageAsync(id);
+			if (image == null)
+			{
+				return NotFound();
+			}
+			return Ok(image);
+		}
+
+		[HttpGet("img/{id}")]
+		public async Task<IActionResult> GetImage(int id)
+		{
+			Image? image = await imageRepository.GetImageAsync(id);
+			if (image == null)
+			{
+				//Probably should return some temp image instead
+				return NotFound();
+			}
+			try
+			{
+				var response = await httpClient.GetAsync(image.ImageUrl);
+				if (!response.IsSuccessStatusCode)
+				{
+					return BadRequest();
+				}
+				var contentType = response.Content.Headers.ContentType?.ToString();
+				var imageData = await response.Content.ReadAsByteArrayAsync();
+				// Return the image with the correct content type
+				return File(imageData, contentType ?? "application/octet-stream");
+			} catch (HttpRequestException)
+			{
+				return StatusCode(500);
+			}
+			
+		}
 
 	}
 
