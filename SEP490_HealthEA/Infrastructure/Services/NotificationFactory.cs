@@ -17,11 +17,11 @@ namespace Infrastructure.Services
         {
             switch (notificationType)
             {
-                case NotificationType.Email:
-                    return _serviceProvider.GetRequiredService<EmailService>();
-
                 case NotificationType.Telegram:
-                    return _serviceProvider.GetRequiredService<TelegramService>();
+                    return _serviceProvider.GetRequiredService<ITelegramService>();
+
+                case NotificationType.Email:
+                    return _serviceProvider.GetRequiredService<IEmailService>();
 
                 default:
                     throw new ArgumentException("Invalid notification type", nameof(notificationType));

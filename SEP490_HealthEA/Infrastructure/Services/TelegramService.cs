@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Services
 {
-    public class TelegramService : INotificationService
+    public class TelegramService : ITelegramService
     {
         private static readonly HttpClient client = new HttpClient();
         private readonly AppSettingsOptions _options;
@@ -12,6 +12,11 @@ namespace Infrastructure.Services
         public TelegramService(IOptions<AppSettingsOptions> options)
         {
             _options = options.Value;
+        }
+
+        public Task SendMessageAsync(string message)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task SendNotification(string recipient, string subject, string message)
