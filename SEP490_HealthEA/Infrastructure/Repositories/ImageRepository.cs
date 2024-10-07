@@ -12,7 +12,7 @@ namespace Infrastructure.Repositories
 {
 	public class ImageRepository : IImageRepository
 	{
-		SqlDBContext context;
+		private readonly SqlDBContext context;
 		public ImageRepository(SqlDBContext context)
 		{
 			this.context = context;
