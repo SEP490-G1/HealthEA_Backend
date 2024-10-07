@@ -1,10 +1,6 @@
-﻿using Domain.Models.Entities;
+﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Infrastructure.SQLServer
 {
@@ -19,16 +15,9 @@ namespace Infrastructure.SQLServer
         {
 
         }
-        /// <summary>
-        /// Create DB set for Entities
-        /// </summary>
-        public DbSet<Person> Persons { get; set; }
-        public DbSet<Room> Rooms { get; set; }
-
-        /// <summary>
-        /// config sqlserver    
-        /// </summary>
-        /// <param name="optionsBuilder"></param>
+   
+        public DbSet<User> Users { get; set; }
+      
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 //            if (!optionsBuilder.IsConfigured)
@@ -38,12 +27,10 @@ namespace Infrastructure.SQLServer
 //            }
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            modelBuilder.Entity<Person>()
-            .HasOne(d => d.Room)
-            .WithMany(u => u.Persons)
-            .HasForeignKey(d => d.roomId);
+            base.OnModelCreating(builder);
+            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
 
 

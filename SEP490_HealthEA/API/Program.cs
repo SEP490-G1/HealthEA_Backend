@@ -1,5 +1,4 @@
-﻿
-using API.Middlewares;
+﻿using API.Middlewares;
 using Domain.Common;
 using Domain.Interfaces;
 using Infrastructure.Services;
@@ -64,7 +63,8 @@ builder.Services.Configure<AppSettingsOptions>(builder.Configuration.GetSection(
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ITelegramService, TelegramService>();
 
-
+builder.Services.AddDbContext<SqlDBContext>(options =>
+                        options.UseSqlServer(builder.Configuration.GetConnectionString("DBConnection")));
 builder.Services.AddScoped<INotificationFactory, NotificationFactory>();
 
 //config DB connection
