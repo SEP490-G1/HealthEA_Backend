@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,8 +23,9 @@ namespace Infrastructure.SQLServer
         /// <summary>
         /// Create DB set for Entities
         /// </summary>
-        public DbSet<Person> Persons { get; set; }
-        public DbSet<Room> Rooms { get; set; }
+        public DbSet<MedicalRecord> MedicalRecords { get; set; }
+        public DbSet<PatientProfile> PatientProfiles { get; set; }
+        public DbSet<User> User { get; set; }
 
         /// <summary>
         /// config sqlserver    
@@ -31,19 +33,24 @@ namespace Infrastructure.SQLServer
         /// <param name="optionsBuilder"></param>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-//            if (!optionsBuilder.IsConfigured)
-//            {
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-//                optionsBuilder.UseSqlServer("Data Source=DESKTOP-V1IICF3\\SQLEXPRESS;Initial Catalog=PersonDatabase;Integrated Security=True");
-//            }
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Person>()
-            .HasOne(d => d.Room)
-            .WithMany(u => u.Persons)
-            .HasForeignKey(d => d.roomId);
+
+            modelBuilder.Entity<MedicalRecord>()
+    .HasOne(d => d.PatientProfile)
+    .WithMany(u => u.MedicalRecords)
+    .HasForeignKey(d => d.PantientId)
+    .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<PatientProfile>()
+                .HasOne(d => d.User)
+                .WithMany(u => u.PatientProfiles)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
         }
 
 

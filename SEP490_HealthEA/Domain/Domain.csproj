@@ -12,25 +12,25 @@
 
   <ItemGroup>
     <Compile Update="Resources\DevMsg.Designer.cs">
-      <DependentUpon>DevMsg.resx</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
+      <DependentUpon>DevMsg.resx</DependentUpon>
     </Compile>
     <Compile Update="Resources\UserMsg.Designer.cs">
-      <DependentUpon>UserMsg.resx</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
+      <DependentUpon>UserMsg.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Update="Resources\DevMsg.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>DevMsg.Designer.cs</LastGenOutput>
-      <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\UserMsg.resx">
-      <LastGenOutput>UserMsg.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>UserMsg.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

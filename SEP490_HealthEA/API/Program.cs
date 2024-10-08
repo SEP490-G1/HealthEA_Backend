@@ -1,5 +1,9 @@
 ﻿
 using API.Middlewares;
+using Domain.Interfaces.IRepositories;
+using Domain.Interfaces.IServices;
+using Domain.Services;
+using Infrastructure.Repositories;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -64,8 +68,11 @@ builder.Services.AddDbContext<SqlDBContext>(option =>
     var cnt = builder.Configuration.GetConnectionString("DBConnection");
     option.UseSqlServer(cnt);
 });
-
-
+//config service
+builder.Services.AddScoped<IMedicalRecordsService, MedicalRecordsService>();
+//config repo
+builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
+//another
 builder.Services.AddControllers();
 
 builder.Services.AddSwaggerGen();
@@ -73,7 +80,6 @@ builder.Services.AddSwaggerGen();
 //config middleware Global Exception
 builder.Services.AddExceptionHandler<GlobalExceptionHandlingMiddleware>();
 builder.Services.AddProblemDetails();
-
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

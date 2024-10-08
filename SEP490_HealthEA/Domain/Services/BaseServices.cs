@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Domain.Services
 {
-    internal class BaseServices
+    public class BaseServices
     {
+        
     }
 }
