@@ -20,7 +20,7 @@ namespace Infrastructure.Services
 			cloudinary.Api.Secure = true;
 		}
 
-		public async Task<string> Upload(Stream imageStream)
+		public async Task<ImageUploadResult> Upload(Stream imageStream)
 		{
 			var imgParams = new ImageUploadParams()
 			{
@@ -28,7 +28,17 @@ namespace Infrastructure.Services
 				UseFilename = false,
 			};
 			var result = await cloudinary.UploadAsync(imgParams);
-			return result.Url.ToString();
+			return result;
+		}
+
+		public async Task<DeletionResult> Delete(string publicId)
+		{
+			var imgParams = new DeletionParams(publicId)
+			{
+
+			};
+			DeletionResult deletionResult = await cloudinary.DestroyAsync(imgParams);
+			return deletionResult;
 		}
 	}	
 }

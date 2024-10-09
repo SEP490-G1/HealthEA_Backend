@@ -26,10 +26,11 @@ namespace API.Controllers
 		public async Task<IActionResult> Upload([FromForm] ImageUploadPostModel model)
 		{
 			using var stream = model.File.OpenReadStream();
-			var url = await cloudinaryService.Upload(stream);
+			var result = await cloudinaryService.Upload(stream);
 			await imageRepository.AddImageAsync(new Image()
 			{
-				ImageUrl = url,
+				ImageUrl = result.Url.ToString(),
+				PublicId = result.PublicId,
 			});
 			return Ok();
 		}

@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces.IServices;
+﻿using CloudinaryDotNet.Actions;
+using Domain.Interfaces.IServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace Domain.Interfaces
 {
 	public interface ICloudinaryService : IBaseServices
 	{
-		Task<string> Upload(Stream imageStream);
+		Task<DeletionResult> Delete(string publicId);
+		Task<ImageUploadResult> Upload(Stream imageStream);
 	}
 }
