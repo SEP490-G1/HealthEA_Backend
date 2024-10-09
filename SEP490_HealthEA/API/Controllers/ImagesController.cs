@@ -26,12 +26,7 @@ namespace API.Controllers
 		public async Task<IActionResult> Upload([FromForm] ImageUploadPostModel model)
 		{
 			using var stream = model.File.OpenReadStream();
-			var result = await cloudinaryService.Upload(stream);
-			await imageRepository.AddImageAsync(new Image()
-			{
-				ImageUrl = result.Url.ToString(),
-				PublicId = result.PublicId,
-			});
+			await imageRepository.AddImageAsync(stream);
 			return Ok();
 		}
 
@@ -71,6 +66,17 @@ namespace API.Controllers
 				return StatusCode(500);
 			}
 			
+		}
+
+		[HttpDelete("delete/{id}")]
+		public async Task<IActionResult> Delete(int id)
+		{
+			var result = await imageRepository.DeleteImageAsync(id);
+			if (result)
+			{
+				return NoContent();
+			}
+			return BadRequest(result);
 		}
 
 	}

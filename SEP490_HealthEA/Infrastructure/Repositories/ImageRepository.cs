@@ -13,20 +13,40 @@ namespace Infrastructure.Repositories
 	public class ImageRepository : IImageRepository
 	{
 		private readonly SqlDBContext context;
-		public ImageRepository(SqlDBContext context)
+		private readonly ICloudinaryService cloudinaryService;
+		public ImageRepository(SqlDBContext context, ICloudinaryService cloudinaryService)
 		{
 			this.context = context;
+			this.cloudinaryService = cloudinaryService;
 		}
 
-		public async Task AddImageAsync(Image image)
+		public async Task AddImageAsync(Stream imageStream)
 		{
-			await context.Images.AddAsync(image);
+			//Upload
+			var result = await cloudinaryService.Upload(imageStream);
+			await context.Images.AddAsync(new Image()
+			{
+				ImageUrl = result.Url.ToString(),
+				PublicId = result.PublicId,
+			});
 			await context.SaveChangesAsync();
 		}
 
 		public async Task<Image?> GetImageAsync(int id)
 		{
 			return await context.Images.FirstOrDefaultAsync(x => x.Id == id);
+		}
+
+		public async Task<bool> DeleteImageAsync(int id)
+		{
+			Image? image = await GetImageAsync(id);
+			if (image == null)
+			{
+				return false;
+			}
+			//Try deleting from Cloudinary
+			var deletionResult = await cloudinaryService.Delete(image.PublicId);
+			return (int)deletionResult.StatusCode >= 200 && (int)deletionResult.StatusCode <= 299;
 		}
 	}
 }

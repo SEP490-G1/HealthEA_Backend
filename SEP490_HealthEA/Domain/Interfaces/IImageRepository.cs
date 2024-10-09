@@ -10,7 +10,8 @@ namespace Domain.Interfaces
 {
 	public interface IImageRepository : IBaseRepositories
 	{
-		Task AddImageAsync(Image image);
+		Task AddImageAsync(Stream imageStream);
+		Task<bool> DeleteImageAsync(int id);
 		Task<Image?> GetImageAsync(int id);
 	}
 }
