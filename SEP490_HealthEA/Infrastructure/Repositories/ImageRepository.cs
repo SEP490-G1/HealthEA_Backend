@@ -46,7 +46,14 @@ namespace Infrastructure.Repositories
 			}
 			//Try deleting from Cloudinary
 			var deletionResult = await cloudinaryService.Delete(image.PublicId);
-			return (int)deletionResult.StatusCode >= 200 && (int)deletionResult.StatusCode <= 299;
+			var status = (int)deletionResult.StatusCode >= 200 && (int)deletionResult.StatusCode <= 299;
+			if (status)
+			{
+				context.Remove(image);
+				await context.SaveChangesAsync();
+				return true;
+			}
+			return false;
 		}
 	}
 }
