@@ -97,7 +97,7 @@ namespace Domain.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lấy thành công.
+        ///   Looks up a localized string similar to Lấy dữ liệu thành công.
         /// </summary>
         public static string GetSuccess {
             get {

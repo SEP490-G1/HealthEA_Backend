@@ -23,8 +23,8 @@ namespace Infrastructure.SQLServer
         /// <summary>
         /// Create DB set for Entities
         /// </summary>
-        public DbSet<MedicalRecord> MedicalRecords { get; set; }
-        public DbSet<PatientProfile> PatientProfiles { get; set; }
+        public DbSet<DocumentProfile> DocumentProfiles { get; set; }
+        public DbSet<HealthProfile> HealthProfiles { get; set; }
         public DbSet<User> User { get; set; }
 
         /// <summary>
@@ -39,13 +39,13 @@ namespace Infrastructure.SQLServer
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
-            modelBuilder.Entity<MedicalRecord>()
-    .HasOne(d => d.PatientProfile)
-    .WithMany(u => u.MedicalRecords)
-    .HasForeignKey(d => d.PantientId)
-    .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<DocumentProfile>()
+            .HasOne(d => d.PatientProfile)
+            .WithMany(u => u.MedicalRecords)
+            .HasForeignKey(d => d.PantientId)
+            .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<PatientProfile>()
+            modelBuilder.Entity<HealthProfile>()
                 .HasOne(d => d.User)
                 .WithMany(u => u.PatientProfiles)
                 .HasForeignKey(d => d.UserId)

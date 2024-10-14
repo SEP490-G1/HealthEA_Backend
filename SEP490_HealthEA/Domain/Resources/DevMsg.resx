@@ -130,7 +130,7 @@
     <value>Mã nhân viên không tồn tại</value>
   </data>
   <data name="GetSuccess" xml:space="preserve">
-    <value>Lấy thành công</value>
+    <value>Lấy dữ liệu thành công</value>
   </data>
   <data name="UpdateSuccess" xml:space="preserve">
     <value>Cập nhật thành công</value>

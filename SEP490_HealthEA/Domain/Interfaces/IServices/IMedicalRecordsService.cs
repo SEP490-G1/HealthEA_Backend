@@ -1,4 +1,5 @@
 ﻿using Domain.Models;
+using Domain.Models.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,28 +11,29 @@ namespace Domain.Interfaces.IServices
 {
     public interface IMedicalRecordsService
     {
+
         /// <summary>
-        /// Get all health profile by username
+        /// Get all heal profile with information on token of user
         /// </summary>
-        /// <param name="username">username of user</param>
-        /// <returns>
-        /// statuscode | usermsg     | devmsg      | data  
-        /// </returns>
-        /// @date: 07/10/2024
-        /// @author: thuyht/gitzno
-        public ServiceResult GetAllHealthProfile(string username);
+        /// <param name="claim">
+        /// information of token</param>
+        /// <returns>list healprofile</returns>
+        /// @author: gitznos
+        public ServiceResult GetAllHealProfileByToken(ClaimsPrincipal claim);
         /// <summary>
-        /// tesst
+        /// Get common infomation of health profile by id
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="claim">inforamtion token</param>
+        /// <param name="id">id health profile</param>
+        /// <returns>object infomation healprofile</returns>
+        /// @author: gitzno
+        public ServiceResult GetCommonInfoHealProfileById(ClaimsPrincipal claim, Guid id);
+        /// <summary>
+        /// add new health profile with token 
+        /// </summary>
+        /// <param name="claims">token</param>
+        /// <param name="profile">info common health profile</param>
         /// <returns></returns>
-        public ServiceResult GetAllUsername(ClaimsPrincipal claim);
-        
-
-        public ServiceResult GetHealthProfileByCode(Guid id, string username);
-
-        public ServiceResult GetListMedicalRecordOfType(int type, string username);
-      
-        public ServiceResult GetMedicalRecordDetail(Guid id, string username);
+        public ServiceResult AddNewHealthProfile(ClaimsPrincipal claims, HealthProfileInput profile);
     }
 }

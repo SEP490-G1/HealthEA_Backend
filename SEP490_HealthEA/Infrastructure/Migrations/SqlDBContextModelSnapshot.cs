@@ -22,21 +22,19 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Domain.Models.Entities.MedicalRecord", b =>
+            modelBuilder.Entity("Domain.Models.Entities.DocumentProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Content")
-                        .IsRequired()
+                    b.Property<string>("ContentMedical")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LastModifyDate")
@@ -58,10 +56,10 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("PantientId");
 
-                    b.ToTable("MedicalRecords");
+                    b.ToTable("DocumentProfiles");
                 });
 
-            modelBuilder.Entity("Domain.Models.Entities.PatientProfile", b =>
+            modelBuilder.Entity("Domain.Models.Entities.HealthProfile", b =>
                 {
                     b.Property<Guid>("PantientId")
                         .ValueGeneratedOnAdd()
@@ -84,16 +82,17 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfileCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Residence")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("SharedStatus")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -102,7 +101,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PatientProfiles");
+                    b.ToTable("HealthProfiles");
                 });
 
             modelBuilder.Entity("Domain.Models.Entities.User", b =>
@@ -115,7 +114,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("FName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Gender")
@@ -138,9 +136,9 @@ namespace Infrastructure.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("Domain.Models.Entities.MedicalRecord", b =>
+            modelBuilder.Entity("Domain.Models.Entities.DocumentProfile", b =>
                 {
-                    b.HasOne("Domain.Models.Entities.PatientProfile", "PatientProfile")
+                    b.HasOne("Domain.Models.Entities.HealthProfile", "PatientProfile")
                         .WithMany("MedicalRecords")
                         .HasForeignKey("PantientId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -149,7 +147,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("PatientProfile");
                 });
 
-            modelBuilder.Entity("Domain.Models.Entities.PatientProfile", b =>
+            modelBuilder.Entity("Domain.Models.Entities.HealthProfile", b =>
                 {
                     b.HasOne("Domain.Models.Entities.User", "User")
                         .WithMany("PatientProfiles")
@@ -160,7 +158,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Models.Entities.PatientProfile", b =>
+            modelBuilder.Entity("Domain.Models.Entities.HealthProfile", b =>
                 {
                     b.Navigation("MedicalRecords");
                 });

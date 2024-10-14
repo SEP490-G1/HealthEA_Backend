@@ -16,8 +16,14 @@ namespace Domain.Interfaces.IRepositories
         /// <returns>List all profile of patient by user id</returns>
         /// @author: thuyht/gitzno
         /// @date: 06/10/2024
-        public IList<PatientProfile> GetAllPatientProfilesByUser(Guid id);
-        
-        public IList<MedicalRecord> GetListMedicalRecordByType(int type);
+        public IList<HealthProfile> GetAllHealthProfileByUser(string userName);
+        public HealthProfile HealthProfileDetailbyID(Guid id);
+        public Guid GetGuidByUserName(string userName);
+        /// <summary>
+        /// Add new health profile
+        /// </summary>
+        /// <param name="healthProfile">healprofile</param>
+        /// <returns>row change</returns>
+        public int AddNewHealthProfile(HealthProfile healthProfile);
     }
 }
