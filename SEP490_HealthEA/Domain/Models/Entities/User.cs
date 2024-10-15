@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -16,10 +17,17 @@ namespace Domain.Models.Entities
         [Required]
         public required string Password { get; set; }
         [Required]
-        public required string LName { get; set; }
-        public string? FName { get; set; }
-        public DateOnly DateOfBirth { get; set; }
-        public int Gender { get; set; }
+        public required string LastName { get; set; }
+        public string? FirstName { get; set; }
+        [Required]
+        public required string Email { get; set; }
+        public string? Phone { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public bool? Gender { get; set; }
         public virtual ICollection<HealthProfile> PatientProfiles { get; set; } = new List<HealthProfile>();
+        [DefaultValue("true")]
+        public string Role { get; set; } = "User";
+        public string Status { get; set; } = "INACTIVE";
     }
 }
+

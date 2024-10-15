@@ -17,7 +17,7 @@ namespace Domain.Interfaces.IRepositories
         /// @author: thuyht/gitzno
         /// @date: 06/10/2024
         public IList<HealthProfile> GetAllHealthProfileByUser(string userName);
-        public HealthProfile HealthProfileDetailbyID(Guid id);
+        public HealthProfile? HealthProfileDetailbyID(Guid id);
         public Guid GetGuidByUserName(string userName);
         /// <summary>
         /// Add new health profile

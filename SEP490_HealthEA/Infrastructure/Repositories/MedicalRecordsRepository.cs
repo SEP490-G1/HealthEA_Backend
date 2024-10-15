@@ -41,9 +41,13 @@ namespace Infrastructure.Repositories
             return user.UserId;
         }
 
-        public HealthProfile HealthProfileDetailbyID(Guid id)
+        public HealthProfile? HealthProfileDetailbyID(Guid id)
         {
             var healthProfile = _context.HealthProfiles.FirstOrDefault(x => x.Id == id);
+            if (healthProfile == null)
+            {
+                return null;
+            }
             return healthProfile;
         }
 
@@ -52,6 +56,10 @@ namespace Infrastructure.Repositories
             // Lấy danh sách các bản ghi liên quan cần xóa
             var relatedRecords = _context.DocumentProfiles.Where(r => r.PantientId == id);
             var real = HealthProfileDetailbyID(id);
+            if(real ==  null)
+            {
+                return 0;
+            }
             // Xóa các bản ghi liên quan
             _context.DocumentProfiles.RemoveRange(relatedRecords);
             _context.HealthProfiles.RemoveRange(real);
@@ -61,6 +69,10 @@ namespace Infrastructure.Repositories
         public int ShareHealthProfile(Guid id, int stone)
         {
             var real = HealthProfileDetailbyID(id);
+            if(real == null)
+            {
+                return 0;
+            }
             real.SharedStatus = stone;
             return _context.SaveChanges();
         }

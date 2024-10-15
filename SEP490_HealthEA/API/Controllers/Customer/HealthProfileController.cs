@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Customer
 {
-    [Authorize(Roles = "User")]
-    [Route("api/user/[controller]")]
+    [Authorize(Roles = "CUSTOMER")]
+    [Route("api/customer/[controller]")]
     [ApiController]
     public class HealthProfileController : BaseController
     {
@@ -19,6 +19,7 @@ namespace API.Controllers.Customer
         {
             _medicalRecordsServices = medicalRecordsServices;
         }
+
         [HttpGet]
         public IActionResult getAllHealProfile()
         {

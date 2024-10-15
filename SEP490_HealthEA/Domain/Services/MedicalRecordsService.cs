@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain.Enum;
 using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
 using Domain.Models;
@@ -110,10 +111,20 @@ namespace Domain.Services
         {
             string devMsg = DevMsg.GetSuccess;
             string userMsg = UserMsg.GetSuccess;
-            HealthProfile res = null;
+            HealthProfile? res = null;
             HttpStatusCode hr = HttpStatusCode.OK;
             // - lấy health profile
             var healthProfile = _repository.HealthProfileDetailbyID(id);
+            if (healthProfile == null)
+            {
+                return new ServiceResult()
+                {
+                    devMsg = DevMsg.GetError,
+                    userMsg = UserMsg.GetErr,
+                    statusCode = HttpStatusCode.BadRequest,
+                    data = null
+                };
+            }
             // - kiểm tra người dùng có phải tác giả không
             // + lấy id người dùng
             Guid idUser = claimId(claim);
@@ -141,17 +152,18 @@ namespace Domain.Services
                 //lấy role User
                 string role = claimRole(claim);
                 //       - nếu trạng thái only doctor kiem tra có phải doctor không và trả về lỗi (share == 1)
-                if (healthProfile.SharedStatus == 1 && role != "Doctor")
+                if (healthProfile.SharedStatus == 1 && role != RoleConstants.DOCTOR)
                 {
                     throw new UnauthorizedAccessException("You do not have access!");
                 }
                 //       - nếu trạng thái only user trả kiểm tra (share == 2)
-                if (healthProfile.SharedStatus == 2 && (role != "Doctor" || role != "User"))
+                if (healthProfile.SharedStatus == 2 && (role != RoleConstants.DOCTOR || role != RoleConstants.CUSTOMER))
                 {
                     throw new UnauthorizedAccessException("You do not have access!");
                 }
             }
-            var ress = _HealprofileMapper.Map<HealthProfile, HealthProfileOutput>(res);
+      
+            var ress = (res == null)? null:_HealprofileMapper.Map<HealthProfile, HealthProfileOutput>(res);
             return new ServiceResult()
             {
                 devMsg = devMsg,
@@ -277,7 +289,6 @@ namespace Domain.Services
 
         public ServiceResult UpdateShareHealthProfil(ClaimsPrincipal claims, Guid id, int stone)
         {
-
             string devMsg = DevMsg.UpdateSuccess;
             string userMsg = UserMsg.UpdateSuccess;
             HttpStatusCode hr = HttpStatusCode.OK;
