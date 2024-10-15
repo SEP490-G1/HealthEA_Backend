@@ -1,5 +1,9 @@
 ﻿
 using API.Middlewares;
+using Domain.Interfaces.IRepositories;
+using Domain.Interfaces.IServices;
+using Domain.Services;
+using Infrastructure.Repositories;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +34,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+#pragma warning disable CS8604 // Possible null reference argument.
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -40,6 +45,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
         };
+#pragma warning restore CS8604 // Possible null reference argument.
 
         // Cấu hình để Swagger có thể sử dụng JWT token từ Authorization header mà không cần tiền tố 'Bearer '
         options.Events = new JwtBearerEvents
@@ -64,8 +70,12 @@ builder.Services.AddDbContext<SqlDBContext>(option =>
     var cnt = builder.Configuration.GetConnectionString("DBConnection");
     option.UseSqlServer(cnt);
 });
-
-
+//config service
+builder.Services.AddScoped<IMedicalRecordsService, MedicalRecordsService>();
+//config repo
+builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+//another
 builder.Services.AddControllers();
 
 builder.Services.AddSwaggerGen();
@@ -73,7 +83,6 @@ builder.Services.AddSwaggerGen();
 //config middleware Global Exception
 builder.Services.AddExceptionHandler<GlobalExceptionHandlingMiddleware>();
 builder.Services.AddProblemDetails();
-
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -83,7 +92,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Version = "v1",
         Title = "HealthEA API for Group 1",
-        Description = "This is HealthEA API! ",
+        Description = "This is Token user: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiSmFuZVNtaXRoIiwianRpIjoiNWVmZDdjOWItNDI5NS00NjM4LThiOWYtMmQwY2ZlMTI4NjY0IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiVXNlciIsImV4cCI6MjMyODQxNjA4OSwiaXNzIjoiUTEiLCJhdWQiOiJRMSJ9.LtsIsOniGTKAP1Lv_s0IpmRBot8XeOVzon4gI8KanTc ",
        
     });
 
