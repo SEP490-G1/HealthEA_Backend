@@ -25,8 +25,11 @@ namespace API.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Upload([FromForm] ImageUploadPostModel model)
 		{
-			using var stream = model.File.OpenReadStream();
-			await imageRepository.AddImageAsync(stream);
+			foreach (var file in model.Files)
+			{
+				using var stream = file.OpenReadStream();
+				await imageRepository.AddImageAsync(stream);
+			}
 			return Ok();
 		}
 
@@ -83,6 +86,6 @@ namespace API.Controllers
 
 	public class ImageUploadPostModel
 	{
-		public IFormFile File { get; set; }
+		public IList<IFormFile> Files { get; set; }
 	}
 }
