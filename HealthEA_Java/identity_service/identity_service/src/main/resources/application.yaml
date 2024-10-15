@@ -1,0 +1,30 @@
+server:
+  port: 9090
+  servlet:
+    context-path: /identity
+
+spring:
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=HealthEA_SEP490_G1
+    username: sa
+    password: 123456
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    hibernate:
+        ddl-auto: update
+    database-platform: org.hibernate.dialect.SQLServer2012Dialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "duongnthn2312@gmail.com"
+    password: "hfbz zxhp qbjt ripu"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+jwt:
+  signerKey: "U5IeSrMYMWbhjirxzw/OeuPWRgdWPSGueiQVa8Bn5+VSxDx0vDvH0l4fsl1p2EOk"
+  valid-duration: 1 #days
+  refreshable-duration: 2 #days
