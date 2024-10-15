@@ -10,7 +10,7 @@ namespace Domain.Models.Entities
     public class HealthProfile
     {
         [Key]
-        public Guid PantientId { get; set; }
+        public Guid Id { get; set; }
         public Guid UserId { get; set; }
         [Required]
         public required string ProfileCode { get; set; }

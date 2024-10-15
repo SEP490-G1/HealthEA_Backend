@@ -123,6 +123,9 @@
   <data name="AddSuccess" xml:space="preserve">
     <value>Thêm thành công</value>
   </data>
+  <data name="AuthorizeErr" xml:space="preserve">
+    <value>Bạn không có quyền truy cập</value>
+  </data>
   <data name="CommonErrr" xml:space="preserve">
     <value>Có lỗi xảy ra,vui lòng thử lại hoặc liên hệ Thắng để được trợ giúp</value>
   </data>
@@ -151,7 +154,7 @@
     <value>Không tìm thấy khách hàng trong hệ thống</value>
   </data>
   <data name="DeleteErr" xml:space="preserve">
-    <value>Có lỗi xảy ra trong quá trình xóa, vui lòng thử lại sau hoặc liên hệ Thắng để được hỗ trợ</value>
+    <value>Có lỗi xảy ra trong quá trình xóa, vui lòng thử lại sau hoặc liên hệ để được hỗ trợ</value>
   </data>
   <data name="DeleteSucess" xml:space="preserve">
     <value>Xóa thành công</value>

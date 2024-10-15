@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces.IServices;
+﻿using AutoMapper;
+using Domain.Interfaces.IServices;
 using Domain.Models;
 using Domain.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -24,12 +25,8 @@ namespace API.Controllers.Customer
             var s = _medicalRecordsServices.GetAllHealProfileByToken(User);
             return Ok(s);
         }
-        [HttpGet("info/{id}")]
-        public IActionResult getInfoMDDetail(Guid id)
-        {
-            var s = _medicalRecordsServices.GetCommonInfoHealProfileById(User, id);
-            return Ok(s);
-        }
+
+        
         [HttpPost]
         public IActionResult addNewHealthProfile([FromBody] HealthProfileInput profile)
         {
@@ -37,19 +34,22 @@ namespace API.Controllers.Customer
             return Ok(serviceResult);
         }
         [HttpPatch ("{id}")]
-        public IActionResult updateHealthProfile([FromBody]HealthProfile profile)
+        public IActionResult updateHealthProfile([FromBody] HealthProfileInput profile)
         {
             return Ok();
         }
         [HttpDelete("{id}")]
         public IActionResult removeHealthProfile(Guid id)
         {
-            return Ok();
+            var serviceResult = _medicalRecordsServices.RemoveHealthProfile(User, id);
+            return Ok(serviceResult);
         }
         [HttpPatch ("share/{id}")]
-        public IActionResult updateShareHealthProfile([FromBody] int stone)
+        public IActionResult updateShareHealthProfile(Guid id, [FromBody] int stone)
         {
-            return Ok();
+
+            var serviceResult = _medicalRecordsServices.UpdateShareHealthProfil(User, id, stone);
+            return Ok(serviceResult);
         }
         
     }

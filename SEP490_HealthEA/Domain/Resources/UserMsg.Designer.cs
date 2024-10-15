@@ -79,6 +79,15 @@ namespace Domain.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bạn không có quyền truy cập.
+        /// </summary>
+        internal static string AuthorizeErr {
+            get {
+                return ResourceManager.GetString("AuthorizeErr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Có lỗi xảy ra,vui lòng thử lại hoặc liên hệ Thắng để được trợ giúp.
         /// </summary>
         internal static string CommonErrr {
@@ -160,7 +169,7 @@ namespace Domain.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Có lỗi xảy ra trong quá trình xóa, vui lòng thử lại sau hoặc liên hệ Thắng để được hỗ trợ.
+        ///   Looks up a localized string similar to Có lỗi xảy ra trong quá trình xóa, vui lòng thử lại sau hoặc liên hệ để được hỗ trợ.
         /// </summary>
         internal static string DeleteErr {
             get {

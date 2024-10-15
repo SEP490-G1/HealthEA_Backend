@@ -35,5 +35,21 @@ namespace Domain.Interfaces.IServices
         /// <param name="profile">info common health profile</param>
         /// <returns></returns>
         public ServiceResult AddNewHealthProfile(ClaimsPrincipal claims, HealthProfileInput profile);
+        /// <summary>
+        /// remove health profile for owner
+        /// </summary>
+        /// <param name="claims"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ServiceResult RemoveHealthProfile(ClaimsPrincipal claims, Guid id);
+        /// <summary>
+        /// update Share
+        /// </summary>
+        /// <param name="claims"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public ServiceResult UpdateShareHealthProfil(ClaimsPrincipal claims, Guid id, int stone);
+
+
     }
 }

@@ -43,7 +43,26 @@ namespace Infrastructure.Repositories
 
         public HealthProfile HealthProfileDetailbyID(Guid id)
         {
-            throw new NotImplementedException();
+            var healthProfile = _context.HealthProfiles.FirstOrDefault(x => x.Id == id);
+            return healthProfile;
+        }
+
+        public int RemoveHealthProfile(Guid id)
+        {
+            // Lấy danh sách các bản ghi liên quan cần xóa
+            var relatedRecords = _context.DocumentProfiles.Where(r => r.PantientId == id);
+            var real = HealthProfileDetailbyID(id);
+            // Xóa các bản ghi liên quan
+            _context.DocumentProfiles.RemoveRange(relatedRecords);
+            _context.HealthProfiles.RemoveRange(real);
+            return _context.SaveChanges();
+        }
+
+        public int ShareHealthProfile(Guid id, int stone)
+        {
+            var real = HealthProfileDetailbyID(id);
+            real.SharedStatus = stone;
+            return _context.SaveChanges();
         }
     }
 }

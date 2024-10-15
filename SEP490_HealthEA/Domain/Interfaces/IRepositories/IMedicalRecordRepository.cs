@@ -25,5 +25,17 @@ namespace Domain.Interfaces.IRepositories
         /// <param name="healthProfile">healprofile</param>
         /// <returns>row change</returns>
         public int AddNewHealthProfile(HealthProfile healthProfile);
+        /// <summary>
+        /// remove delete health profile
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public int RemoveHealthProfile(Guid id);
+        /// <summary>
+        /// update share
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public int ShareHealthProfile(Guid id, int stone);
     }
 }

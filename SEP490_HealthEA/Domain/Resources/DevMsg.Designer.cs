@@ -79,6 +79,15 @@ namespace Domain.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bạn không có quyền.
+        /// </summary>
+        public static string AuthorizeErr {
+            get {
+                return ResourceManager.GetString("AuthorizeErr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Xóa thành công.
         /// </summary>
         public static string DeleteSucess {
@@ -93,6 +102,15 @@ namespace Domain.Resources {
         public static string EmployeeNotFound {
             get {
                 return ResourceManager.GetString("EmployeeNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Lấy lỗi.
+        /// </summary>
+        public static string GetError {
+            get {
+                return ResourceManager.GetString("GetError", resourceCulture);
             }
         }
         

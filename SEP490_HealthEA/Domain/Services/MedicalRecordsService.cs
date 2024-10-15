@@ -34,6 +34,7 @@ namespace Domain.Services
             _userRepository = userRepository;
             //auto mapper
             var _config = new MapperConfiguration(cfg => cfg.CreateMap<HealthProfile, HealthProfileOutput>().ReverseMap());
+
             _HealprofileMapper = new Mapper(_config);
         }
         #endregion
@@ -51,9 +52,18 @@ namespace Domain.Services
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             if (_username == null)
             {
-                throw new Exception("Username is null");
+                return "";
             }
             return _username;
+        }
+        private string claimRole(ClaimsPrincipal claim)
+        {
+            string? role = claim.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            if (role == null)
+            {
+                return "";
+            }
+            return role;
         }
         private Guid claimId(ClaimsPrincipal claim)
         {
@@ -98,7 +108,57 @@ namespace Domain.Services
 
         public ServiceResult GetCommonInfoHealProfileById(ClaimsPrincipal claim, Guid id)
         {
-            throw new NotImplementedException();
+            string devMsg = DevMsg.GetSuccess;
+            string userMsg = UserMsg.GetSuccess;
+            HealthProfile res = null;
+            HttpStatusCode hr = HttpStatusCode.OK;
+            // - lấy health profile
+            var healthProfile = _repository.HealthProfileDetailbyID(id);
+            // - kiểm tra người dùng có phải tác giả không
+            // + lấy id người dùng
+            Guid idUser = claimId(claim);
+            // + kiểm tra có phải tác giả không
+            if (healthProfile.UserId == idUser || healthProfile.SharedStatus == 3)
+            {
+                //   -  nếu có trả về health profile
+                res = healthProfile;
+            }
+            //   -  nếu không kiểm trạng thái share của health profile
+            //       - nếu trạng thái public trả về health profile (share == 3)
+            else
+            {
+                //       - nếu trạng thái private thì báo lỗi (share == 0)
+                if (healthProfile.SharedStatus == 0)
+                {
+                    return new ServiceResult()
+                    {
+                        devMsg = DevMsg.AuthorizeErr,
+                        userMsg = UserMsg.AuthorizeErr,
+                        statusCode = hr,
+                        data = null
+                    };
+                }
+                //lấy role User
+                string role = claimRole(claim);
+                //       - nếu trạng thái only doctor kiem tra có phải doctor không và trả về lỗi (share == 1)
+                if (healthProfile.SharedStatus == 1 && role != "Doctor")
+                {
+                    throw new UnauthorizedAccessException("You do not have access!");
+                }
+                //       - nếu trạng thái only user trả kiểm tra (share == 2)
+                if (healthProfile.SharedStatus == 2 && (role != "Doctor" || role != "User"))
+                {
+                    throw new UnauthorizedAccessException("You do not have access!");
+                }
+            }
+            var ress = _HealprofileMapper.Map<HealthProfile, HealthProfileOutput>(res);
+            return new ServiceResult()
+            {
+                devMsg = devMsg,
+                userMsg = userMsg,
+                statusCode = hr,
+                data = ress
+            };
         }
 
         private KeyValuePair<HealthProfileInput, bool> validateProfile(HealthProfileInput profile)
@@ -145,7 +205,7 @@ namespace Domain.Services
 #pragma warning disable CS8601 // Possible null reference assignment.
             HealthProfile p = new HealthProfile
             {
-                PantientId = new Guid(),
+                Id = new Guid(),
                 UserId = claimId(claims),
                 ProfileCode = "abc",
                 FullName = profile.FullName,
@@ -161,18 +221,91 @@ namespace Domain.Services
 #pragma warning restore CS8601 // Possible null reference assignment.
             var res = _repository.AddNewHealthProfile(p);
             // create result
-            if(res <= 0)
+            if (res <= 0)
             {
                 devMsg = DevMsg.AddErr;
                 userMsg = UserMsg.AddErr;
                 statusCode = HttpStatusCode.NotImplemented;
-                
+
             }
             ServiceResult result = new ServiceResult()
             {
                 devMsg = devMsg,
                 userMsg = userMsg,
                 statusCode = statusCode,
+                data = res
+            };
+
+            return result;
+        }
+
+        public ServiceResult RemoveHealthProfile(ClaimsPrincipal claims, Guid id)
+        {
+            string devMsg = DevMsg.DeleteSucess;
+            string userMsg = UserMsg.DeleteSucess;
+            HttpStatusCode hr = HttpStatusCode.OK;
+            Guid idUser = claimId(claims);
+            int res = 0;
+            // - lấy health profile
+            var healthProfile = _repository.HealthProfileDetailbyID(id);
+            if (healthProfile == null)
+            {
+                devMsg = DevMsg.DeleteSucess;
+                userMsg = UserMsg.DeleteErr;
+                hr = HttpStatusCode.BadRequest;
+            }
+            else
+            {
+                // + kiểm tra có phải tác giả không
+                if (healthProfile.UserId != idUser)
+                {
+                    throw new UnauthorizedAccessException("You do not have access!");
+                }
+                // xóa hết
+                res = _repository.RemoveHealthProfile(id);
+            }
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = devMsg,
+                userMsg = userMsg,
+                statusCode = hr,
+                data = res
+            };
+
+            return result;
+        }
+
+        public ServiceResult UpdateShareHealthProfil(ClaimsPrincipal claims, Guid id, int stone)
+        {
+
+            string devMsg = DevMsg.UpdateSuccess;
+            string userMsg = UserMsg.UpdateSuccess;
+            HttpStatusCode hr = HttpStatusCode.OK;
+            Guid idUser = claimId(claims);
+            int res = 0;
+            // - lấy health profile
+            var healthProfile = _repository.HealthProfileDetailbyID(id);
+            if (healthProfile == null)
+            {
+                devMsg = DevMsg.DeleteSucess;
+                userMsg = UserMsg.DeleteErr;
+                hr = HttpStatusCode.BadRequest;
+            }
+            else
+            {
+                // + kiểm tra có phải tác giả không
+                if (healthProfile.UserId != idUser)
+                {
+                    throw new UnauthorizedAccessException("You do not have access!");
+                }
+                // xóa hết
+                res = _repository.ShareHealthProfile(id, stone);
+            }
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = devMsg,
+                userMsg = userMsg,
+                statusCode = hr,
                 data = res
             };
 

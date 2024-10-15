@@ -10,7 +10,7 @@ namespace Domain.Models
 {
     public class HealthProfileOutput
     {
-        public Guid? PantientId { get; set; }
+        public Guid? Id { get; set; }
         public Guid? UserId { get; set; }
         public string? ProfileCode { get; set; }
         public string? FullName { get; set; }

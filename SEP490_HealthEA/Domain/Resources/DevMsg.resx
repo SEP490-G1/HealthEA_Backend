@@ -123,11 +123,17 @@
   <data name="AddSuccess" xml:space="preserve">
     <value>Thêm thành công</value>
   </data>
+  <data name="AuthorizeErr" xml:space="preserve">
+    <value>Bạn không có quyền</value>
+  </data>
   <data name="DeleteSucess" xml:space="preserve">
     <value>Xóa thành công</value>
   </data>
   <data name="EmployeeNotFound" xml:space="preserve">
     <value>Mã nhân viên không tồn tại</value>
+  </data>
+  <data name="GetError" xml:space="preserve">
+    <value>Lấy lỗi</value>
   </data>
   <data name="GetSuccess" xml:space="preserve">
     <value>Lấy dữ liệu thành công</value>
