@@ -79,7 +79,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("PantientId");
 
                     b.ToTable("DocumentProfiles");
-                });
+                }));
 
             modelBuilder.Entity("Domain.Models.Entities.HealthProfile", b =>
                 {

@@ -27,9 +27,7 @@ namespace Infrastructure.SQLServer
         public DbSet<DocumentProfile> DocumentProfiles { get; set; }
         public DbSet<HealthProfile> HealthProfiles { get; set; }
         public DbSet<User> User { get; set; }
-        public DbSet<Person> Persons { get; set; }
-        public DbSet<Room> Rooms { get; set; }
-		public DbSet<Image> Images { get; set; }
+        public DbSet<Image> Images { get; set; }
 
         /// <summary>
         /// config sqlserver    
@@ -45,17 +43,9 @@ namespace Infrastructure.SQLServer
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Person>()
-            .HasOne(d => d.Room)
-            .WithMany(u => u.Persons)
-            .HasForeignKey(d => d.roomId);
             modelBuilder.Entity<Image>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
-
-
-		}
-
             modelBuilder.Entity<DocumentProfile>()
             .HasOne(d => d.PatientProfile)
             .WithMany(u => u.MedicalRecords)
@@ -69,6 +59,7 @@ namespace Infrastructure.SQLServer
                 .OnDelete(DeleteBehavior.NoAction);
 
         }
+
 
 
     }
