@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +24,9 @@ namespace Infrastructure.SQLServer
         /// <summary>
         /// Create DB set for Entities
         /// </summary>
+        public DbSet<DocumentProfile> DocumentProfiles { get; set; }
+        public DbSet<HealthProfile> HealthProfiles { get; set; }
+        public DbSet<User> User { get; set; }
         public DbSet<Person> Persons { get; set; }
         public DbSet<Room> Rooms { get; set; }
 		public DbSet<Image> Images { get; set; }
@@ -51,6 +55,20 @@ namespace Infrastructure.SQLServer
 
 
 		}
+
+            modelBuilder.Entity<DocumentProfile>()
+            .HasOne(d => d.PatientProfile)
+            .WithMany(u => u.MedicalRecords)
+            .HasForeignKey(d => d.PantientId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<HealthProfile>()
+                .HasOne(d => d.User)
+                .WithMany(u => u.PatientProfiles)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+        }
 
 
     }
