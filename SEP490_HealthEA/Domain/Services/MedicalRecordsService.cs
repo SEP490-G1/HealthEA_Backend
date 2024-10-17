@@ -4,6 +4,7 @@ using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
 using Domain.Models;
 using Domain.Models.Common;
+using Domain.Models.DAO;
 using Domain.Models.Entities;
 using Domain.Resources;
 using Microsoft.Extensions.Options;
@@ -18,6 +19,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static System.Formats.Asn1.AsnWriter;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Domain.Services
 {
@@ -162,8 +165,8 @@ namespace Domain.Services
                     throw new UnauthorizedAccessException("You do not have access!");
                 }
             }
-      
-            var ress = (res == null)? null:_HealprofileMapper.Map<HealthProfile, HealthProfileOutput>(res);
+
+            var ress = (res == null) ? null : _HealprofileMapper.Map<HealthProfile, HealthProfileOutput>(res);
             return new ServiceResult()
             {
                 devMsg = devMsg,
@@ -287,7 +290,7 @@ namespace Domain.Services
             return result;
         }
 
-        public ServiceResult UpdateShareHealthProfil(ClaimsPrincipal claims, Guid id, int stone)
+        public ServiceResult UpdateShareHealthProfile(ClaimsPrincipal claims, Guid id, int stone)
         {
             string devMsg = DevMsg.UpdateSuccess;
             string userMsg = UserMsg.UpdateSuccess;
@@ -312,6 +315,99 @@ namespace Domain.Services
                 // xóa hết
                 res = _repository.ShareHealthProfile(id, stone);
             }
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = devMsg,
+                userMsg = userMsg,
+                statusCode = hr,
+                data = res
+            };
+
+            return result;
+        }
+
+        public ServiceResult UpdateInfoHealthProfile(ClaimsPrincipal claims, Guid id, HealthProfileInput profile)
+        {
+            string devMsg = DevMsg.UpdateSuccess;
+            string userMsg = UserMsg.UpdateSuccess;
+            HttpStatusCode hr = HttpStatusCode.OK;
+            Guid idUser = claimId(claims);
+            int res = 0;
+            // - lấy health profile
+            var healthProfile = _repository.HealthProfileDetailbyID(id);
+            if (healthProfile == null)
+            {
+                devMsg = DevMsg.DeleteSucess;
+                userMsg = UserMsg.DeleteErr;
+                hr = HttpStatusCode.BadRequest;
+            }
+            else
+            {
+                // + kiểm tra có phải tác giả không
+                if (healthProfile.UserId != idUser)
+                {
+                    throw new UnauthorizedAccessException("You do not have access!");
+                }
+                if(profile.FullName == null)
+                {
+              
+                    return new ServiceResult()
+                    {
+                        devMsg = DevMsg.AddErr,
+                        userMsg = UserMsg.AddErr,
+                        statusCode = HttpStatusCode.BadRequest,
+                        data = "Không được để fullname trống"
+                    }; ;
+                }
+                
+                healthProfile.FullName = profile.FullName;
+
+                healthProfile.DateOfBirth = profile.DateOfBirth;
+
+                healthProfile.Note = profile.Note;
+
+                healthProfile.Residence = profile.Residence;
+
+                healthProfile.Gender = profile.Gender;
+
+                res = _repository.UpdateHealthProfile(healthProfile, id);
+            }
+            if (res == 0)
+            {
+                devMsg = DevMsg.DeleteSucess;
+                userMsg = UserMsg.DeleteErr;
+                hr = HttpStatusCode.BadRequest;
+            }
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = devMsg,
+                userMsg = userMsg,
+                statusCode = hr,
+                data = res
+            };
+
+            return result;
+        }
+
+        public ServiceResult createDocumentProfile(ClaimsPrincipal claims, DocumentProfileInputDAO profile)
+        {
+            string devMsg = DevMsg.UpdateSuccess;
+            string userMsg = UserMsg.UpdateSuccess;
+            HttpStatusCode hr = HttpStatusCode.OK;
+            Guid idUser = claimId(claims);
+            DocumentProfile doc = new DocumentProfile()
+            {
+                Id = Guid.NewGuid(),
+                UserId = idUser,
+                PantientId = profile.HealthProfileId,
+                Type = profile.Type,
+                ContentMedical = profile.ContentMedical,
+                Image = profile.Image,
+                CreateDate = DateTime.Now,
+                LastModifyDate = DateTime.Now,
+                Status = 0, 
+            };
+            var res = _repository.CreateDocumentProfile(doc);
             ServiceResult result = new ServiceResult()
             {
                 devMsg = devMsg,

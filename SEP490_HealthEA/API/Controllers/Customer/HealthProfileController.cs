@@ -35,9 +35,10 @@ namespace API.Controllers.Customer
             return Ok(serviceResult);
         }
         [HttpPatch ("{id}")]
-        public IActionResult updateHealthProfile([FromBody] HealthProfileInput profile)
+        public IActionResult updateHealthProfile(Guid id, [FromBody] HealthProfileInput profile)
         {
-            return Ok();
+            var serviceResult = _medicalRecordsServices.UpdateInfoHealthProfile(User, id, profile);
+            return Ok(serviceResult);
         }
         [HttpDelete("{id}")]
         public IActionResult removeHealthProfile(Guid id)
@@ -49,7 +50,7 @@ namespace API.Controllers.Customer
         public IActionResult updateShareHealthProfile(Guid id, [FromBody] int stone)
         {
 
-            var serviceResult = _medicalRecordsServices.UpdateShareHealthProfil(User, id, stone);
+            var serviceResult = _medicalRecordsServices.UpdateShareHealthProfile(User, id, stone);
             return Ok(serviceResult);
         }
         

@@ -92,7 +92,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Version = "v1",
         Title = "HealthEA API for Group 1",
-        Description = "This is Token user: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiSmFuZVNtaXRoIiwianRpIjoiNWVmZDdjOWItNDI5NS00NjM4LThiOWYtMmQwY2ZlMTI4NjY0IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiVXNlciIsImV4cCI6MjMyODQxNjA4OSwiaXNzIjoiUTEiLCJhdWQiOiJRMSJ9.LtsIsOniGTKAP1Lv_s0IpmRBot8XeOVzon4gI8KanTc ",
+        Description = "This is Token user: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoieW91cl91c2VybmFtZSIsImp0aSI6IjA3NWNmZDQ3LTVlMTctNDgyMC05ZDA5LTU4YzVmZjFlNGUwNSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkNVU1RPTUVSIiwiZXhwIjoyMzI5MTA3NjQ2LCJpc3MiOiJRMSIsImF1ZCI6IlExIn0.we9WaVL9tlQ30p_eYihB_4uw1wRzNhsUa9XQDN_YNGA ",
        
     });
 
