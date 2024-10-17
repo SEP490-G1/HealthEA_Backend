@@ -23,11 +23,11 @@ public interface UserRepository extends JpaRepository<User, String> { //entity v
             "(:username IS NULL OR u.username LIKE '%' + :username + '%') AND " +
             "(:email IS NULL OR u.email LIKE '%' + :email + '%') AND " +
             "(:status IS NULL OR u.status LIKE '%' + :status + '%') AND " +
-            "(:role_id IS NULL OR u.role_id = :role_id)", nativeQuery = true)
+            "(:role_id IS NULL OR u.role LIKE '%' + :role_id + '%')", nativeQuery = true)
     List<User> findUsers(@Param("username") String username,
                          @Param("email") String email,
                          @Param("status") String status,
-                         @Param("role_id") Integer role_id);
+                         @Param("role_id") String role_id);
     @Query(value = "SELECT u.username FROM User u ")
     List<String> findAllUsername();
 

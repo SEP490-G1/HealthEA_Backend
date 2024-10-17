@@ -5,7 +5,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=HealthEA_SEP490_G1
+    url: jdbc:sqlserver://localhost:1433;databaseName=testDoan
     username: sa
     password: 123456
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
