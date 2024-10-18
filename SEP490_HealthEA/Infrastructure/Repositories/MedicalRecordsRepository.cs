@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Infrastructure.Repositories
 {
@@ -24,6 +25,12 @@ namespace Infrastructure.Repositories
             return _context.SaveChanges();
         }
 
+        public int CreateDocumentProfile(DocumentProfile doc)
+        {
+            _context.DocumentProfiles.Add(doc);
+            ; return _context.SaveChanges();
+        }
+
         public IList<HealthProfile> GetAllHealthProfileByUser(string username)
         {
             Guid userId = GetGuidByUserName(username);
@@ -31,9 +38,15 @@ namespace Infrastructure.Repositories
             return list;
         }
 
+        public DocumentProfile GetDocumentProfiles(int type, Guid id, Guid PantientId)
+        {
+            return _context.DocumentProfiles.FirstOrDefault(x => x.UserId == id && x.Type == type && x.PantientId == PantientId);
+
+        }
+
         public Guid GetGuidByUserName(string userName)
         {
-            var user = _context.User.FirstOrDefault(x => x.UserName == userName);
+            var user = _context.User.FirstOrDefault(x => x.Username == userName);
             if (user == null)
             {
                 return Guid.Empty;
@@ -41,9 +54,13 @@ namespace Infrastructure.Repositories
             return user.UserId;
         }
 
-        public HealthProfile HealthProfileDetailbyID(Guid id)
+        public HealthProfile? HealthProfileDetailbyID(Guid id)
         {
             var healthProfile = _context.HealthProfiles.FirstOrDefault(x => x.Id == id);
+            if (healthProfile == null)
+            {
+                return null;
+            }
             return healthProfile;
         }
 
@@ -52,6 +69,10 @@ namespace Infrastructure.Repositories
             // Lấy danh sách các bản ghi liên quan cần xóa
             var relatedRecords = _context.DocumentProfiles.Where(r => r.PantientId == id);
             var real = HealthProfileDetailbyID(id);
+            if (real == null)
+            {
+                return 0;
+            }
             // Xóa các bản ghi liên quan
             _context.DocumentProfiles.RemoveRange(relatedRecords);
             _context.HealthProfiles.RemoveRange(real);
@@ -61,7 +82,37 @@ namespace Infrastructure.Repositories
         public int ShareHealthProfile(Guid id, int stone)
         {
             var real = HealthProfileDetailbyID(id);
+            if (real == null)
+            {
+                return 0;
+            }
             real.SharedStatus = stone;
+            return _context.SaveChanges();
+        }
+
+        public int UpdateHealthProfile(HealthProfile healthProfile, Guid id)
+        {
+            var entity = _context.HealthProfiles.FirstOrDefault(item => item.Id == id);
+
+            if (entity != null)
+            {
+                // Answer for question #2
+
+                // Make changes on entity
+
+                entity.FullName = healthProfile.FullName;
+                entity.DateOfBirth = healthProfile.DateOfBirth;
+                entity.Gender = healthProfile.Gender;
+                entity.Residence = healthProfile.Residence;
+                entity.Note = healthProfile.Note;
+                /* If the entry is being tracked, then invoking update API is not needed. 
+                  The API only needs to be invoked if the entry was not tracked. 
+                  https://www.learnentityframeworkcore.com/dbcontext/modifying-data */
+                // context.Products.Update(entity);
+
+                // Save changes in database
+                return _context.SaveChanges();
+            }
             return _context.SaveChanges();
         }
     }

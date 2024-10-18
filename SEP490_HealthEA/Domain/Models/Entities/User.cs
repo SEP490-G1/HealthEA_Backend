@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -9,17 +10,28 @@ namespace Domain.Models.Entities
 {
     public class User
     {
-        [Key]
         public Guid UserId { get; set; }
-        [Required]
-        public required string UserName { get; set; }
-        [Required]
-        public required string Password { get; set; }
-        [Required]
-        public required string LName { get; set; }
-        public string? FName { get; set; }
-        public DateOnly DateOfBirth { get; set; }
-        public int Gender { get; set; }
-        public virtual ICollection<HealthProfile> PatientProfiles { get; set; } = new List<HealthProfile>();
+
+        public DateOnly? Dob { get; set; }
+
+        public string Email { get; set; } = null!;
+
+        public string? FirstName { get; set; }
+
+        public bool? Gender { get; set; }
+
+        public string? LastName { get; set; }
+
+        public string Password { get; set; } = null!;
+
+        public string? Phone { get; set; }
+
+        public string? Role { get; set; }
+
+        public string? Status { get; set; }
+
+        public string Username { get; set; } = null!;
+        public virtual ICollection<HealthProfile>? healthProfile { get; set; } = new List<HealthProfile>();
     }
 }
+

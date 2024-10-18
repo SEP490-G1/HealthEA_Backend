@@ -19,7 +19,10 @@ import java.time.LocalDate;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+
+
     @Column(name = "user_id", columnDefinition = "uniqueidentifier")
+
     String id;
     @Column(name = "username", nullable = false, unique = true)
     String username;

@@ -17,7 +17,7 @@ namespace Domain.Interfaces.IRepositories
         /// @author: thuyht/gitzno
         /// @date: 06/10/2024
         public IList<HealthProfile> GetAllHealthProfileByUser(string userName);
-        public HealthProfile HealthProfileDetailbyID(Guid id);
+        public HealthProfile? HealthProfileDetailbyID(Guid id);
         public Guid GetGuidByUserName(string userName);
         /// <summary>
         /// Add new health profile
@@ -37,5 +37,14 @@ namespace Domain.Interfaces.IRepositories
         /// <param name="id"></param>
         /// <returns></returns>
         public int ShareHealthProfile(Guid id, int stone);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="healthProfile"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public int UpdateHealthProfile(HealthProfile healthProfile, Guid id);
+        public DocumentProfile GetDocumentProfiles(int type, Guid id, Guid PantientId);
+        public int CreateDocumentProfile(DocumentProfile doc);
     }
 }

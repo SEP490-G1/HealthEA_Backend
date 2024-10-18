@@ -54,7 +54,7 @@ namespace Infrastructure.SQLServer
 
             modelBuilder.Entity<HealthProfile>()
                 .HasOne(d => d.User)
-                .WithMany(u => u.PatientProfiles)
+                .WithMany(u => u.healthProfile)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
