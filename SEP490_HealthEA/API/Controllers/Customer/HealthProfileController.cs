@@ -27,14 +27,14 @@ namespace API.Controllers.Customer
             return Ok(s);
         }
 
-        
+
         [HttpPost]
         public IActionResult addNewHealthProfile([FromBody] HealthProfileInput profile)
         {
             var serviceResult = _medicalRecordsServices.AddNewHealthProfile(User, profile);
             return Ok(serviceResult);
         }
-        [HttpPatch ("{id}")]
+        [HttpPatch("{id}")]
         public IActionResult updateHealthProfile(Guid id, [FromBody] HealthProfileInput profile)
         {
             var serviceResult = _medicalRecordsServices.UpdateInfoHealthProfile(User, id, profile);
@@ -46,13 +46,13 @@ namespace API.Controllers.Customer
             var serviceResult = _medicalRecordsServices.RemoveHealthProfile(User, id);
             return Ok(serviceResult);
         }
-        [HttpPatch ("share/{id}")]
+        [HttpPatch("share/{id}")]
         public IActionResult updateShareHealthProfile(Guid id, [FromBody] int stone)
         {
 
             var serviceResult = _medicalRecordsServices.UpdateShareHealthProfile(User, id, stone);
             return Ok(serviceResult);
         }
-        
+
     }
 }

@@ -25,7 +25,7 @@ namespace API.Controllers.Customer
         [HttpGet("{id}")]
         public IActionResult getDocumentProfile(Guid id, int type)
         {
-            return Ok(_repository.GetDocumentProfiles(type, new Guid("3fc1b4f5-9a23-4edb-8ee0-132d92471c3d"), id));
+            return Ok();
         }
 
 

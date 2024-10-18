@@ -46,7 +46,7 @@ namespace Infrastructure.Repositories
 
         public Guid GetGuidByUserName(string userName)
         {
-            var user = _context.User.FirstOrDefault(x => x.UserName == userName);
+            var user = _context.User.FirstOrDefault(x => x.Username == userName);
             if (user == null)
             {
                 return Guid.Empty;

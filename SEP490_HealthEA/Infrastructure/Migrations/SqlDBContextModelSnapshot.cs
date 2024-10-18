@@ -110,8 +110,8 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly?>("Dob")
+                        .HasColumnType("date");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -124,7 +124,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
@@ -135,14 +134,12 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserName")
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -165,7 +162,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Models.Entities.HealthProfile", b =>
                 {
                     b.HasOne("Domain.Models.Entities.User", "User")
-                        .WithMany("PatientProfiles")
+                        .WithMany("healthProfile")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -180,7 +177,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.User", b =>
                 {
-                    b.Navigation("PatientProfiles");
+                    b.Navigation("healthProfile");
                 });
 #pragma warning restore 612, 618
         }
