@@ -43,7 +43,9 @@ public class UserService {
             }
 
             request.setPassword(passwordEncoder.encode(request.getPassword()));
-            request.setRole(Role.ADMIN);
+
+            request.setRole(Role.CUSTOMER);
+
             request.setStatus(Status.INACTIVE);
 
             User user = userMapper.toUser(request);
@@ -101,6 +103,7 @@ public class UserService {
     }
 
     public List<UserResponse> searchUsers(String username, String email, String status, String role) {
+
         int roleId;
         if(!role.isEmpty()){
             roleId = Integer.parseInt(role);
@@ -108,6 +111,7 @@ public class UserService {
         }else{
             return userRepository.findUsers(username, email, status, null).stream().map(userMapper::toUserResponse).toList();
         }
+
 
     }
 
