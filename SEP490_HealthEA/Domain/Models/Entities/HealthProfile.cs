@@ -9,6 +9,8 @@ namespace Domain.Models.Entities
 {
     public class HealthProfile
     {
+
+
         [Key]
         public Guid Id { get; set; }
         public Guid UserId { get; set; }

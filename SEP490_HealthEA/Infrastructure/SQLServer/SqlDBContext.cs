@@ -1,5 +1,6 @@
 ﻿using Domain.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -26,6 +27,7 @@ namespace Infrastructure.SQLServer
         public DbSet<DocumentProfile> DocumentProfiles { get; set; }
         public DbSet<HealthProfile> HealthProfiles { get; set; }
         public DbSet<User> User { get; set; }
+        public DbSet<Image> Images { get; set; }
 
         /// <summary>
         /// config sqlserver    
@@ -33,12 +35,17 @@ namespace Infrastructure.SQLServer
         /// <param name="optionsBuilder"></param>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
-        }
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Server=(local);Database=devEnv;TrustServerCertificate=True;Trusted_Connection=True;");
+            } }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            modelBuilder.Entity<Image>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
             modelBuilder.Entity<DocumentProfile>()
             .HasOne(d => d.PatientProfile)
             .WithMany(u => u.MedicalRecords)
@@ -47,11 +54,12 @@ namespace Infrastructure.SQLServer
 
             modelBuilder.Entity<HealthProfile>()
                 .HasOne(d => d.User)
-                .WithMany(u => u.PatientProfiles)
+                .WithMany(u => u.healthProfile)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
         }
+
 
 
     }

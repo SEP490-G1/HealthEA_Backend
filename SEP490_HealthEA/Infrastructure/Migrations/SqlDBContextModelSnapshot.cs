@@ -104,30 +104,63 @@ namespace Infrastructure.Migrations
                     b.ToTable("HealthProfiles");
                 });
 
+            modelBuilder.Entity("Domain.Models.Entities.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Images");
+                });
+
             modelBuilder.Entity("Domain.Models.Entities.User", b =>
                 {
                     b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateOnly>("DateOfBirth")
+                    b.Property<DateOnly?>("Dob")
                         .HasColumnType("date");
 
-                    b.Property<string>("FName")
+                    b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Gender")
-                        .HasColumnType("int");
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LName")
-                        .IsRequired()
+                    b.Property<bool?>("Gender")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserName")
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -150,7 +183,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Models.Entities.HealthProfile", b =>
                 {
                     b.HasOne("Domain.Models.Entities.User", "User")
-                        .WithMany("PatientProfiles")
+                        .WithMany("healthProfile")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -165,7 +198,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.User", b =>
                 {
-                    b.Navigation("PatientProfiles");
+                    b.Navigation("healthProfile");
                 });
 #pragma warning restore 612, 618
         }

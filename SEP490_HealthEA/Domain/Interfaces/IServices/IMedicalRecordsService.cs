@@ -1,5 +1,6 @@
 ﻿using Domain.Models;
 using Domain.Models.Common;
+using Domain.Models.DAO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +49,9 @@ namespace Domain.Interfaces.IServices
         /// <param name="claims"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public ServiceResult UpdateShareHealthProfil(ClaimsPrincipal claims, Guid id, int stone);
+        public ServiceResult UpdateShareHealthProfile(ClaimsPrincipal claims, Guid id, int stone);
+        public ServiceResult UpdateInfoHealthProfile(ClaimsPrincipal claims, Guid id, HealthProfileInput profile);
+        public ServiceResult createDocumentProfile(ClaimsPrincipal claims, DocumentProfileInputDAO profile);
 
 
     }
