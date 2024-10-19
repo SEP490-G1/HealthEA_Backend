@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Interfaces.IServices;
 using Domain.Models;
+using Domain.Models.DAO;
 using Domain.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,13 +30,13 @@ namespace API.Controllers.Customer
 
 
         [HttpPost]
-        public IActionResult addNewHealthProfile([FromBody] HealthProfileInput profile)
+        public IActionResult addNewHealthProfile([FromBody] HealthProfileInputDAO profile)
         {
             var serviceResult = _medicalRecordsServices.AddNewHealthProfile(User, profile);
             return Ok(serviceResult);
         }
         [HttpPatch("{id}")]
-        public IActionResult updateHealthProfile(Guid id, [FromBody] HealthProfileInput profile)
+        public IActionResult updateHealthProfile(Guid id, [FromBody] HealthProfileInputDAO profile)
         {
             var serviceResult = _medicalRecordsServices.UpdateInfoHealthProfile(User, id, profile);
             return Ok(serviceResult);
@@ -49,7 +50,6 @@ namespace API.Controllers.Customer
         [HttpPatch("share/{id}")]
         public IActionResult updateShareHealthProfile(Guid id, [FromBody] int stone)
         {
-
             var serviceResult = _medicalRecordsServices.UpdateShareHealthProfile(User, id, stone);
             return Ok(serviceResult);
         }

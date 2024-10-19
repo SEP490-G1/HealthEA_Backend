@@ -1,9 +1,11 @@
 ﻿using Domain.Interfaces.IRepositories;
 using Domain.Models.Entities;
 using Infrastructure.SQLServer;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -13,10 +15,11 @@ namespace Infrastructure.Repositories
     public class MedicalRecordsRepository : IMedicalRecordRepository
     {
         private SqlDBContext _context;
-
-        public MedicalRecordsRepository(SqlDBContext context)
+        private IUserRepository _userContext;
+        public MedicalRecordsRepository(SqlDBContext context, IUserRepository user)
         {
             _context = context;
+            _userContext = user;
         }
 
         public int AddNewHealthProfile(HealthProfile healthProfile)
@@ -33,26 +36,26 @@ namespace Infrastructure.Repositories
 
         public IList<HealthProfile> GetAllHealthProfileByUser(string username)
         {
-            Guid userId = GetGuidByUserName(username);
+            Guid userId = _userContext.GetGuidByUserName(username);
+            if (userId == Guid.Empty)
+            {
+                return new List<HealthProfile>();
+            }
             var list = _context.HealthProfiles.Where(x => x.UserId == userId).ToList();
             return list;
         }
 
         public DocumentProfile GetDocumentProfiles(int type, Guid id, Guid PantientId)
         {
-            return _context.DocumentProfiles.FirstOrDefault(x => x.UserId == id && x.Type == type && x.PantientId == PantientId);
-
-        }
-
-        public Guid GetGuidByUserName(string userName)
-        {
-            var user = _context.User.FirstOrDefault(x => x.Username == userName);
-            if (user == null)
+            var doc = _context.DocumentProfiles.FirstOrDefault(x => x.UserId == id && x.Type == type && x.PantientId == PantientId);
+            if (doc == null)
             {
-                return Guid.Empty;
+
+                return new DocumentProfile();
             }
-            return user.UserId;
+            return doc;
         }
+
 
         public HealthProfile? HealthProfileDetailbyID(Guid id)
         {

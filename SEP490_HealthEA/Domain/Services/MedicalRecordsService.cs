@@ -37,7 +37,7 @@ namespace Domain.Services
             _repository = medicalRecordRepository;
             _userRepository = userRepository;
             //auto mapper
-            var _config = new MapperConfiguration(cfg => cfg.CreateMap<HealthProfile, HealthProfileOutput>().ReverseMap());
+            var _config = new MapperConfiguration(cfg => cfg.CreateMap<HealthProfile, HealthProfileOutputDAO>().ReverseMap());
 
             _HealprofileMapper = new Mapper(_config);
         }
@@ -75,7 +75,7 @@ namespace Domain.Services
             var _username = claimAccount(claim);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
-            var guid = _userRepository.GetIdUserByUserName(_username);
+            var guid = _userRepository.GetGuidByUserName(_username);
             return guid;
         }
         #endregion
@@ -87,7 +87,7 @@ namespace Domain.Services
             IList<HealthProfile> list = _repository.GetAllHealthProfileByUser(userName);
             string devMsg = DevMsg.GetSuccess;
             string userMsg = UserMsg.GetSuccess;
-            IList<HealthProfileOutput> listResult = new List<HealthProfileOutput>();
+            IList<HealthProfileOutputDAO> listResult = new List<HealthProfileOutputDAO>();
             // if list null userMsg change
             if (!list.Any())
             {
@@ -96,7 +96,7 @@ namespace Domain.Services
             else
             {
                 //mapping 
-                listResult = _HealprofileMapper.Map<List<HealthProfile>, List<HealthProfileOutput>>((List<HealthProfile>)list);
+                listResult = _HealprofileMapper.Map<List<HealthProfile>, List<HealthProfileOutputDAO>>((List<HealthProfile>)list);
             }
             // create result
             ServiceResult result = new ServiceResult()
@@ -166,7 +166,7 @@ namespace Domain.Services
                 }
             }
 
-            var ress = (res == null) ? null : _HealprofileMapper.Map<HealthProfile, HealthProfileOutput>(res);
+            var ress = (res == null) ? null : _HealprofileMapper.Map<HealthProfile, HealthProfileOutputDAO>(res);
             return new ServiceResult()
             {
                 devMsg = devMsg,
@@ -176,7 +176,7 @@ namespace Domain.Services
             };
         }
 
-        private KeyValuePair<HealthProfileInput, bool> validateProfile(HealthProfileInput profile)
+        private KeyValuePair<HealthProfileInputDAO, bool> validateProfile(HealthProfileInputDAO profile)
         {
             bool prime = true;
             if (!(profile.Gender == 0 || profile.Gender == 1 || profile.Gender == 2))
@@ -194,9 +194,9 @@ namespace Domain.Services
                 profile.FullName = "Tên không được phép có số";
                 prime = false;
             }
-            return new KeyValuePair<HealthProfileInput, bool>(profile, prime);
+            return new KeyValuePair<HealthProfileInputDAO, bool>(profile, prime);
         }
-        public ServiceResult AddNewHealthProfile(ClaimsPrincipal claims, HealthProfileInput profile)
+        public ServiceResult AddNewHealthProfile(ClaimsPrincipal claims, HealthProfileInputDAO profile)
         {
             string devMsg = DevMsg.AddSuccess;
             string userMsg = UserMsg.AddSuccess;
@@ -326,7 +326,7 @@ namespace Domain.Services
             return result;
         }
 
-        public ServiceResult UpdateInfoHealthProfile(ClaimsPrincipal claims, Guid id, HealthProfileInput profile)
+        public ServiceResult UpdateInfoHealthProfile(ClaimsPrincipal claims, Guid id, HealthProfileInputDAO profile)
         {
             string devMsg = DevMsg.UpdateSuccess;
             string userMsg = UserMsg.UpdateSuccess;

@@ -19,7 +19,7 @@ namespace ImageOCRLibrary.Interpret
 		public IntepreterValueType ValueType { get; set; }
 		public List<string> Aliases { get; set; }
 
-		public IntepreterKey(string name, IntepreterValueType valueType, List<string> aliases = null)
+		public IntepreterKey(string name, IntepreterValueType valueType, List<string> aliases)
 		{
 			Name = name.ToLower();
 			ValueType = valueType;

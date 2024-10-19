@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{B03529E0-C5B2-47FE-B193-4F106B8C9BD6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageOCRLibrary", "ImageOCRLibrary\ImageOCRLibrary.csproj", "{ADC69BE4-0D51-41F3-AC25-DDD3A868C462}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{B03529E0-C5B2-47FE-B193-4F106B8C9BD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B03529E0-C5B2-47FE-B193-4F106B8C9BD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B03529E0-C5B2-47FE-B193-4F106B8C9BD6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ADC69BE4-0D51-41F3-AC25-DDD3A868C462}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ADC69BE4-0D51-41F3-AC25-DDD3A868C462}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ADC69BE4-0D51-41F3-AC25-DDD3A868C462}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ADC69BE4-0D51-41F3-AC25-DDD3A868C462}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -22,12 +22,26 @@ namespace API.Controllers.Customer
         }
 
         //get a docmuent profile record of o type 
-        [HttpGet("{id}")]
-        public IActionResult getDocumentProfile(Guid id, int type)
+        [HttpGet("{id}/{type}")]
+        public IActionResult getListDocumentProfile(Guid id, int type)
         {
             return Ok();
         }
-
+        /// <summary>
+        /// get document profile by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        public IActionResult GetDocumentProfilebyId(Guid id)
+        {
+            return Ok();
+        }
+        [HttpDelete("{id}")]
+        public IActionResult DeleteDocumentProfileById(Guid id)
+        {
+            return Ok();
+        }
 
         //create a healthProfile a type
         [HttpPost]
@@ -36,7 +50,11 @@ namespace API.Controllers.Customer
             var s = _medicalRecordsServices.createDocumentProfile(User, doc);
             return Ok(s);
         }
-        //edit a medical record 
-        //remove a medical record 
+        //edit a medical record
+        [HttpPut]
+        public IActionResult UpdateDocumentProfile(Guid id, DocumentProfileInputDAO doc)
+        {
+            return Ok();
+        }
     }
 }
