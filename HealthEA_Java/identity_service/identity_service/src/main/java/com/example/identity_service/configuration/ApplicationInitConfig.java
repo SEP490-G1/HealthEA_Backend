@@ -34,7 +34,6 @@ public class ApplicationInitConfig {
                         .role(Role.ADMIN)
                         .build();
 
-
                 userRepository.save(user);
                 log.warn("Admin user has been created with default password. Please change!");
             }
