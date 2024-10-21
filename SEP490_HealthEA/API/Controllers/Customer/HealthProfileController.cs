@@ -1,14 +1,15 @@
 ﻿using AutoMapper;
 using Domain.Interfaces.IServices;
 using Domain.Models;
+using Domain.Models.DAO;
 using Domain.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Customer
 {
-    [Authorize(Roles = "User")]
-    [Route("api/user/[controller]")]
+    [Authorize(Roles = "CUSTOMER")]
+    [Route("api/customer/[controller]")]
     [ApiController]
     public class HealthProfileController : BaseController
     {
@@ -19,6 +20,7 @@ namespace API.Controllers.Customer
         {
             _medicalRecordsServices = medicalRecordsServices;
         }
+
         [HttpGet]
         public IActionResult getAllHealProfile()
         {
@@ -26,17 +28,18 @@ namespace API.Controllers.Customer
             return Ok(s);
         }
 
-        
+
         [HttpPost]
-        public IActionResult addNewHealthProfile([FromBody] HealthProfileInput profile)
+        public IActionResult addNewHealthProfile([FromBody] HealthProfileInputDAO profile)
         {
             var serviceResult = _medicalRecordsServices.AddNewHealthProfile(User, profile);
             return Ok(serviceResult);
         }
-        [HttpPatch ("{id}")]
-        public IActionResult updateHealthProfile([FromBody] HealthProfileInput profile)
+        [HttpPatch("{id}")]
+        public IActionResult updateHealthProfile(Guid id, [FromBody] HealthProfileInputDAO profile)
         {
-            return Ok();
+            var serviceResult = _medicalRecordsServices.UpdateInfoHealthProfile(User, id, profile);
+            return Ok(serviceResult);
         }
         [HttpDelete("{id}")]
         public IActionResult removeHealthProfile(Guid id)
@@ -44,13 +47,12 @@ namespace API.Controllers.Customer
             var serviceResult = _medicalRecordsServices.RemoveHealthProfile(User, id);
             return Ok(serviceResult);
         }
-        [HttpPatch ("share/{id}")]
+        [HttpPatch("share/{id}")]
         public IActionResult updateShareHealthProfile(Guid id, [FromBody] int stone)
         {
-
-            var serviceResult = _medicalRecordsServices.UpdateShareHealthProfil(User, id, stone);
+            var serviceResult = _medicalRecordsServices.UpdateShareHealthProfile(User, id, stone);
             return Ok(serviceResult);
         }
-        
+
     }
 }
