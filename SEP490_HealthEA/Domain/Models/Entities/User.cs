@@ -31,7 +31,7 @@ namespace Domain.Models.Entities
         public string? Status { get; set; }
 
         public string Username { get; set; } = null!;
-        public virtual ICollection<HealthProfile>? healthProfile { get; set; } = new List<HealthProfile>();
+        public virtual ICollection<HealthProfile>? healthProfiles { get; set; } = new List<HealthProfile>();
     }
 }
 

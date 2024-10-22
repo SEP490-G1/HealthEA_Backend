@@ -23,6 +23,8 @@ namespace Infrastructure.SQLServer
 
         public virtual DbSet<User> Users { get; set; }
 
+        public DbSet<Image> Images { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
@@ -46,7 +48,7 @@ namespace Infrastructure.SQLServer
 
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.HasOne(d => d.User).WithMany(p => p.healthProfile)
+                entity.HasOne(d => d.User).WithMany(p => p.healthProfiles)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_HealthProfiles_User_UserId");
@@ -118,6 +120,6 @@ namespace Infrastructure.SQLServer
 
         }
 
-        
+
     }
 }

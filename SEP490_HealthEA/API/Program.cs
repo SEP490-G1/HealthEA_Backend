@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 
 using System;
 using System.Text;
+using Infrastructure.Services;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -66,10 +67,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 //
 
-builder.Services.Configure<AppSettingsOptions>(builder.Configuration.GetSection("TelegramSettings"));
-
-
-builder.Services.AddHttpClient();
 
 //config DB connection
 builder.Services.AddDbContext<SqlDBContext>(option =>
@@ -77,9 +74,12 @@ builder.Services.AddDbContext<SqlDBContext>(option =>
     var cnt = builder.Configuration.GetConnectionString("DBConnection");
     option.UseSqlServer(cnt);
 });
+
+
 //config service
+builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IMedicalRecordsService, MedicalRecordsService>();
-//config repo
 builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 //another
