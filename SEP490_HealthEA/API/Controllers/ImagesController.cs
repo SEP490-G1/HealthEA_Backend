@@ -4,6 +4,7 @@ using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
 namespace API.Controllers
 {
@@ -13,13 +14,11 @@ namespace API.Controllers
 	{
 		private readonly ICloudinaryService cloudinaryService;
 		private readonly IImageRepository imageRepository;
-		private readonly HttpClient httpClient;
 
-		public ImagesController(ICloudinaryService cloudinaryService, IImageRepository imageRepository, HttpClient httpClient)
+		public ImagesController(ICloudinaryService cloudinaryService, IImageRepository imageRepository)
 		{
 			this.cloudinaryService = cloudinaryService;
 			this.imageRepository = imageRepository;
-			this.httpClient = httpClient;
 		}
 
 		[HttpPost]
@@ -57,7 +56,7 @@ namespace API.Controllers
 			}
 			try
 			{
-				var response = await httpClient.GetAsync(image.ImageUrl);
+				var response = await new HttpClient().GetAsync(image.ImageUrl);
 				if (!response.IsSuccessStatusCode)
 				{
 					return BadRequest();
@@ -85,9 +84,8 @@ namespace API.Controllers
 		}
 
 	}
-
 	public class ImageUploadPostModel
 	{
-		public IList<IFormFile> Files { get; set; }
+		public required IList<IFormFile> Files { get; set; }
 	}
 }
