@@ -25,12 +25,14 @@ namespace API.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Upload([FromForm] ImageUploadPostModel model)
 		{
+			IList<Image> imgs = new List<Image>();
 			foreach (var file in model.Files)
 			{
 				using var stream = file.OpenReadStream();
-				await imageRepository.AddImageAsync(stream);
+				Image image = await imageRepository.AddImageAsync(stream);
+				imgs.Add(image);
 			}
-			return Ok();
+			return Ok(imgs);
 		}
 
 		[HttpGet("get/{id}")]

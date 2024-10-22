@@ -20,16 +20,18 @@ namespace Infrastructure.Repositories
 			this.cloudinaryService = cloudinaryService;
 		}
 
-		public async Task AddImageAsync(Stream imageStream)
+		public async Task<Image> AddImageAsync(Stream imageStream)
 		{
 			//Upload
 			var result = await cloudinaryService.Upload(imageStream);
-			await context.Images.AddAsync(new Image()
+			var img = new Image()
 			{
 				ImageUrl = result.Url.ToString(),
 				PublicId = result.PublicId,
-			});
+			};
+			await context.Images.AddAsync(img);
 			await context.SaveChangesAsync();
+			return img;
 		}
 
 		public async Task<Image?> GetImageAsync(int id)
