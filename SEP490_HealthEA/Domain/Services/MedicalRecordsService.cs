@@ -220,7 +220,7 @@ namespace Domain.Services
 #pragma warning disable CS8601 // Possible null reference assignment.
             HealthProfile p = new HealthProfile
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 UserId = claimId(claims),
                 ProfileCode = "abc",
                 FullName = profile.FullName,
@@ -408,6 +408,7 @@ namespace Domain.Services
                 Status = 0, 
             };
             var res = _repository.CreateDocumentProfile(doc);
+
             ServiceResult result = new ServiceResult()
             {
                 devMsg = devMsg,

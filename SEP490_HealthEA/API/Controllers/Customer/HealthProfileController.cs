@@ -53,6 +53,5 @@ namespace API.Controllers.Customer
             var serviceResult = _medicalRecordsServices.UpdateShareHealthProfile(User, id, stone);
             return Ok(serviceResult);
         }
-
     }
 }
