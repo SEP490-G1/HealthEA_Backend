@@ -1,5 +1,6 @@
 using Domain.Attributes;
 using Domain.Interfaces;
+using DuoVia.FuzzyStrings;
 using ImageMagick;
 using System;
 using System.Collections.Generic;
