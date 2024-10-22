@@ -5,14 +5,16 @@ server:
 
 spring:
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=HealthEA_SEP490_G1
-    username: sa
-    password: 123456
+    url: jdbc:sqlserver://gitznoz.database.windows.net:1433;database=DOAN;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;
+    username: sas
+    password: Hoang351681442002
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-  jpa:
-    hibernate:
+
+    jpa:
+      database-platform: org.hibernate.dialect.SQLServerDialect
+      show-sql: true
+      hibernate:
         ddl-auto: update
-    database-platform: org.hibernate.dialect.SQLServer2012Dialect
   mail:
     host: smtp.gmail.com
     port: 587

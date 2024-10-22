@@ -28,7 +28,7 @@ public enum ErrorCode {
     BILL_NOT_EXISTED(1017, "Bill not existed" , HttpStatus.BAD_REQUEST),
     RESIDENT_NOT_EXISTED(1018, "Resident not existed", HttpStatus.BAD_REQUEST),
     CONTRACT_NOT_EXISTED(1019, "Contract not existed", HttpStatus.BAD_REQUEST),
-    USER_NOT_VERIFIED(1020, "Your email has not been verified. Please verify DUONGTEST", HttpStatus.BAD_REQUEST);
+    USER_NOT_VERIFIED(1020, "Your email has not been verified. Please verify", HttpStatus.BAD_REQUEST);
 
     int code;
     String messgae;
