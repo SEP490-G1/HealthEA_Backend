@@ -4,6 +4,10 @@ using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
 using Domain.Services;
 using Infrastructure.Repositories;
+using Domain.Common;
+using Domain.Interfaces;
+using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +67,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 //
 
+builder.Services.Configure<AppSettingsOptions>(builder.Configuration.GetSection("TelegramSettings"));
+
+builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<TelegramService>();
+
+builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
+builder.Services.AddHttpClient();
 
 //config DB connection
 builder.Services.AddDbContext<SqlDBContext>(option =>
