@@ -27,8 +27,6 @@ namespace API.Controllers.Customer
             var s = _medicalRecordsServices.GetAllHealProfileByToken(User);
             return Ok(s);
         }
-
-
         [HttpPost]
         public IActionResult addNewHealthProfile([FromBody] HealthProfileInputDAO profile)
         {

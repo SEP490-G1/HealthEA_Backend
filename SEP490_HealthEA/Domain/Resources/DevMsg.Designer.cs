@@ -88,6 +88,15 @@ namespace Domain.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Xóa dữ liệu thất bại.
+        /// </summary>
+        public static string DeleteErr {
+            get {
+                return ResourceManager.GetString("DeleteErr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Xóa thành công.
         /// </summary>
         public static string DeleteSucess {
@@ -120,6 +129,15 @@ namespace Domain.Resources {
         public static string GetSuccess {
             get {
                 return ResourceManager.GetString("GetSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cập nhật dữ liệu thất bại.
+        /// </summary>
+        public static string UpdateErr {
+            get {
+                return ResourceManager.GetString("UpdateErr", resourceCulture);
             }
         }
         

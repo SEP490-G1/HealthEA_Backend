@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using static System.Formats.Asn1.AsnWriter;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Domain.Services
 {
@@ -348,9 +349,9 @@ namespace Domain.Services
                 {
                     throw new UnauthorizedAccessException("You do not have access!");
                 }
-                if(profile.FullName == null)
+                if (profile.FullName == null)
                 {
-              
+
                     return new ServiceResult()
                     {
                         devMsg = DevMsg.AddErr,
@@ -359,7 +360,7 @@ namespace Domain.Services
                         data = "Không được để fullname trống"
                     }; ;
                 }
-                
+
                 healthProfile.FullName = profile.FullName;
 
                 healthProfile.DateOfBirth = profile.DateOfBirth;
@@ -391,8 +392,8 @@ namespace Domain.Services
 
         public ServiceResult createDocumentProfile(ClaimsPrincipal claims, DocumentProfileInputDAO profile)
         {
-            string devMsg = DevMsg.UpdateSuccess;
-            string userMsg = UserMsg.UpdateSuccess;
+            string devMsg = DevMsg.AddSuccess;
+            string userMsg = UserMsg.AddSuccess;
             HttpStatusCode hr = HttpStatusCode.OK;
             Guid idUser = claimId(claims);
             DocumentProfile doc = new DocumentProfile()
@@ -405,10 +406,9 @@ namespace Domain.Services
                 Image = profile.Image,
                 CreateDate = DateTime.Now,
                 LastModifyDate = DateTime.Now,
-                Status = 0, 
+                Status = 0,
             };
             var res = _repository.CreateDocumentProfile(doc);
-
             ServiceResult result = new ServiceResult()
             {
                 devMsg = devMsg,
@@ -416,7 +416,161 @@ namespace Domain.Services
                 statusCode = hr,
                 data = res
             };
+            if (res <= 0)
+            {
+                result.devMsg = DevMsg.AddErr;
+                result.userMsg = UserMsg.AddErr;
+                result.statusCode = HttpStatusCode.NotFound;
+            }
 
+            return result;
+        }
+
+        public ServiceResult GetDocumentProfileDetail(ClaimsPrincipal claims, Guid id)
+        {
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = DevMsg.GetSuccess,
+                userMsg = UserMsg.GetSuccess,
+                statusCode = HttpStatusCode.OK,
+                data = null
+            };
+            DocumentProfile doc = _repository.GetDocumentProfilesDetailbyId(id);
+            if (doc == null || doc == new DocumentProfile())
+            {
+                result.userMsg = UserMsg.GetEmpty;
+                return result;
+            }
+
+
+            // lấy id xét xem user có phải owner
+            Guid idUser = claimId(claims);
+            if (doc.UserId == idUser)
+            {
+
+                result.data = doc;
+                return result;
+            }
+            if (doc.HealthProfile == null)
+            {
+                result.devMsg = DevMsg.GetError;
+                result.userMsg = UserMsg.GetErr;
+                result.statusCode = HttpStatusCode.BadGateway;
+                result.data = null;
+                return result;
+            }
+            int a = doc.HealthProfile.SharedStatus;
+            string role = claimRole(claims);
+            // nếu không phải thì lấy role và xét xem có phù hợp với chia sẻ không
+
+            result.devMsg = checkRole(role, a) ? result.devMsg : DevMsg.GetError;
+            result.userMsg = checkRole(role, a) ? result.userMsg : UserMsg.GetErr;
+            result.statusCode = checkRole(role, a) ? result.statusCode : HttpStatusCode.Unauthorized;
+            result.data = doc;
+            return result;
+
+        }
+        private bool checkRole(string role, int statusID)
+        {
+            if (statusID == 0)
+            {
+                return false;
+            }
+            if (role == "CUSTOMER" && statusID <= 1)
+            {
+                return false;
+            }
+            if (role == null && statusID <= 2)
+            {
+                return false;
+            }
+            if (role == "DOCTOR" && statusID < 1)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public ServiceResult DeleteDocumentProfileByid(ClaimsPrincipal claims, Guid id)
+        {
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = DevMsg.DeleteSucess,
+                userMsg = UserMsg.DeleteSucess,
+                statusCode = HttpStatusCode.OK,
+                data = null
+            };
+            Guid idUser = claimId(claims);
+            if (idUser == Guid.Empty)
+            {
+                result.devMsg = DevMsg.AuthorizeErr;
+                result.userMsg = UserMsg.AuthorizeErr;
+                result.statusCode = HttpStatusCode.Unauthorized;
+                return result;
+            }
+            int doc = _repository.DeleteDocumentProfilebyId(id, idUser);
+            if (doc <= 0)
+            {
+                result.devMsg = DevMsg.DeleteErr;
+                result.userMsg = UserMsg.DeleteErr;
+                result.statusCode = HttpStatusCode.NotFound;
+                return result;
+            }
+            result.data = doc;
+            return result;
+        }
+
+        public ServiceResult UpdateDocumentProfile(ClaimsPrincipal claims, Guid id, DocumentProfileInputDAO doc)
+        {
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = DevMsg.UpdateSuccess,
+                userMsg = UserMsg.UpdateSuccess,
+                statusCode = HttpStatusCode.OK,
+                data = null
+            };
+            Guid idUser = claimId(claims);
+            if (idUser == Guid.Empty)
+            {
+                result.devMsg = DevMsg.AuthorizeErr;
+                result.userMsg = UserMsg.AuthorizeErr;
+                result.statusCode = HttpStatusCode.Unauthorized;
+                return result;
+            }
+
+            int res = _repository.UpdateDocumentProfile(idUser, id, doc);
+            if (res <= 0)
+            {
+                result.devMsg = DevMsg.UpdateErr;
+                result.userMsg = UserMsg.UpdateErr;
+                result.statusCode = HttpStatusCode.NotFound;
+                return result;
+            }
+            result.data = doc;
+            return result;
+        }
+
+        public ServiceResult GetListDocumentProfile(ClaimsPrincipal claims, Guid idHealprofile, int type)
+        {
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = DevMsg.GetSuccess,
+                userMsg = UserMsg.GetSuccess,
+                statusCode = HttpStatusCode.OK,
+                data = null
+            };
+            Guid idUser = claimId(claims);
+            if (idUser == Guid.Empty)
+            {
+                result.devMsg = DevMsg.AuthorizeErr;
+                result.userMsg = UserMsg.AuthorizeErr;
+                result.statusCode = HttpStatusCode.Unauthorized;
+                return result;
+            }
+            DocumentProfile res = _repository.GetDocumentProfiles(type, idUser, idHealprofile);
+            
+            
+            result.data = res;
             return result;
         }
 

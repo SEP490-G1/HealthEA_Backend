@@ -1,4 +1,5 @@
-﻿using Domain.Models.Entities;
+﻿using Domain.Models.DAO;
+using Domain.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,5 +46,9 @@ namespace Domain.Interfaces.IRepositories
         public int UpdateHealthProfile(HealthProfile healthProfile, Guid id);
         public DocumentProfile GetDocumentProfiles(int type, Guid id, Guid PantientId);
         public int CreateDocumentProfile(DocumentProfile doc);
+        public DocumentProfile GetDocumentProfilesDetailbyId(Guid ids);
+        public int DeleteDocumentProfilebyId(Guid id, Guid idUser);
+        public int UpdateDocumentProfile(Guid idUser, Guid id, DocumentProfileInputDAO doc);
+
     }
 }

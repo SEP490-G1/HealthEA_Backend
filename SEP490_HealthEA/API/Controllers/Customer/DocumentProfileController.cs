@@ -1,4 +1,4 @@
-﻿using Domain.Interfaces.IRepositories;
+﻿
 using Domain.Interfaces.IServices;
 using Domain.Models.DAO;
 using Microsoft.AspNetCore.Authorization;
@@ -13,19 +13,20 @@ namespace API.Controllers.Customer
     [ApiController]
     public class DocumentProfileController : ControllerBase
     {
-        public IMedicalRecordsService _medicalRecordsServices;
-        public IMedicalRecordRepository _repository;
-        public DocumentProfileController(IMedicalRecordsService medicalRecordsServices, IMedicalRecordRepository repository)
+        public IMedicalRecordsService _service;
+        public DocumentProfileController(IMedicalRecordsService medicalRecordsServices
+            )
         {
-            _medicalRecordsServices = medicalRecordsServices;
-            _repository = repository;
+            _service = medicalRecordsServices;
+
         }
 
         //get a docmuent profile record of o type 
-        [HttpGet("{id}/{type}")]
-        public IActionResult getListDocumentProfile(Guid id, int type)
+        [HttpGet("{idHealprofile}/{typeDocuemntProfile}")]
+        public IActionResult getListDocumentProfile(Guid idHealthprofile, int typeDocuemntProfile)
         {
-            return Ok();
+            var serviceResult = _service.GetListDocumentProfile(User, idHealthprofile,  typeDocuemntProfile);
+            return Ok(serviceResult);
         }
         /// <summary>
         /// get document profile by id
@@ -33,28 +34,31 @@ namespace API.Controllers.Customer
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public IActionResult GetDocumentProfilebyId(Guid id)
+        public IActionResult GetDocumentProfileDetailbyId(Guid id)
         {
-            return Ok();
+            var res = _service.GetDocumentProfileDetail(User, id);
+            return Ok(res);
         }
         [HttpDelete("{id}")]
         public IActionResult DeleteDocumentProfileById(Guid id)
         {
-            return Ok();
+            var res = _service.DeleteDocumentProfileByid(User, id);
+            return Ok(res);
         }
 
         //create a healthProfile a type
         [HttpPost]
         public IActionResult createDocumentProfile(DocumentProfileInputDAO doc)
         {
-            var s = _medicalRecordsServices.createDocumentProfile(User, doc);
+            var s = _service.createDocumentProfile(User, doc);
             return Ok(s);
         }
         //edit a medical record
         [HttpPut]
         public IActionResult UpdateDocumentProfile(Guid id, DocumentProfileInputDAO doc)
         {
-            return Ok();
+            var s = _service.UpdateDocumentProfile(User, id, doc);
+            return Ok(s);
         }
     }
 }
