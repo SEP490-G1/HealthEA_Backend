@@ -105,17 +105,19 @@ public class AuthenticationService {
     }
 
     private String generateToken(User user){
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512); //thuật toán mã hóa
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256); //thuật toán mã hóa
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername()) //user đăng nhập
                 .issuer("duong12.com") //issue từ ai (domain service)
                 .issueTime(new Date())
+                .audience("duong12.com")
                 .expirationTime(new Date(
                         Instant.now().plus(VALID_DURATION, ChronoUnit.DAYS).toEpochMilli()
-                )) //thời hạn token sau 1h
+                ))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("role", user.getRole())
+                .claim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", user.getRole())
+                .claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", user.getUsername())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
