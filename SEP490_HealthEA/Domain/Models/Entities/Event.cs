@@ -1,7 +1,7 @@
 ﻿namespace Domain.Models.Entities;
 public class Event
 {
-    public Guid EventId { get; set; } 
+    public Guid EventId { get; set; }
     public Guid UserId { get; set; }  
     public string? Title { get; set; }  
     public string? Description { get; set; } 
