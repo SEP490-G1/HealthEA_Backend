@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Text;
+using Infrastructure.Services.Ocr;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -84,6 +85,7 @@ builder.Services.AddDbContext<SqlDBContext>(option =>
 });
 //config service
 builder.Services.AddScoped<IMedicalRecordsService, MedicalRecordsService>();
+builder.Services.AddScoped<IOcrService, OcrService>();
 //config repo
 builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();

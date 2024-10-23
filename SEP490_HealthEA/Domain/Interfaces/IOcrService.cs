@@ -9,5 +9,6 @@ namespace Domain.Interfaces
 {
 	public interface IOcrService : IBaseServices
 	{
+		void ImageToObject<T>(Stream stream, T obj) where T : class;
 	}
 }
