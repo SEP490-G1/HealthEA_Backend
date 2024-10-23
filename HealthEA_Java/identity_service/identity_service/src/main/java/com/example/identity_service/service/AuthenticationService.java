@@ -108,7 +108,7 @@ public class AuthenticationService {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256); //thuật toán mã hóa
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-//                .subject(user.getUsername()) //user đăng nhập
+                .subject(user.getUsername()) //user đăng nhập
                 .issuer("duong12.com") //issue từ ai (domain service)
                 .issueTime(new Date())
                 .audience("duong12.com")

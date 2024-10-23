@@ -1,4 +1,5 @@
 ﻿using Domain.Interfaces;
+using Domain.Models.Common;
 using Domain.Models.Entities;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
@@ -12,12 +13,12 @@ namespace API.Controllers
 	[ApiController]
 	public class ImagesController : ControllerBase
 	{
-		private readonly ICloudinaryService cloudinaryService;
+		private readonly IOcrService ocrService;
 		private readonly IImageRepository imageRepository;
 
-		public ImagesController(ICloudinaryService cloudinaryService, IImageRepository imageRepository)
+		public ImagesController(IOcrService ocrService, IImageRepository imageRepository, HttpClient httpClient)
 		{
-			this.cloudinaryService = cloudinaryService;
+			this.ocrService = ocrService;
 			this.imageRepository = imageRepository;
 		}
 
@@ -83,9 +84,24 @@ namespace API.Controllers
 			return BadRequest(result);
 		}
 
+		[HttpPost("scan")]
+		public async Task<IActionResult> Scan([FromForm] ImageOcrPostModel model)
+		{
+			using var stream = model.File.OpenReadStream();
+			var result = new OcrDailyMetricsResult();
+			ocrService.ImageToObject(stream, result);
+			return Ok(result);
+		}
+
 	}
+
 	public class ImageUploadPostModel
 	{
 		public required IList<IFormFile> Files { get; set; }
+	}
+
+	public class ImageOcrPostModel
+	{
+		public IFormFile File { get; set; }
 	}
 }

@@ -15,8 +15,8 @@ namespace Domain.Models.Entities
 		public int Id { get; set; }
 
 		[Required]
-		public string ImageUrl { get; set; }
+		public required string ImageUrl { get; set; }
 		[Required]
-		public string PublicId { get; set; }
+		public required string PublicId { get; set; }
 	}
 }

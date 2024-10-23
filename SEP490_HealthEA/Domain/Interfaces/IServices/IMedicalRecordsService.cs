@@ -52,7 +52,10 @@ namespace Domain.Interfaces.IServices
         public ServiceResult UpdateShareHealthProfile(ClaimsPrincipal claims, Guid id, int stone);
         public ServiceResult UpdateInfoHealthProfile(ClaimsPrincipal claims, Guid id, HealthProfileInputDAO profile);
         public ServiceResult createDocumentProfile(ClaimsPrincipal claims, DocumentProfileInputDAO profile);
-
+        public ServiceResult GetDocumentProfileDetail(ClaimsPrincipal claims, Guid id); 
+        public ServiceResult DeleteDocumentProfileByid(ClaimsPrincipal claims, Guid id); 
+        public ServiceResult UpdateDocumentProfile(ClaimsPrincipal claims, Guid id, DocumentProfileInputDAO doc); 
+        public ServiceResult GetListDocumentProfile(ClaimsPrincipal claims, Guid idHealthProfile, int type); 
 
     }
 }

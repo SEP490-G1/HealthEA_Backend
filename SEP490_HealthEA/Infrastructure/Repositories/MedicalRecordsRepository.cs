@@ -1,6 +1,8 @@
 ﻿using Domain.Interfaces.IRepositories;
+using Domain.Models.DAO;
 using Domain.Models.Entities;
 using Infrastructure.SQLServer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -34,6 +36,17 @@ namespace Infrastructure.Repositories
             ; return _context.SaveChanges();
         }
 
+        public int DeleteDocumentProfilebyId(Guid id, Guid idUser)
+        {
+            DocumentProfile? doc = _context.DocumentProfiles.FirstOrDefault(doz => doz.Id == id && doz.UserId == idUser);
+            if (doc == null)
+            {
+                return 0;
+            }
+            _context.DocumentProfiles.Remove(doc);
+            return _context.SaveChanges();
+        }
+
         public IList<HealthProfile> GetAllHealthProfileByUser(string username)
         {
             Guid userId = _userContext.GetGuidByUserName(username);
@@ -50,12 +63,20 @@ namespace Infrastructure.Repositories
             var doc = _context.DocumentProfiles.FirstOrDefault(x => x.UserId == id && x.Type == type && x.PantientId == PantientId);
             if (doc == null)
             {
-
                 return new DocumentProfile();
             }
             return doc;
         }
 
+        public DocumentProfile GetDocumentProfilesDetailbyId(Guid ids)
+        {
+            var doc = _context.DocumentProfiles.Include(dp => dp.HealthProfile).FirstOrDefault(dp => dp.Id == ids);
+            if (doc == null)
+            {
+                return new DocumentProfile();
+            }
+            return doc;
+        }
 
         public HealthProfile? HealthProfileDetailbyID(Guid id)
         {
@@ -90,6 +111,21 @@ namespace Infrastructure.Repositories
                 return 0;
             }
             real.SharedStatus = stone;
+            return _context.SaveChanges();
+        }
+
+        public int UpdateDocumentProfile(Guid idUser, Guid id, DocumentProfileInputDAO doc)
+        {
+            var entity = _context.DocumentProfiles.FirstOrDefault(item => item.Id == id && item.UserId == idUser);
+            if (entity == null)
+            {
+                return -1;
+            }
+            //move anther healprofile
+            entity.PantientId = doc.HealthProfileId;
+            entity.Type = doc.Type;
+            entity.ContentMedical = doc.ContentMedical;
+            entity.Image = doc.Image;
             return _context.SaveChanges();
         }
 
