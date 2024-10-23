@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 
 using System;
 using System.Text;
+using Infrastructure.Services.Ocr;
 using Infrastructure.Services;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -80,6 +81,8 @@ builder.Services.AddDbContext<SqlDBContext>(option =>
 builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IMedicalRecordsService, MedicalRecordsService>();
+builder.Services.AddScoped<IOcrService, OcrService>();
+//config repo
 builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 //another
