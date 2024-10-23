@@ -1,5 +1,6 @@
 ﻿using Domain.Models;
 using Domain.Models.Common;
+using Domain.Models.DAO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +35,7 @@ namespace Domain.Interfaces.IServices
         /// <param name="claims">token</param>
         /// <param name="profile">info common health profile</param>
         /// <returns></returns>
-        public ServiceResult AddNewHealthProfile(ClaimsPrincipal claims, HealthProfileInput profile);
+        public ServiceResult AddNewHealthProfile(ClaimsPrincipal claims, HealthProfileInputDAO profile);
         /// <summary>
         /// remove health profile for owner
         /// </summary>
@@ -48,7 +49,9 @@ namespace Domain.Interfaces.IServices
         /// <param name="claims"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public ServiceResult UpdateShareHealthProfil(ClaimsPrincipal claims, Guid id, int stone);
+        public ServiceResult UpdateShareHealthProfile(ClaimsPrincipal claims, Guid id, int stone);
+        public ServiceResult UpdateInfoHealthProfile(ClaimsPrincipal claims, Guid id, HealthProfileInputDAO profile);
+        public ServiceResult createDocumentProfile(ClaimsPrincipal claims, DocumentProfileInputDAO profile);
 
 
     }

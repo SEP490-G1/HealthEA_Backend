@@ -21,6 +21,6 @@ namespace Domain.Models.Entities
         public DateTime LastModifyDate { get; set; }
         public int Status { get; set; }
         //public virtual User User { get; set; }
-        public virtual HealthProfile? PatientProfile { get; set; }
+        public virtual HealthProfile? HealthProfile { get; set; }
     }
 }

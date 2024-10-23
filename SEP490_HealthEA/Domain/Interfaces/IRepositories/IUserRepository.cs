@@ -8,6 +8,6 @@ namespace Domain.Interfaces.IRepositories
 {
     public interface IUserRepository
     {
-        public Guid GetIdUserByUserName(string username);
+        public Guid GetGuidByUserName(string username);
     }
 }

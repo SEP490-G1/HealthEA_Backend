@@ -9,6 +9,8 @@ namespace Domain.Models.Entities
 {
     public class HealthProfile
     {
+
+
         [Key]
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
@@ -29,7 +31,7 @@ namespace Domain.Models.Entities
         public int SharedStatus { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime LastModifyDate { get; set; }
-        public virtual ICollection<DocumentProfile> MedicalRecords { get; set; } = new List<DocumentProfile>();
+        public virtual ICollection<DocumentProfile> DocumentProfiles { get; set; } = new List<DocumentProfile>();
         public virtual User? User { get; set; }
     }
 }
