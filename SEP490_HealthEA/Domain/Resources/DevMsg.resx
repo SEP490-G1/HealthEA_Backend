@@ -126,6 +126,9 @@
   <data name="AuthorizeErr" xml:space="preserve">
     <value>Bạn không có quyền</value>
   </data>
+  <data name="DeleteErr" xml:space="preserve">
+    <value>Xóa dữ liệu thất bại</value>
+  </data>
   <data name="DeleteSucess" xml:space="preserve">
     <value>Xóa thành công</value>
   </data>
@@ -137,6 +140,9 @@
   </data>
   <data name="GetSuccess" xml:space="preserve">
     <value>Lấy dữ liệu thành công</value>
+  </data>
+  <data name="UpdateErr" xml:space="preserve">
+    <value>Cập nhật dữ liệu thất bại</value>
   </data>
   <data name="UpdateSuccess" xml:space="preserve">
     <value>Cập nhật thành công</value>
