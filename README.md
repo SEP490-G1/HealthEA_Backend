@@ -1,6 +1,7 @@
 # HealthEA_Backend
 This is backend source for **Digital Personal Health Assistant** project of **SEP490**
 
+# Follow GITFLOW WORKFLOW DO NOT PUSH MAIN
 ## Prerequirements
 
 - .NET Core SDK
