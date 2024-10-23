@@ -6,16 +6,16 @@ using Domain.Services;
 using Infrastructure.Repositories;
 using Domain.Common;
 using Domain.Interfaces;
-using Infrastructure.Repositories;
-using Infrastructure.Services;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
 using System;
 using System.Text;
 using Infrastructure.Services.Ocr;
+using Infrastructure.Services;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -68,14 +68,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 //
 
-builder.Services.Configure<AppSettingsOptions>(builder.Configuration.GetSection("TelegramSettings"));
-
-builder.Services.AddScoped<EmailService>();
-builder.Services.AddScoped<TelegramService>();
-
-builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
-builder.Services.AddScoped<IImageRepository, ImageRepository>();
-builder.Services.AddHttpClient();
 
 //config DB connection
 builder.Services.AddDbContext<SqlDBContext>(option =>
@@ -83,7 +75,11 @@ builder.Services.AddDbContext<SqlDBContext>(option =>
     var cnt = builder.Configuration.GetConnectionString("DBConnection");
     option.UseSqlServer(cnt);
 });
+
+
 //config service
+builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IMedicalRecordsService, MedicalRecordsService>();
 builder.Services.AddScoped<IOcrService, OcrService>();
 //config repo
@@ -106,7 +102,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Version = "v1",
         Title = "HealthEA API for Group 1",
-        Description = "This is Token user: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiSmFuZVNtaXRoIiwianRpIjoiNWVmZDdjOWItNDI5NS00NjM4LThiOWYtMmQwY2ZlMTI4NjY0IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiVXNlciIsImV4cCI6MjMyODQxNjA4OSwiaXNzIjoiUTEiLCJhdWQiOiJRMSJ9.LtsIsOniGTKAP1Lv_s0IpmRBot8XeOVzon4gI8KanTc ",
+        Description = "This is Token user: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlcm5hbWUiLCJqdGkiOiJlOTFiZDczZS0xOGUwLTQ1ZWQtYjA5ZS00ZThlZDA2YjNlNzgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJDVVNUT01FUiIsImV4cCI6MjMyOTQyODA3MSwiaXNzIjoiZHVvbmcxMi5jb20iLCJhdWQiOiJkdW9uZzEyLmNvbSJ9.Bl-iKNtu8RYQBVzRX5tQnzA5CHZN8SQsuWds-FDg5BI",
        
     });
 

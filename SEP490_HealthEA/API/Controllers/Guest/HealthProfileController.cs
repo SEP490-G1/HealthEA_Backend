@@ -14,7 +14,7 @@ namespace API.Controllers.Guest
         {
             _medicalRecordsServices = medicalRecordsServices;
         }
-        [HttpGet("info/{id}")]
+        [HttpGet("infomation/{id}")]
         public IActionResult getInfoMDDetail(Guid id)
         {
             var s = _medicalRecordsServices.GetCommonInfoHealProfileById(User, id);
