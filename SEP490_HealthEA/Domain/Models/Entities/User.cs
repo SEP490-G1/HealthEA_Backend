@@ -32,6 +32,7 @@ namespace Domain.Models.Entities
 
         public string Username { get; set; } = null!;
         public virtual ICollection<HealthProfile>? healthProfiles { get; set; } = new List<HealthProfile>();
+        public virtual ICollection<Event> Events { get; set; }
     }
 }
 

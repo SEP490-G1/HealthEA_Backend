@@ -81,6 +81,7 @@ builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IMedicalRecordsService, MedicalRecordsService>();
 builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
+//builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 //another
 builder.Services.AddControllers();
