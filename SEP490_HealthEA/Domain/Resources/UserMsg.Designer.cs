@@ -22,21 +22,21 @@ namespace Domain.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class UserMsg {
+    public class UserMsg {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal UserMsg() {
+        public UserMsg() {
         }
         
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Domain.Resources.UserMsg", typeof(UserMsg).Assembly);
@@ -51,7 +51,7 @@ namespace Domain.Resources {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Xảy ra lỗi trong quá trình thêm, vui lòng thử lại sau hoặc liên hệ Thắng để được hỗ trợ.
         /// </summary>
-        internal static string AddErr {
+        public static string AddErr {
             get {
                 return ResourceManager.GetString("AddErr", resourceCulture);
             }
@@ -72,25 +72,25 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Thêm thành công.
         /// </summary>
-        internal static string AddSuccess {
+        public static string AddSuccess {
             get {
                 return ResourceManager.GetString("AddSuccess", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Bạn không có quyền truy cập.
         /// </summary>
-        internal static string AuthorizeErr {
+        public static string AuthorizeErr {
             get {
                 return ResourceManager.GetString("AuthorizeErr", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Có lỗi xảy ra,vui lòng thử lại hoặc liên hệ Thắng để được trợ giúp.
         /// </summary>
-        internal static string CommonErrr {
+        public static string CommonErrr {
             get {
                 return ResourceManager.GetString("CommonErrr", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Customer code không được phép trông.
         /// </summary>
-        internal static string CustomerCodeCannotBeNull {
+        public static string CustomerCodeCannotBeNull {
             get {
                 return ResourceManager.GetString("CustomerCodeCannotBeNull", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Mã khách hàng không tồn tại.
         /// </summary>
-        internal static string CustomerCodeDoesNotExist {
+        public static string CustomerCodeDoesNotExist {
             get {
                 return ResourceManager.GetString("CustomerCodeDoesNotExist", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Mã khách hàng không được trùng.
         /// </summary>
-        internal static string CustomerCodeDuplicate {
+        public static string CustomerCodeDuplicate {
             get {
                 return ResourceManager.GetString("CustomerCodeDuplicate", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Nhóm mã khách hàng này không tồn tại, vui lòng kiểm tra lại.
         /// </summary>
-        internal static string CustomerGroupDoesNotExist {
+        public static string CustomerGroupDoesNotExist {
             get {
                 return ResourceManager.GetString("CustomerGroupDoesNotExist", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Mã Nhóm khách hàng đã tồn tại.
         /// </summary>
-        internal static string CustomerGroupIdDuplicate {
+        public static string CustomerGroupIdDuplicate {
             get {
                 return ResourceManager.GetString("CustomerGroupIdDuplicate", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Tên nhóm mã khách hàng không được để trống.
         /// </summary>
-        internal static string CustomerGroupNameCouldNotBeNull {
+        public static string CustomerGroupNameCouldNotBeNull {
             get {
                 return ResourceManager.GetString("CustomerGroupNameCouldNotBeNull", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Mã định danh khách hàng không được trùng.
         /// </summary>
-        internal static string CustomerIdDuplicate {
+        public static string CustomerIdDuplicate {
             get {
                 return ResourceManager.GetString("CustomerIdDuplicate", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Không tìm thấy khách hàng trong hệ thống.
         /// </summary>
-        internal static string CustomerNotFound {
+        public static string CustomerNotFound {
             get {
                 return ResourceManager.GetString("CustomerNotFound", resourceCulture);
             }
@@ -171,7 +171,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Có lỗi xảy ra trong quá trình xóa, vui lòng thử lại sau hoặc liên hệ để được hỗ trợ.
         /// </summary>
-        internal static string DeleteErr {
+        public static string DeleteErr {
             get {
                 return ResourceManager.GetString("DeleteErr", resourceCulture);
             }
@@ -180,7 +180,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Xóa thành công.
         /// </summary>
-        internal static string DeleteSucess {
+        public static string DeleteSucess {
             get {
                 return ResourceManager.GetString("DeleteSucess", resourceCulture);
             }
@@ -189,7 +189,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Email không được trùng.
         /// </summary>
-        internal static string EmailDuplicate {
+        public static string EmailDuplicate {
             get {
                 return ResourceManager.GetString("EmailDuplicate", resourceCulture);
             }
@@ -198,7 +198,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Mã nhân viên không tồn tại.
         /// </summary>
-        internal static string EmployeeCodeDoesNotExist {
+        public static string EmployeeCodeDoesNotExist {
             get {
                 return ResourceManager.GetString("EmployeeCodeDoesNotExist", resourceCulture);
             }
@@ -207,7 +207,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Mã nhân viên không được trùng.
         /// </summary>
-        internal static string EmployeeCodeDuplicate {
+        public static string EmployeeCodeDuplicate {
             get {
                 return ResourceManager.GetString("EmployeeCodeDuplicate", resourceCulture);
             }
@@ -216,7 +216,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Mã định danh nhân viên không được trùng.
         /// </summary>
-        internal static string EmployeeIdDuplicate {
+        public static string EmployeeIdDuplicate {
             get {
                 return ResourceManager.GetString("EmployeeIdDuplicate", resourceCulture);
             }
@@ -225,7 +225,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Tên không được để trống.
         /// </summary>
-        internal static string EmployeeNameCannotBeNull {
+        public static string EmployeeNameCannotBeNull {
             get {
                 return ResourceManager.GetString("EmployeeNameCannotBeNull", resourceCulture);
             }
@@ -234,7 +234,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Mã nhân viên không tồn tại.
         /// </summary>
-        internal static string EmployeeNotFound {
+        public static string EmployeeNotFound {
             get {
                 return ResourceManager.GetString("EmployeeNotFound", resourceCulture);
             }
@@ -243,7 +243,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Nhóm mã khách hàng không hợp lệ.
         /// </summary>
-        internal static string File_CustomerGroupInvalid {
+        public static string File_CustomerGroupInvalid {
             get {
                 return ResourceManager.GetString("File_CustomerGroupInvalid", resourceCulture);
             }
@@ -252,7 +252,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Ngày sinh sai định dạng.
         /// </summary>
-        internal static string File_DobInvalid {
+        public static string File_DobInvalid {
             get {
                 return ResourceManager.GetString("File_DobInvalid", resourceCulture);
             }
@@ -261,7 +261,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Mã khách hàng đã tồn tại trên tệp nhập khẩu.
         /// </summary>
-        internal static string File_DuplicateCustomerCode {
+        public static string File_DuplicateCustomerCode {
             get {
                 return ResourceManager.GetString("File_DuplicateCustomerCode", resourceCulture);
             }
@@ -270,7 +270,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Số điện thoại đã tồn tại .
         /// </summary>
-        internal static string File_DuplicatePhoneNumber {
+        public static string File_DuplicatePhoneNumber {
             get {
                 return ResourceManager.GetString("File_DuplicatePhoneNumber", resourceCulture);
             }
@@ -279,7 +279,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to File không được để trống.
         /// </summary>
-        internal static string FileNotValid {
+        public static string FileNotValid {
             get {
                 return ResourceManager.GetString("FileNotValid", resourceCulture);
             }
@@ -288,7 +288,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Đã xảy ra lỗi trong quá trình tìm kiếm, vui lòng liên hệ Thắng hoặc thử lại sau.
         /// </summary>
-        internal static string FoundErr {
+        public static string FoundErr {
             get {
                 return ResourceManager.GetString("FoundErr", resourceCulture);
             }
@@ -297,7 +297,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Không có bản ghi nào trong cơ sở dữ liệu.
         /// </summary>
-        internal static string GetEmpty {
+        public static string GetEmpty {
             get {
                 return ResourceManager.GetString("GetEmpty", resourceCulture);
             }
@@ -306,7 +306,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Lấy ra không thành công, vui lòng thử lại sau hoặc liên hệ Thắng để được hỗ trợ.
         /// </summary>
-        internal static string GetErr {
+        public static string GetErr {
             get {
                 return ResourceManager.GetString("GetErr", resourceCulture);
             }
@@ -315,7 +315,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Lấy thành công.
         /// </summary>
-        internal static string GetSuccess {
+        public static string GetSuccess {
             get {
                 return ResourceManager.GetString("GetSuccess", resourceCulture);
             }
@@ -324,7 +324,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Số trang phải &gt;0.
         /// </summary>
-        internal static string PagingErr {
+        public static string PagingErr {
             get {
                 return ResourceManager.GetString("PagingErr", resourceCulture);
             }
@@ -333,7 +333,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Số điện thoại không được trùng.
         /// </summary>
-        internal static string PhoneNumberDuplicate {
+        public static string PhoneNumberDuplicate {
             get {
                 return ResourceManager.GetString("PhoneNumberDuplicate", resourceCulture);
             }
@@ -342,7 +342,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Vị trí này không tồn tại, vui lòng chọn vị trí khác.
         /// </summary>
-        internal static string PositionIdDoesntExist {
+        public static string PositionIdDoesntExist {
             get {
                 return ResourceManager.GetString("PositionIdDoesntExist", resourceCulture);
             }
@@ -351,7 +351,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Có lỗi xảy ra trong quá trình cập nhật, vui lòng thử lại sau hoặc liên hệ Thắng để được hỗ trợ.
         /// </summary>
-        internal static string UpdateErr {
+        public static string UpdateErr {
             get {
                 return ResourceManager.GetString("UpdateErr", resourceCulture);
             }
@@ -360,7 +360,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Cập nhật thành công.
         /// </summary>
-        internal static string UpdateSuccess {
+        public static string UpdateSuccess {
             get {
                 return ResourceManager.GetString("UpdateSuccess", resourceCulture);
             }
@@ -369,7 +369,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Upload file không thành công, vui lòng liên hệ Thắng để được hỗ trợ.
         /// </summary>
-        internal static string UpLoadFailed {
+        public static string UpLoadFailed {
             get {
                 return ResourceManager.GetString("UpLoadFailed", resourceCulture);
             }
@@ -378,7 +378,7 @@ namespace Domain.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Upload file thành công.
         /// </summary>
-        internal static string UploadSuccess {
+        public static string UploadSuccess {
             get {
                 return ResourceManager.GetString("UploadSuccess", resourceCulture);
             }

@@ -20,7 +20,12 @@ namespace API.Controllers.Customer
         {
             _medicalRecordsServices = medicalRecordsServices;
         }
-
+        [HttpGet("infomation/{id}")]
+        public IActionResult getInfoMDDetail(Guid id)
+        {
+            var s = _medicalRecordsServices.GetCommonInfoHealProfileById(User, id);
+            return Ok(s);
+        }
         [HttpGet]
         public IActionResult getAllHealProfile()
         {
