@@ -1,5 +1,6 @@
 ﻿
 using Domain.Models.Entities;
+using Domain.Models.Entities.YourNamespace.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SQLServer
@@ -25,7 +26,9 @@ namespace Infrastructure.SQLServer
 
         public DbSet<Image> Images { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		public DbSet<DailyMetric> DailyMetrics { get; set; }
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
         }
@@ -118,7 +121,12 @@ namespace Infrastructure.SQLServer
                     .HasColumnName("username");
             });
 
-        }
+			modelBuilder.Entity<DailyMetric>()
+				.HasOne(dm => dm.User)
+				.WithMany(u => u.DailyMetrics)
+				.HasForeignKey(dm => dm.UserId);
+
+		}
 
 
     }
