@@ -1,4 +1,5 @@
 ﻿using Domain.Interfaces.IRepositories;
+using Domain.Interfaces.IServices;
 using Domain.Models.Entities.YourNamespace.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +11,12 @@ namespace API.Controllers.Customer
 	public class DailyMetricController : ControllerBase
 	{
 		private readonly IDailyMetricRepository repository;
+		private readonly IDailyMetricsAnalysisService service;
 
-		public DailyMetricController(IDailyMetricRepository dailyMetricRepository)
+		public DailyMetricController(IDailyMetricRepository repository, IDailyMetricsAnalysisService service)
 		{
-			repository = dailyMetricRepository;
+			this.repository = repository;
+			this.service = service;
 		}
 
 		[HttpGet("{id}")]
@@ -75,6 +78,18 @@ namespace API.Controllers.Customer
 
 			await repository.DeleteAsync(id);
 			return NoContent();
+		}
+
+		[HttpGet("analyze/{id}")]
+		public async Task<IActionResult> AnalyzeDailyMetric(Guid id)
+		{
+			var dailyMetric = await repository.GetByIdAsync(id);
+			if (dailyMetric == null)
+			{
+				return NotFound();
+			}
+			var result = await service.Analyze(dailyMetric);
+			return Ok(result);
 		}
 	}
 }
