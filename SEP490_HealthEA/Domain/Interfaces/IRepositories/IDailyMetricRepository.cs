@@ -14,5 +14,6 @@ namespace Domain.Interfaces.IRepositories
 		Task AddAsync(DailyMetric dailyMetric);
 		Task UpdateAsync(DailyMetric dailyMetric);
 		Task DeleteAsync(Guid id);
+		Task<IEnumerable<DailyMetric>> GetByUserIdAndDateRangeAsync(Guid userId, DateTime startDate, DateTime endDate);
 	}
 }

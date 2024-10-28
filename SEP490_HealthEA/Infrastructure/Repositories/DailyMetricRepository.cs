@@ -54,5 +54,12 @@ namespace Infrastructure.Repositories
 				await _context.SaveChangesAsync();
 			}
 		}
+
+		public async Task<IEnumerable<DailyMetric>> GetByUserIdAndDateRangeAsync(Guid userId, DateTime startDate, DateTime endDate)
+		{
+			return await _context.DailyMetrics
+				.Where(dm => dm.UserId == userId && dm.Date >= startDate && dm.Date <= endDate)
+				.ToListAsync();
+		}
 	}
 }

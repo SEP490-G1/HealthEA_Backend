@@ -1,6 +1,7 @@
 ﻿using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
 using Domain.Models.Entities.YourNamespace.Models;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -90,6 +91,18 @@ namespace API.Controllers.Customer
 			}
 			var result = await service.Analyze(dailyMetric);
 			return Ok(result);
+		}
+
+		[HttpGet("user/{userId}/range")]
+		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsByDateRange(Guid userId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+		{
+			if (endDate < startDate)
+			{
+				return BadRequest("End date must be after the start date.");
+			}
+
+			var dailyMetrics = await repository.GetByUserIdAndDateRangeAsync(userId, startDate, endDate);
+			return Ok(dailyMetrics);
 		}
 	}
 }
