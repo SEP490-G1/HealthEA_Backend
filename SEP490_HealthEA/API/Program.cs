@@ -16,6 +16,8 @@ using System;
 using System.Text;
 using Infrastructure.Services.Ocr;
 using Infrastructure.Services;
+using System.Reflection;
+using Infrastructure.MediatR.Events.Commands.CreateEvent;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -86,6 +88,14 @@ builder.Services.AddScoped<IOcrService, OcrService>();
 builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
 //builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+//builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
+    Assembly.GetExecutingAssembly(),
+    typeof(CreateEventCommandHandler).Assembly
+));
+
+//builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+
 //another
 builder.Services.AddControllers();
 

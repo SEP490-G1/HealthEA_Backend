@@ -30,17 +30,17 @@ public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Gui
 
         var eventEntity = new Event
         {
-            EventId = Guid.NewGuid(),
-            UserId = request.UserId,
-            Title = request.Title,
-            Description = request.Description,
-            EventDateTime = request.EventDateTime.Date, 
-            StartTime = request.StartTime,             
-            EndTime = request.EndTime,                  
-            Location = request.Location,
-            StatusId = request.StatusId,
-            CreatedAt = DateTime.UtcNow,
-            CreatedBy = request.UserId
+            //EventId = Guid.NewGuid(),
+            //UserId = request.UserId,
+            //Title = request.Title,
+            //Description = request.Description,
+            //EventDateTime = request.EventDateTime.Date, 
+            //StartTime = request.StartTime,             
+            //EndTime = request.EndTime,                  
+            //Location = request.Location,
+            ////StatusId = request.StatusId,
+            //CreatedAt = DateTime.UtcNow,
+            //CreatedBy = request.UserId
         };
 
         await _context.Events.AddAsync(eventEntity);
