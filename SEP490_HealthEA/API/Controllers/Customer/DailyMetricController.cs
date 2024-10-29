@@ -15,11 +15,13 @@ namespace API.Controllers.Customer
 	{
 		private readonly IDailyMetricRepository repository;
 		private readonly IDailyMetricsAnalysisService service;
+		private readonly IUserClaimsService userClaimsService;
 
-		public DailyMetricController(IDailyMetricRepository repository, IDailyMetricsAnalysisService service)
+		public DailyMetricController(IDailyMetricRepository repository, IDailyMetricsAnalysisService service, IUserClaimsService userClaimsService)
 		{
 			this.repository = repository;
 			this.service = service;
+			this.userClaimsService = userClaimsService;
 		}
 
 		[HttpGet("{id}")]
@@ -33,9 +35,10 @@ namespace API.Controllers.Customer
 			return Ok(dailyMetric);
 		}
 
-		[HttpGet("user/{userId}")]
-		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsByUserId(Guid userId)
+		[HttpGet("me")]
+		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsOfUser()
 		{
+			var userId = userClaimsService.ClaimId(User);
 			var dailyMetrics = await repository.GetAllByUserIdAsync(userId);
 			return Ok(dailyMetrics);
 		}
@@ -91,21 +94,22 @@ namespace API.Controllers.Customer
 			return Ok(result);
 		}
 
-		[HttpGet("user/{userId}/range")]
-		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsByDateRange(Guid userId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+		[HttpGet("me/range")]
+		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
 		{
+			var userId = userClaimsService.ClaimId(User);
 			if (endDate < startDate)
 			{
 				return BadRequest("End date must be after the start date.");
 			}
-
 			var dailyMetrics = await repository.GetByUserIdAndDateRangeAsync(userId, startDate, endDate);
 			return Ok(dailyMetrics);
 		}
 
-		[HttpGet("user/{userId}/today")]
-		public async Task<ActionResult<DailyMetric>> GetDailyMetricForToday(Guid userId)
+		[HttpGet("/today")]
+		public async Task<ActionResult<DailyMetric>> GetDailyMetricForToday()
 		{
+			var userId = userClaimsService.ClaimId(User);
 			var today = DateTime.Today;
 			var dailyMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 			if (dailyMetric == null)
@@ -115,9 +119,10 @@ namespace API.Controllers.Customer
 			return Ok(dailyMetric);
 		}
 
-		[HttpPost("user/{userId}/today")]
-		public async Task<IActionResult> AddOrUpdateDailyMetricForToday(Guid userId, [FromBody] DailyMetric dailyMetric)
+		[HttpPost("/today")]
+		public async Task<IActionResult> AddOrUpdateDailyMetricForToday([FromBody] DailyMetric dailyMetric)
 		{
+			var userId = userClaimsService.ClaimId(User);
 			var today = DateTime.Today;
 			var existingMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 

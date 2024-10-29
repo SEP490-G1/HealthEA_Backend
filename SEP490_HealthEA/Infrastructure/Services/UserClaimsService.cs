@@ -41,7 +41,7 @@ namespace Infrastructure.Services
 		public Guid ClaimId(ClaimsPrincipal claim)
 		{
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-			var _username = claimAccount(claim);
+			var _username = ClaimAccount(claim);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
 			var guid = repository.GetGuidByUserName(_username);
