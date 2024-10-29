@@ -34,7 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="MediatR\Events\Queries\" />
     <Folder Include="Migrations\" />
     <Folder Include="SQLServer\" />
   </ItemGroup>
