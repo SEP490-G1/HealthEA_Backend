@@ -2,12 +2,14 @@
 using Domain.Interfaces.IServices;
 using Domain.Models.Entities.YourNamespace.Models;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Customer
 {
 	[Route("api/[controller]")]
+	[Authorize]
 	[ApiController]
 	public class DailyMetricController : ControllerBase
 	{
@@ -116,11 +118,6 @@ namespace API.Controllers.Customer
 		[HttpPost("user/{userId}/today")]
 		public async Task<IActionResult> AddOrUpdateDailyMetricForToday(Guid userId, [FromBody] DailyMetric dailyMetric)
 		{
-			if (dailyMetric == null || dailyMetric.UserId != userId)
-			{
-				return BadRequest("Invalid daily metric data.");
-			}
-
 			var today = DateTime.Today;
 			var existingMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 
@@ -128,6 +125,7 @@ namespace API.Controllers.Customer
 			{
 				dailyMetric.Id = Guid.NewGuid();
 				dailyMetric.Date = today;
+				dailyMetric.UserId = userId;
 				await repository.AddAsync(dailyMetric);
 				return CreatedAtAction(nameof(GetDailyMetricForToday), new { userId = userId }, dailyMetric);
 			}
