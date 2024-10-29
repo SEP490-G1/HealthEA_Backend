@@ -86,6 +86,7 @@ builder.Services.AddScoped<IOcrService, OcrService>();
 builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IDailyMetricRepository, DailyMetricRepository>();
+builder.Services.AddScoped<IDailyMetricsAnalysisService, DailyMetricAnalysisService>();
 //another
 builder.Services.AddControllers();
 
