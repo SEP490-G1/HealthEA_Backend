@@ -61,5 +61,11 @@ namespace Infrastructure.Repositories
 				.Where(dm => dm.UserId == userId && dm.Date >= startDate && dm.Date <= endDate)
 				.ToListAsync();
 		}
+
+		public async Task<DailyMetric?> GetByUserIdAndDateAsync(Guid userId, DateTime date)
+		{
+			return await _context.DailyMetrics
+				.FirstOrDefaultAsync(dm => dm.UserId == userId && dm.Date == date);
+		}
 	}
 }

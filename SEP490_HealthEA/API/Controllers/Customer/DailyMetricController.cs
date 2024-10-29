@@ -2,12 +2,14 @@
 using Domain.Interfaces.IServices;
 using Domain.Models.Entities.YourNamespace.Models;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Customer
 {
 	[Route("api/[controller]")]
+	[Authorize]
 	[ApiController]
 	public class DailyMetricController : ControllerBase
 	{
@@ -45,25 +47,21 @@ namespace API.Controllers.Customer
 			{
 				return BadRequest(ModelState);
 			}
-
+			dailyMetric.Id = new Guid();
+			dailyMetric.Date = DateTime.Today;
 			await repository.AddAsync(dailyMetric);
 			return CreatedAtAction(nameof(GetDailyMetricById), new { id = dailyMetric.Id }, dailyMetric);
 		}
 
-		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateDailyMetric(Guid id, [FromBody] DailyMetric dailyMetric)
+		[HttpPut]
+		public async Task<IActionResult> UpdateDailyMetric([FromBody] DailyMetric dailyMetric)
 		{
-			if (id != dailyMetric.Id)
-			{
-				return BadRequest("ID mismatch");
-			}
-
-			var existingMetric = await repository.GetByIdAsync(id);
+			var existingMetric = await repository.GetByIdAsync(dailyMetric.Id);
 			if (existingMetric == null)
 			{
 				return NotFound();
 			}
-
+			dailyMetric.Date = DateTime.Today;
 			await repository.UpdateAsync(dailyMetric);
 			return NoContent();
 		}
@@ -103,6 +101,47 @@ namespace API.Controllers.Customer
 
 			var dailyMetrics = await repository.GetByUserIdAndDateRangeAsync(userId, startDate, endDate);
 			return Ok(dailyMetrics);
+		}
+
+		[HttpGet("user/{userId}/today")]
+		public async Task<ActionResult<DailyMetric>> GetDailyMetricForToday(Guid userId)
+		{
+			var today = DateTime.Today;
+			var dailyMetric = await repository.GetByUserIdAndDateAsync(userId, today);
+			if (dailyMetric == null)
+			{
+				return NotFound();
+			}
+			return Ok(dailyMetric);
+		}
+
+		[HttpPost("user/{userId}/today")]
+		public async Task<IActionResult> AddOrUpdateDailyMetricForToday(Guid userId, [FromBody] DailyMetric dailyMetric)
+		{
+			var today = DateTime.Today;
+			var existingMetric = await repository.GetByUserIdAndDateAsync(userId, today);
+
+			if (existingMetric == null)
+			{
+				dailyMetric.Id = Guid.NewGuid();
+				dailyMetric.Date = today;
+				dailyMetric.UserId = userId;
+				await repository.AddAsync(dailyMetric);
+				return CreatedAtAction(nameof(GetDailyMetricForToday), new { userId = userId }, dailyMetric);
+			}
+			else
+			{
+				existingMetric.Weight = dailyMetric.Weight;
+				existingMetric.Height = dailyMetric.Height;
+				existingMetric.SystolicBloodPressure = dailyMetric.SystolicBloodPressure;
+				existingMetric.DiastolicBloodPressure = dailyMetric.DiastolicBloodPressure;
+				existingMetric.HeartRate = dailyMetric.HeartRate;
+				existingMetric.Steps = dailyMetric.Steps;
+				existingMetric.BodyTemperature = dailyMetric.BodyTemperature;
+
+				await repository.UpdateAsync(existingMetric);
+				return NoContent();
+			}
 		}
 	}
 }
