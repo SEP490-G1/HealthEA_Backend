@@ -41,7 +41,7 @@ namespace API.Controllers.Customer
 		}
 
 		[HttpGet("me")]
-		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsOfUser()
+		public async Task<ActionResult<IEnumerable<DailyMetricReturnModel>>> GetDailyMetricsOfUser()
 		{
 			var userId = userClaimsService.ClaimId(User);
 			var dailyMetrics = await repository.GetAllByUserIdAsync(userId);
@@ -102,7 +102,7 @@ namespace API.Controllers.Customer
 		}
 
 		[HttpGet("me/range")]
-		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsByDateRange([FromQuery] DateOnly startDate, [FromQuery] DateOnly endDate)
+		public async Task<ActionResult<IEnumerable<DailyMetricReturnModel>>> GetDailyMetricsByDateRange([FromQuery] DateOnly startDate, [FromQuery] DateOnly endDate)
 		{
 			var userId = userClaimsService.ClaimId(User);
 			if (endDate < startDate)
@@ -115,7 +115,7 @@ namespace API.Controllers.Customer
 		}
 
 		[HttpGet("today")]
-		public async Task<ActionResult<DailyMetric>> GetDailyMetricForToday()
+		public async Task<ActionResult<DailyMetricReturnModel>> GetDailyMetricForToday()
 		{
 			var userId = userClaimsService.ClaimId(User);
 			var today = DateOnly.FromDateTime(DateTime.Today);
