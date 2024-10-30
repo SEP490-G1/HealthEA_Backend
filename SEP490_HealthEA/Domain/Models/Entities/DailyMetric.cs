@@ -26,7 +26,7 @@ namespace Domain.Models.Entities
 			public DateTime Date { get; set; }
 
 			// Navigation property
-			public User User { get; set; }
+			public virtual User User { get; set; }
 		}
 	}
 
