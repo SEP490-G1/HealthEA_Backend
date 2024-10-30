@@ -3,6 +3,6 @@
 public enum OffsetUnitContants
 {
     minutes = 1,
-    houres = 2,
+    hours = 2,
     days =3
 }

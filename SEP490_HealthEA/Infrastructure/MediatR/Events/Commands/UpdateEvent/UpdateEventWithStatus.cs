@@ -6,12 +6,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.MediatR.Events.Commands.UpdateEvent;
 
-public class UpdateEventWithStatus : IRequest<Guid>
+public class UpdateEventWithStatus : IRequest<bool>
 {
-    public Guid EventId { get; set; }
+    public Guid? EventId { get; set; }
+    public Guid? UserEventId { get; set; }
     public string Action { get; set; }
+    public bool? IsAccepted { get; set; }
 }
-public class UpdateEventWithStatusCommandHandler : IRequestHandler<UpdateEventWithStatus, Guid>
+
+public class UpdateEventWithStatusCommandHandler : IRequestHandler<UpdateEventWithStatus, bool>
 {
     private readonly SqlDBContext _context;
 
@@ -19,31 +22,56 @@ public class UpdateEventWithStatusCommandHandler : IRequestHandler<UpdateEventWi
     {
         _context = context;
     }
-    public async Task<Guid> Handle(UpdateEventWithStatus request, CancellationToken cancellationToken)
+
+    public async Task<bool> Handle(UpdateEventWithStatus request, CancellationToken cancellationToken)
     {
-        var eventEntity = await _context.Events
-                 .FirstOrDefaultAsync(e => e.EventId == request.EventId, cancellationToken);
-
-        if (eventEntity == null)
+        if (request.EventId.HasValue)
         {
-            throw new Exception(ErrorCode.EVENT_NOT_FOUND);
+            var eventEntity = await _context.Events
+                .FirstOrDefaultAsync(e => e.EventId == request.EventId, cancellationToken);
+
+            if (eventEntity == null)
+            {
+                throw new Exception(ErrorCode.EVENT_NOT_FOUND);
+            }
+
+            if (DateTime.UtcNow > eventEntity.EventDateTime)
+            {
+                eventEntity.Status = EventStatusConstants.Past;
+            }
+            else
+            {
+                switch (request.Action)
+                {
+                    case "Accept":
+                        eventEntity.Status = EventStatusConstants.Upcoming;
+                        break;
+                    case "Reject":
+                        eventEntity.Status = EventStatusConstants.Cancelled;
+                        break;
+                    default:
+                        throw new ArgumentException("Invalid action. Action must be either 'Accept' or 'Reject'.");
+                }
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        if (request.Action == "Accept")
+        if (request.UserEventId.HasValue && request.IsAccepted.HasValue)
         {
-            eventEntity.Status = EventStatusConstants.Upcoming;
-        }
-        else if (request.Action == "Reject")
-        {
-            eventEntity.Status = EventStatusConstants.Cancelled;
-        }
-        else
-        {
-            throw new ArgumentException("Invalid action.");
+            var userEvent = await _context.UserEvents
+                .FirstOrDefaultAsync(ue => ue.UserEventId == request.UserEventId, cancellationToken);
+
+            if (userEvent == null)
+            {
+                throw new Exception(ErrorCode.USER_EVENT_NOT_FOUND);
+            }
+
+            userEvent.IsAccepted = request.IsAccepted.Value;
+
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return eventEntity.EventId;
+        return true;
     }
 }

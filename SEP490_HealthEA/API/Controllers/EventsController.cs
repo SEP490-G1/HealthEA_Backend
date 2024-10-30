@@ -22,20 +22,56 @@ public class EventsController : ControllerBase
         {
             return BadRequest("Event ID in URL does not match ID in request body.");
         }
-
         var result = await _mediator.Send(command, cancellationToken);
-        return Ok(result);
+        return Ok(new { Success = true, EventId = result });
+    }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateEventWithStatus(Guid id, [FromBody] UpdateEventCommand command, CancellationToken cancellationToken)
+    {
+        if (id != command.EventId)
+        {
+            return BadRequest("Event ID in URL does not match ID in request body.");
+        }
+        var result = await _mediator.Send(command, cancellationToken);
+        return Ok(new { Success = true, EventId = result });
+    }
+    [HttpPut("update-status")]
+    public async Task<IActionResult> UpdateEventStatus([FromBody] UpdateEventWithStatus command, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+
+            if (result)
+            {
+                return Ok(new { Success = true, Message = "Status updated successfully." });
+            }
+
+            return BadRequest(new { Success = false, Message = "Failed to update status." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Success = false, Message = ex.Message });
+        }
     }
     [HttpPost]
     public async Task<IActionResult> CreateEvent([FromBody] CreateEventCommand command, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(command,cancellationToken);
+        var result = await _mediator.Send(command, cancellationToken);
         return Ok(result);
     }
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteEvent(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new DeleteEventCommand { EventId = id }, cancellationToken);
-        return Ok(result);
+        try
+        {
+            var result = await _mediator.Send(new DeleteEventCommand { EventId = id }, cancellationToken);
+            return Ok(new { Success = true, Deleted = result });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Success = false, Message = ex.Message });
+        }
     }
+
 }

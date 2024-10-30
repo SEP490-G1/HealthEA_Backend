@@ -5,11 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.MediatR.Events.Commands.DeleteEvent;
 
-public class DeleteEventCommand : IRequest<Unit>
+public class DeleteEventCommand : IRequest<bool>
 {
-    public Guid EventId { get; set; }   
+    public Guid EventId { get; set; }
 }
-public class DeleteEventCommandHandler : IRequestHandler<DeleteEventCommand, Unit>
+
+public class DeleteEventCommandHandler : IRequestHandler<DeleteEventCommand, bool>
 {
     private readonly SqlDBContext _context;
 
@@ -18,23 +19,27 @@ public class DeleteEventCommandHandler : IRequestHandler<DeleteEventCommand, Uni
         _context = context;
     }
 
-    public async Task<Unit> Handle(DeleteEventCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(DeleteEventCommand request, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var eventEntity = await _context.Events
-                .Include(e => e.UserEvents)  
-                .FirstOrDefaultAsync(e => e.EventId == request.EventId, cancellationToken);
+            .Include(e => e.Reminders)  
+            .Include(e => e.UserEvents) 
+            .FirstOrDefaultAsync(e => e.EventId == request.EventId, cancellationToken);
 
         if (eventEntity == null)
         {
             throw new Exception(ErrorCode.EVENT_NOT_FOUND);
         }
 
+        _context.Reminders.RemoveRange(eventEntity.Reminders);
+
         _context.UserEvents.RemoveRange(eventEntity.UserEvents);
 
-        // Xóa sự kiện
         _context.Events.Remove(eventEntity);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Unit.Value;
+        return true;
     }
 }
