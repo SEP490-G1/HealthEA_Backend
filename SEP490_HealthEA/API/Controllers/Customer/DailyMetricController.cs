@@ -106,7 +106,7 @@ namespace API.Controllers.Customer
 			return Ok(dailyMetrics);
 		}
 
-		[HttpGet("/today")]
+		[HttpGet("today")]
 		public async Task<ActionResult<DailyMetric>> GetDailyMetricForToday()
 		{
 			var userId = userClaimsService.ClaimId(User);
@@ -119,34 +119,54 @@ namespace API.Controllers.Customer
 			return Ok(dailyMetric);
 		}
 
-		[HttpPost("/today")]
-		public async Task<IActionResult> AddOrUpdateDailyMetricForToday([FromBody] DailyMetric dailyMetric)
+		[HttpPost("today")]
+		public async Task<IActionResult> AddOrUpdateDailyMetricForToday([FromBody] AddOrUpdateModel model)
 		{
 			var userId = userClaimsService.ClaimId(User);
+			Console.WriteLine(userId);
 			var today = DateTime.Today;
 			var existingMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 
 			if (existingMetric == null)
 			{
-				dailyMetric.Id = Guid.NewGuid();
-				dailyMetric.Date = today;
-				dailyMetric.UserId = userId;
+				var dailyMetric = new DailyMetric() { 
+					Id = Guid.NewGuid(),
+					Date = today,
+					UserId = userId,
+					Weight = model.Weight,
+					Height = model.Height,
+					SystolicBloodPressure = model.SystolicBloodPressure,
+					DiastolicBloodPressure = model.DiastolicBloodPressure,
+					HeartRate = model.HeartRate,
+					Steps = model.Steps,
+					BodyTemperature	= model.BodyTemperature,
+				};
 				await repository.AddAsync(dailyMetric);
-				return CreatedAtAction(nameof(GetDailyMetricForToday), new { userId = userId }, dailyMetric);
+				return NoContent();
 			}
 			else
 			{
-				existingMetric.Weight = dailyMetric.Weight;
-				existingMetric.Height = dailyMetric.Height;
-				existingMetric.SystolicBloodPressure = dailyMetric.SystolicBloodPressure;
-				existingMetric.DiastolicBloodPressure = dailyMetric.DiastolicBloodPressure;
-				existingMetric.HeartRate = dailyMetric.HeartRate;
-				existingMetric.Steps = dailyMetric.Steps;
-				existingMetric.BodyTemperature = dailyMetric.BodyTemperature;
-
+				existingMetric.Weight = model.Weight;
+				existingMetric.Height = model.Height;
+				existingMetric.SystolicBloodPressure = model.SystolicBloodPressure;
+				existingMetric.DiastolicBloodPressure = model.DiastolicBloodPressure;
+				existingMetric.HeartRate = model.HeartRate;
+				existingMetric.Steps = model.Steps;
+				existingMetric.BodyTemperature = model.BodyTemperature;
 				await repository.UpdateAsync(existingMetric);
 				return NoContent();
 			}
 		}
+	}
+
+	public class AddOrUpdateModel
+	{
+		public double Weight { get; set; }
+		public double Height { get; set; }
+		public int SystolicBloodPressure { get; set; }
+		public int DiastolicBloodPressure { get; set; }
+		public int HeartRate { get; set; }
+		public int Steps { get; set; }
+		public double BodyTemperature { get; set; }
 	}
 }

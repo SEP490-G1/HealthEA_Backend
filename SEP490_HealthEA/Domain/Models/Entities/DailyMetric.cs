@@ -16,13 +16,13 @@ namespace Domain.Models.Entities
 			public Guid UserId { get; set; }
 
 			// Health data fields
-			public float Weight { get; set; }
-			public float Height { get; set; }
+			public double Weight { get; set; }
+			public double Height { get; set; }
 			public int SystolicBloodPressure { get; set; }
 			public int DiastolicBloodPressure { get; set; }
 			public int HeartRate { get; set; }
 			public int Steps { get; set; }
-			public float BodyTemperature { get; set; }
+			public double BodyTemperature { get; set; }
 			public DateTime Date { get; set; }
 
 			// Navigation property
