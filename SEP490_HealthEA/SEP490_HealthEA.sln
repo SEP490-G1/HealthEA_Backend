@@ -11,9 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{72951CAE-23F4-4E48-94BB-1578D8D21FA1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure_Test", "Infrastructure_Test\Infrastructure_Test.csproj", "{323BD318-202A-4154-BAA9-4083978FDF64}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure_Test", "Infrastructure_Test\Infrastructure_Test.csproj", "{323BD318-202A-4154-BAA9-4083978FDF64}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API_Test", "API_Test\API_Test.csproj", "{3CE141A8-B92F-4FE2-BE0C-EDA13BF88615}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API_Test", "API_Test\API_Test.csproj", "{3CE141A8-B92F-4FE2-BE0C-EDA13BF88615}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +44,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{323BD318-202A-4154-BAA9-4083978FDF64} = {72951CAE-23F4-4E48-94BB-1578D8D21FA1}
+		{3CE141A8-B92F-4FE2-BE0C-EDA13BF88615} = {72951CAE-23F4-4E48-94BB-1578D8D21FA1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7CEF81BC-17AD-478C-A889-AF1D5EAA2D97}

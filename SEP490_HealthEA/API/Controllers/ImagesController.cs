@@ -102,6 +102,6 @@ namespace API.Controllers
 
 	public class ImageOcrPostModel
 	{
-		public IFormFile File { get; set; }
+		public required IFormFile File { get; set; }
 	}
 }

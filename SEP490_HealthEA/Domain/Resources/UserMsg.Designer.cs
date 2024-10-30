@@ -77,7 +77,7 @@ namespace Domain.Resources {
                 return ResourceManager.GetString("AddSuccess", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Bạn không có quyền truy cập.
         /// </summary>
@@ -86,7 +86,7 @@ namespace Domain.Resources {
                 return ResourceManager.GetString("AuthorizeErr", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Có lỗi xảy ra,vui lòng thử lại hoặc liên hệ Thắng để được trợ giúp.
         /// </summary>
