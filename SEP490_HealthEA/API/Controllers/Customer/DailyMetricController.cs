@@ -36,6 +36,11 @@ namespace API.Controllers.Customer
 			{
 				return NotFound();
 			}
+			var userId = userClaimsService.ClaimId(User);
+			if (dailyMetric.UserId != userId)
+			{
+				return BadRequest("You do not have permission to access this record.");
+			}
 			var result = mapper.Map<DailyMetricReturnModel>(dailyMetric);
 			return Ok(result);
 		}
@@ -70,7 +75,12 @@ namespace API.Controllers.Customer
 			var existingMetric = await repository.GetByIdAsync(dailyMetric.Id);
 			if (existingMetric == null)
 			{
-				return NotFound();
+				return BadRequest("Daily Metric Does Not Exists");
+			}
+			var userId = userClaimsService.ClaimId(User);
+			if (existingMetric.UserId != userId)
+			{
+				return BadRequest("You do not have permission to access this record.");
 			}
 			dailyMetric.Date = DateOnly.FromDateTime(DateTime.Today);
 			await repository.UpdateAsync(dailyMetric);
@@ -83,7 +93,12 @@ namespace API.Controllers.Customer
 			var dailyMetric = await repository.GetByIdAsync(id);
 			if (dailyMetric == null)
 			{
-				return NotFound();
+				return BadRequest("Daily Metric Does Not Exists");
+			}
+			var userId = userClaimsService.ClaimId(User);
+			if (dailyMetric.UserId != userId)
+			{
+				return BadRequest("You do not have permission to access this record.");
 			}
 			await repository.DeleteAsync(id);
 			return NoContent();
@@ -95,7 +110,12 @@ namespace API.Controllers.Customer
 			var dailyMetric = await repository.GetByIdAsync(id);
 			if (dailyMetric == null)
 			{
-				return NotFound();
+				return BadRequest("Daily Metric Does Not Exists");
+			}
+			var userId = userClaimsService.ClaimId(User);
+			if (dailyMetric.UserId != userId)
+			{
+				return BadRequest("You do not have permission to access this record.");
 			}
 			var result = await service.Analyze(dailyMetric);
 			return Ok(result);
@@ -123,7 +143,7 @@ namespace API.Controllers.Customer
 			var dailyMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 			if (dailyMetric == null)
 			{
-				return NotFound();
+				return BadRequest("Daily Metric Does Not Exists");
 			}
 			var result = mapper.Map<DailyMetricReturnModel>(dailyMetric);
 			return Ok(result);
