@@ -23,7 +23,7 @@ namespace Domain.Models.Entities
 			public int HeartRate { get; set; }
 			public int Steps { get; set; }
 			public double BodyTemperature { get; set; }
-			public DateTime Date { get; set; }
+			public DateOnly Date { get; set; }
 
 			// Navigation property
 			public virtual User User { get; set; }

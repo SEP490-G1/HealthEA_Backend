@@ -1,5 +1,7 @@
-﻿using Domain.Interfaces.IRepositories;
+﻿using AutoMapper;
+using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
+using Domain.Models.DAO.DailyMetrics;
 using Domain.Models.Entities.YourNamespace.Models;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -16,12 +18,14 @@ namespace API.Controllers.Customer
 		private readonly IDailyMetricRepository repository;
 		private readonly IDailyMetricsAnalysisService service;
 		private readonly IUserClaimsService userClaimsService;
+		private readonly IMapper mapper;
 
-		public DailyMetricController(IDailyMetricRepository repository, IDailyMetricsAnalysisService service, IUserClaimsService userClaimsService)
+		public DailyMetricController(IDailyMetricRepository repository, IDailyMetricsAnalysisService service, IUserClaimsService userClaimsService, IMapper mapper)
 		{
 			this.repository = repository;
 			this.service = service;
 			this.userClaimsService = userClaimsService;
+			this.mapper = mapper;
 		}
 
 		[HttpGet("{id}")]
@@ -32,7 +36,8 @@ namespace API.Controllers.Customer
 			{
 				return NotFound();
 			}
-			return Ok(dailyMetric);
+			var result = mapper.Map<DailyMetricReturnModel>(dailyMetric);
+			return Ok(result);
 		}
 
 		[HttpGet("me")]
@@ -40,10 +45,12 @@ namespace API.Controllers.Customer
 		{
 			var userId = userClaimsService.ClaimId(User);
 			var dailyMetrics = await repository.GetAllByUserIdAsync(userId);
-			return Ok(dailyMetrics);
+			var result = mapper.Map<IEnumerable<DailyMetricReturnModel>>(dailyMetrics);
+			return Ok(result);
 		}
 
 		[HttpPost]
+		[Obsolete]
 		public async Task<ActionResult> CreateDailyMetric([FromBody] DailyMetric dailyMetric)
 		{
 			if (!ModelState.IsValid)
@@ -51,12 +58,13 @@ namespace API.Controllers.Customer
 				return BadRequest(ModelState);
 			}
 			dailyMetric.Id = new Guid();
-			dailyMetric.Date = DateTime.Today;
+			dailyMetric.Date = DateOnly.FromDateTime(DateTime.Today);
 			await repository.AddAsync(dailyMetric);
-			return CreatedAtAction(nameof(GetDailyMetricById), new { id = dailyMetric.Id }, dailyMetric);
+			return NoContent();
 		}
 
 		[HttpPut]
+		[Obsolete]
 		public async Task<IActionResult> UpdateDailyMetric([FromBody] DailyMetric dailyMetric)
 		{
 			var existingMetric = await repository.GetByIdAsync(dailyMetric.Id);
@@ -64,7 +72,7 @@ namespace API.Controllers.Customer
 			{
 				return NotFound();
 			}
-			dailyMetric.Date = DateTime.Today;
+			dailyMetric.Date = DateOnly.FromDateTime(DateTime.Today);
 			await repository.UpdateAsync(dailyMetric);
 			return NoContent();
 		}
@@ -77,7 +85,6 @@ namespace API.Controllers.Customer
 			{
 				return NotFound();
 			}
-
 			await repository.DeleteAsync(id);
 			return NoContent();
 		}
@@ -95,7 +102,7 @@ namespace API.Controllers.Customer
 		}
 
 		[HttpGet("me/range")]
-		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsByDateRange([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsByDateRange([FromQuery] DateOnly startDate, [FromQuery] DateOnly endDate)
 		{
 			var userId = userClaimsService.ClaimId(User);
 			if (endDate < startDate)
@@ -103,20 +110,23 @@ namespace API.Controllers.Customer
 				return BadRequest("End date must be after the start date.");
 			}
 			var dailyMetrics = await repository.GetByUserIdAndDateRangeAsync(userId, startDate, endDate);
-			return Ok(dailyMetrics);
+			var result = mapper.Map<IEnumerable<DailyMetricReturnModel>>(dailyMetrics);
+			return Ok(result);
 		}
 
 		[HttpGet("today")]
 		public async Task<ActionResult<DailyMetric>> GetDailyMetricForToday()
 		{
 			var userId = userClaimsService.ClaimId(User);
-			var today = DateTime.Today;
+			var today = DateOnly.FromDateTime(DateTime.Today);
+			Console.WriteLine(today.ToString());
 			var dailyMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 			if (dailyMetric == null)
 			{
 				return NotFound();
 			}
-			return Ok(dailyMetric);
+			var result = mapper.Map<DailyMetricReturnModel>(dailyMetric);
+			return Ok(result);
 		}
 
 		[HttpPost("today")]
@@ -124,7 +134,7 @@ namespace API.Controllers.Customer
 		{
 			var userId = userClaimsService.ClaimId(User);
 			Console.WriteLine(userId);
-			var today = DateTime.Today;
+			var today = DateOnly.FromDateTime(DateTime.Today);
 			var existingMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 
 			if (existingMetric == null)
@@ -169,4 +179,5 @@ namespace API.Controllers.Customer
 		public int Steps { get; set; }
 		public double BodyTemperature { get; set; }
 	}
+
 }

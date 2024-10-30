@@ -16,6 +16,7 @@ using System;
 using System.Text;
 using Infrastructure.Services.Ocr;
 using Infrastructure.Services;
+using Domain.Mappings;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -88,6 +89,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IDailyMetricRepository, DailyMetricRepository>();
 builder.Services.AddScoped<IDailyMetricsAnalysisService, DailyMetricAnalysisService>();
 builder.Services.AddScoped<IUserClaimsService, UserClaimsService>();
+//AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 //another
 builder.Services.AddControllers();
 

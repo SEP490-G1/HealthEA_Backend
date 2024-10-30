@@ -55,14 +55,14 @@ namespace Infrastructure.Repositories
 			}
 		}
 
-		public async Task<IEnumerable<DailyMetric>> GetByUserIdAndDateRangeAsync(Guid userId, DateTime startDate, DateTime endDate)
+		public async Task<IEnumerable<DailyMetric>> GetByUserIdAndDateRangeAsync(Guid userId, DateOnly startDate, DateOnly endDate)
 		{
 			return await _context.DailyMetrics
 				.Where(dm => dm.UserId == userId && dm.Date >= startDate && dm.Date <= endDate)
 				.ToListAsync();
 		}
 
-		public async Task<DailyMetric?> GetByUserIdAndDateAsync(Guid userId, DateTime date)
+		public async Task<DailyMetric?> GetByUserIdAndDateAsync(Guid userId, DateOnly date)
 		{
 			return await _context.DailyMetrics
 				.FirstOrDefaultAsync(dm => dm.UserId == userId && dm.Date == date);
