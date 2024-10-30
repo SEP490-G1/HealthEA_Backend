@@ -41,7 +41,7 @@ namespace API.Controllers.Customer
 		}
 
 		[HttpGet("me")]
-		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsOfUser()
+		public async Task<ActionResult<IEnumerable<DailyMetricReturnModel>>> GetDailyMetricsOfUser()
 		{
 			var userId = userClaimsService.ClaimId(User);
 			var dailyMetrics = await repository.GetAllByUserIdAsync(userId);
