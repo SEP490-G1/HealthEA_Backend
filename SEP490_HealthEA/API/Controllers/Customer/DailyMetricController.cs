@@ -1,5 +1,7 @@
-﻿using Domain.Interfaces.IRepositories;
+﻿using AutoMapper;
+using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
+using Domain.Models.DAO.DailyMetrics;
 using Domain.Models.Entities.YourNamespace.Models;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -15,11 +17,15 @@ namespace API.Controllers.Customer
 	{
 		private readonly IDailyMetricRepository repository;
 		private readonly IDailyMetricsAnalysisService service;
+		private readonly IUserClaimsService userClaimsService;
+		private readonly IMapper mapper;
 
-		public DailyMetricController(IDailyMetricRepository repository, IDailyMetricsAnalysisService service)
+		public DailyMetricController(IDailyMetricRepository repository, IDailyMetricsAnalysisService service, IUserClaimsService userClaimsService, IMapper mapper)
 		{
 			this.repository = repository;
 			this.service = service;
+			this.userClaimsService = userClaimsService;
+			this.mapper = mapper;
 		}
 
 		[HttpGet("{id}")]
@@ -30,17 +36,21 @@ namespace API.Controllers.Customer
 			{
 				return NotFound();
 			}
-			return Ok(dailyMetric);
+			var result = mapper.Map<DailyMetricReturnModel>(dailyMetric);
+			return Ok(result);
 		}
 
-		[HttpGet("user/{userId}")]
-		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsByUserId(Guid userId)
+		[HttpGet("me")]
+		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsOfUser()
 		{
+			var userId = userClaimsService.ClaimId(User);
 			var dailyMetrics = await repository.GetAllByUserIdAsync(userId);
-			return Ok(dailyMetrics);
+			var result = mapper.Map<IEnumerable<DailyMetricReturnModel>>(dailyMetrics);
+			return Ok(result);
 		}
 
 		[HttpPost]
+		[Obsolete]
 		public async Task<ActionResult> CreateDailyMetric([FromBody] DailyMetric dailyMetric)
 		{
 			if (!ModelState.IsValid)
@@ -48,12 +58,13 @@ namespace API.Controllers.Customer
 				return BadRequest(ModelState);
 			}
 			dailyMetric.Id = new Guid();
-			dailyMetric.Date = DateTime.Today;
+			dailyMetric.Date = DateOnly.FromDateTime(DateTime.Today);
 			await repository.AddAsync(dailyMetric);
-			return CreatedAtAction(nameof(GetDailyMetricById), new { id = dailyMetric.Id }, dailyMetric);
+			return NoContent();
 		}
 
 		[HttpPut]
+		[Obsolete]
 		public async Task<IActionResult> UpdateDailyMetric([FromBody] DailyMetric dailyMetric)
 		{
 			var existingMetric = await repository.GetByIdAsync(dailyMetric.Id);
@@ -61,7 +72,7 @@ namespace API.Controllers.Customer
 			{
 				return NotFound();
 			}
-			dailyMetric.Date = DateTime.Today;
+			dailyMetric.Date = DateOnly.FromDateTime(DateTime.Today);
 			await repository.UpdateAsync(dailyMetric);
 			return NoContent();
 		}
@@ -74,7 +85,6 @@ namespace API.Controllers.Customer
 			{
 				return NotFound();
 			}
-
 			await repository.DeleteAsync(id);
 			return NoContent();
 		}
@@ -91,57 +101,83 @@ namespace API.Controllers.Customer
 			return Ok(result);
 		}
 
-		[HttpGet("user/{userId}/range")]
-		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsByDateRange(Guid userId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+		[HttpGet("me/range")]
+		public async Task<ActionResult<IEnumerable<DailyMetric>>> GetDailyMetricsByDateRange([FromQuery] DateOnly startDate, [FromQuery] DateOnly endDate)
 		{
+			var userId = userClaimsService.ClaimId(User);
 			if (endDate < startDate)
 			{
 				return BadRequest("End date must be after the start date.");
 			}
-
 			var dailyMetrics = await repository.GetByUserIdAndDateRangeAsync(userId, startDate, endDate);
-			return Ok(dailyMetrics);
+			var result = mapper.Map<IEnumerable<DailyMetricReturnModel>>(dailyMetrics);
+			return Ok(result);
 		}
 
-		[HttpGet("user/{userId}/today")]
-		public async Task<ActionResult<DailyMetric>> GetDailyMetricForToday(Guid userId)
+		[HttpGet("today")]
+		public async Task<ActionResult<DailyMetric>> GetDailyMetricForToday()
 		{
-			var today = DateTime.Today;
+			var userId = userClaimsService.ClaimId(User);
+			var today = DateOnly.FromDateTime(DateTime.Today);
+			Console.WriteLine(today.ToString());
 			var dailyMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 			if (dailyMetric == null)
 			{
 				return NotFound();
 			}
-			return Ok(dailyMetric);
+			var result = mapper.Map<DailyMetricReturnModel>(dailyMetric);
+			return Ok(result);
 		}
 
-		[HttpPost("user/{userId}/today")]
-		public async Task<IActionResult> AddOrUpdateDailyMetricForToday(Guid userId, [FromBody] DailyMetric dailyMetric)
+		[HttpPost("today")]
+		public async Task<IActionResult> AddOrUpdateDailyMetricForToday([FromBody] AddOrUpdateModel model)
 		{
-			var today = DateTime.Today;
+			var userId = userClaimsService.ClaimId(User);
+			Console.WriteLine(userId);
+			var today = DateOnly.FromDateTime(DateTime.Today);
 			var existingMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 
 			if (existingMetric == null)
 			{
-				dailyMetric.Id = Guid.NewGuid();
-				dailyMetric.Date = today;
-				dailyMetric.UserId = userId;
+				var dailyMetric = new DailyMetric() { 
+					Id = Guid.NewGuid(),
+					Date = today,
+					UserId = userId,
+					Weight = model.Weight,
+					Height = model.Height,
+					SystolicBloodPressure = model.SystolicBloodPressure,
+					DiastolicBloodPressure = model.DiastolicBloodPressure,
+					HeartRate = model.HeartRate,
+					Steps = model.Steps,
+					BodyTemperature	= model.BodyTemperature,
+				};
 				await repository.AddAsync(dailyMetric);
-				return CreatedAtAction(nameof(GetDailyMetricForToday), new { userId = userId }, dailyMetric);
+				return NoContent();
 			}
 			else
 			{
-				existingMetric.Weight = dailyMetric.Weight;
-				existingMetric.Height = dailyMetric.Height;
-				existingMetric.SystolicBloodPressure = dailyMetric.SystolicBloodPressure;
-				existingMetric.DiastolicBloodPressure = dailyMetric.DiastolicBloodPressure;
-				existingMetric.HeartRate = dailyMetric.HeartRate;
-				existingMetric.Steps = dailyMetric.Steps;
-				existingMetric.BodyTemperature = dailyMetric.BodyTemperature;
-
+				existingMetric.Weight = model.Weight;
+				existingMetric.Height = model.Height;
+				existingMetric.SystolicBloodPressure = model.SystolicBloodPressure;
+				existingMetric.DiastolicBloodPressure = model.DiastolicBloodPressure;
+				existingMetric.HeartRate = model.HeartRate;
+				existingMetric.Steps = model.Steps;
+				existingMetric.BodyTemperature = model.BodyTemperature;
 				await repository.UpdateAsync(existingMetric);
 				return NoContent();
 			}
 		}
 	}
+
+	public class AddOrUpdateModel
+	{
+		public double Weight { get; set; }
+		public double Height { get; set; }
+		public int SystolicBloodPressure { get; set; }
+		public int DiastolicBloodPressure { get; set; }
+		public int HeartRate { get; set; }
+		public int Steps { get; set; }
+		public double BodyTemperature { get; set; }
+	}
+
 }
