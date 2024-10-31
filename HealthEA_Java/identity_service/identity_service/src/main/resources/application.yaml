@@ -5,9 +5,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:sqlserver://localhost;database=DoAn;Encrypt=True;TrustServerCertificate=True
+    url: jdbc:sqlserver://localhost:1433;databaseName=DOAN
     username: sa
-    password: 123
+    password: 123456
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
     jpa:
