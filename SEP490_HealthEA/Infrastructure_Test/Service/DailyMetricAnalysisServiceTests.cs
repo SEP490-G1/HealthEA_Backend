@@ -61,7 +61,7 @@ namespace Infrastructure_Test.Service
 		[InlineData(4000, "steps", "Low step count (below 5,000 steps)")]
 		public async Task Analyze_ShouldReturnStepCountWarning(int steps, string expectedMetricName, string expectedDescription)
 		{
-			var metric = new DailyMetric { Steps = steps };
+			var metric = new DailyMetric { BloodSugar = steps };
 			var result = await service.Analyze(metric);
 			Assert.Contains(result.Warnings, w => w.MetricName == expectedMetricName && w.Description == expectedDescription);
 		}

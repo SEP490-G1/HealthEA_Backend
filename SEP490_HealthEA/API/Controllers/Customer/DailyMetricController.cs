@@ -36,6 +36,11 @@ namespace API.Controllers.Customer
 			{
 				return NotFound();
 			}
+			var userId = userClaimsService.ClaimId(User);
+			if (dailyMetric.UserId != userId)
+			{
+				return BadRequest("You do not have permission to access this record.");
+			}
 			var result = mapper.Map<DailyMetricReturnModel>(dailyMetric);
 			return Ok(result);
 		}
@@ -70,7 +75,12 @@ namespace API.Controllers.Customer
 			var existingMetric = await repository.GetByIdAsync(dailyMetric.Id);
 			if (existingMetric == null)
 			{
-				return NotFound();
+				return BadRequest("Daily Metric Does Not Exists");
+			}
+			var userId = userClaimsService.ClaimId(User);
+			if (existingMetric.UserId != userId)
+			{
+				return BadRequest("You do not have permission to access this record.");
 			}
 			dailyMetric.Date = DateOnly.FromDateTime(DateTime.Today);
 			await repository.UpdateAsync(dailyMetric);
@@ -83,21 +93,33 @@ namespace API.Controllers.Customer
 			var dailyMetric = await repository.GetByIdAsync(id);
 			if (dailyMetric == null)
 			{
-				return NotFound();
+				return BadRequest("Daily Metric Does Not Exists");
+			}
+			var userId = userClaimsService.ClaimId(User);
+			if (dailyMetric.UserId != userId)
+			{
+				return BadRequest("You do not have permission to access this record.");
 			}
 			await repository.DeleteAsync(id);
 			return NoContent();
 		}
 
 		[HttpGet("analyze/{id}")]
+		[Obsolete]
 		public async Task<IActionResult> AnalyzeDailyMetric(Guid id)
 		{
 			var dailyMetric = await repository.GetByIdAsync(id);
 			if (dailyMetric == null)
 			{
-				return NotFound();
+				return BadRequest("Daily Metric Does Not Exists");
 			}
-			var result = await service.Analyze(dailyMetric);
+			var userId = userClaimsService.ClaimId(User);
+			if (dailyMetric.UserId != userId)
+			{
+				return BadRequest("You do not have permission to access this record.");
+			}
+			var mapped = mapper.Map<DailyMetricReturnModel>(dailyMetric);
+			var result = await service.Analyze(mapped);
 			return Ok(result);
 		}
 
@@ -123,13 +145,52 @@ namespace API.Controllers.Customer
 			var dailyMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 			if (dailyMetric == null)
 			{
-				return NotFound();
+				return Ok(new
+				{
+					Msg = "No Record"
+				});
 			}
 			var result = mapper.Map<DailyMetricReturnModel>(dailyMetric);
 			return Ok(result);
 		}
 
-		[HttpPost("today")]
+		[HttpGet("detailed/today")]
+		public async Task<ActionResult<DailyMetricStatusResult>> GetDetailedDailyMetricForToday()
+		{
+			var userId = userClaimsService.ClaimId(User);
+			var today = DateOnly.FromDateTime(DateTime.Today);
+			Console.WriteLine(today.ToString());
+			var dailyMetric = await repository.GetByUserIdAndDateAsync(userId, today);
+			if (dailyMetric == null)
+			{
+				return Ok(new {
+					Msg = "No Record"
+				});
+			}
+			var mapped = mapper.Map<DailyMetricReturnModel>(dailyMetric);
+			var result = await service.GetStatus(mapped);
+			return Ok(result);
+		}
+
+		[HttpGet("detailed/{id}")]
+		public async Task<ActionResult<DailyMetricStatusResult>> GetDetailedDailyMetric(Guid id)
+		{
+			var dailyMetric = await repository.GetByIdAsync(id);
+			if (dailyMetric == null)
+			{
+				return NotFound();
+			}
+			var userId = userClaimsService.ClaimId(User);
+			if (dailyMetric.UserId != userId)
+			{
+				return BadRequest("You do not have permission to access this record.");
+			}
+			var mapped = mapper.Map<DailyMetricReturnModel>(dailyMetric);
+			var result = await service.GetStatus(mapped);
+			return Ok(result);
+		}
+
+		[HttpPatch("today")]
 		public async Task<IActionResult> AddOrUpdateDailyMetricForToday([FromBody] AddOrUpdateModel model)
 		{
 			var userId = userClaimsService.ClaimId(User);
@@ -139,7 +200,8 @@ namespace API.Controllers.Customer
 
 			if (existingMetric == null)
 			{
-				var dailyMetric = new DailyMetric() { 
+				var dailyMetric = new DailyMetric
+				{
 					Id = Guid.NewGuid(),
 					Date = today,
 					UserId = userId,
@@ -148,36 +210,37 @@ namespace API.Controllers.Customer
 					SystolicBloodPressure = model.SystolicBloodPressure,
 					DiastolicBloodPressure = model.DiastolicBloodPressure,
 					HeartRate = model.HeartRate,
-					Steps = model.Steps,
-					BodyTemperature	= model.BodyTemperature,
+					BloodSugar = model.BloodSugar,
+					BodyTemperature = model.BodyTemperature,
 				};
 				await repository.AddAsync(dailyMetric);
 				return NoContent();
 			}
-			else
-			{
-				existingMetric.Weight = model.Weight;
-				existingMetric.Height = model.Height;
-				existingMetric.SystolicBloodPressure = model.SystolicBloodPressure;
-				existingMetric.DiastolicBloodPressure = model.DiastolicBloodPressure;
-				existingMetric.HeartRate = model.HeartRate;
-				existingMetric.Steps = model.Steps;
-				existingMetric.BodyTemperature = model.BodyTemperature;
+			else	{ 
+
+				if (model.Weight.HasValue) existingMetric.Weight = model.Weight.Value;
+				if (model.Height.HasValue) existingMetric.Height = model.Height.Value;
+				if (model.SystolicBloodPressure.HasValue) existingMetric.SystolicBloodPressure = model.SystolicBloodPressure.Value;
+				if (model.DiastolicBloodPressure.HasValue) existingMetric.DiastolicBloodPressure = model.DiastolicBloodPressure.Value;
+				if (model.HeartRate.HasValue) existingMetric.HeartRate = model.HeartRate.Value;
+				if (model.BloodSugar.HasValue) existingMetric.BloodSugar = model.BloodSugar.Value;
+				if (model.BodyTemperature.HasValue) existingMetric.BodyTemperature = model.BodyTemperature.Value;
 				await repository.UpdateAsync(existingMetric);
 				return NoContent();
 			}
 		}
+
 	}
 
 	public class AddOrUpdateModel
 	{
-		public double Weight { get; set; }
-		public double Height { get; set; }
-		public int SystolicBloodPressure { get; set; }
-		public int DiastolicBloodPressure { get; set; }
-		public int HeartRate { get; set; }
-		public int Steps { get; set; }
-		public double BodyTemperature { get; set; }
+		public double? Weight { get; set; }
+		public double? Height { get; set; }
+		public int? SystolicBloodPressure { get; set; }
+		public int? DiastolicBloodPressure { get; set; }
+		public int? HeartRate { get; set; }
+		public double? BloodSugar { get; set; }
+		public double? BodyTemperature { get; set; }
 	}
 
 }
