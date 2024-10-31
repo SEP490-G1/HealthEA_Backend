@@ -1,5 +1,6 @@
-using Domain.Interfaces.IRepositories;
+﻿using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
+using Domain.Models.DAO.DailyMetrics;
 using Domain.Models.Entities.YourNamespace.Models;
 using System;
 using System.Collections.Generic;
@@ -11,22 +12,10 @@ namespace Infrastructure.Services
 {
 	public class DailyMetricAnalysisService : IDailyMetricsAnalysisService
 	{
-		public async Task<DailyMetricAnalysisResult> Analyze(DailyMetric metric)
+		[Obsolete]
+		public async Task<DailyMetricAnalysisResult> Analyze(DailyMetricReturnModel metric)
 		{
 			var result = new DailyMetricAnalysisResult(metric);
-			// Check weight (this example assumes weight in kg and height in cm)
-			double bmi = metric.Weight / Math.Pow(metric.Height / 100.0, 2);
-			if (bmi < 18.5)
-				result.Warnings.Add(new DailyMetricWarning()
-				{
-					MetricName = "bmi",
-					Description = "Underweight (BMI below 18.5)"
-				});
-			else if (bmi >= 25)
-				result.Warnings.Add(new DailyMetricWarning() {
-					MetricName = "bmi",
-					Description = "Overweight (BMI above 25)"
-				});
 
 			// Check blood pressure
 			if (metric.SystolicBloodPressure > 130)
@@ -49,15 +38,180 @@ namespace Infrastructure.Services
 
 			// Check body temperature
 			if (metric.BodyTemperature < 36.0)
-				result.Warnings.Add(new DailyMetricWarning() {MetricName = "bodyTemperature", Description = "Low body temperature (below 36�C)" });
+				result.Warnings.Add(new DailyMetricWarning() {MetricName = "bodyTemperature", Description = "Low body temperature (below 36°C)" });
 			else if (metric.BodyTemperature > 37.5)
-				result.Warnings.Add(new DailyMetricWarning() {MetricName = "bodyTemperature", Description = "High body temperature (above 37.5�C)" });
+				result.Warnings.Add(new DailyMetricWarning() {MetricName = "bodyTemperature", Description = "High body temperature (above 37.5°C)" });
 
 			// Check step count
-			if (metric.Steps < 5000)
+			if (metric.BloodSugar < 5000)
 				result.Warnings.Add(new DailyMetricWarning() {MetricName = "steps", Description = "Low step count (below 5,000 steps)" });
 
 			return await Task.FromResult(result);
 		}
+
+		public async Task<DailyMetricStatusResult> GetStatus(DailyMetricReturnModel metric)
+		{
+			var statusResult = new DailyMetricStatusResult(metric);
+
+			// Calculate BMI and status if Weight and Height are not null
+			if (metric.Weight.HasValue && metric.Height.HasValue)
+			{
+				double bmi = metric.Weight.Value / Math.Pow(metric.Height.Value / 100, 2);
+				int bmiStatus = bmi < 18.5 ? 1 : bmi < 24.9 ? 2 : 3;
+				string? bmiDescription = bmiStatus switch
+				{
+					1 => "BMI thấp (gầy)",
+					2 => "BMI bình thường",
+					3 => "BMI cao (thừa cân)",
+					_ => null
+				};
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "bmi",
+					Value = $"{bmi:F1} kg/m²",
+					Status = bmiStatus,
+					Description = bmiDescription
+				});
+			}
+			else
+			{
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "bmi",
+					Value = null,
+					Status = -1,
+					Description = null
+				});
+			}
+
+			// Blood Pressure grouping and status if values are not null
+			if (metric.SystolicBloodPressure.HasValue && metric.DiastolicBloodPressure.HasValue)
+			{
+				int bloodPressureStatus = (metric.SystolicBloodPressure.Value, metric.DiastolicBloodPressure.Value) switch
+				{
+					( < 90, < 60) => 1,
+					( < 120, < 80) => 2,
+					_ => 3
+				};
+				string? bpDescription = bloodPressureStatus switch
+				{
+					1 => "Huyết áp thấp",
+					2 => "Huyết áp bình thường",
+					3 => "Huyết áp cao",
+					_ => null
+				};
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "bloodPressure",
+					Value = $"{metric.SystolicBloodPressure}/{metric.DiastolicBloodPressure} mmHg",
+					Status = bloodPressureStatus,
+					Description = bpDescription
+				});
+			}
+			else
+			{
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "bloodPressure",
+					Value = null,
+					Status = -1,
+					Description = null
+				});
+			}
+
+			// Heart Rate status if not null
+			if (metric.HeartRate.HasValue)
+			{
+				int heartRateStatus = metric.HeartRate.Value < 60 ? 1 : metric.HeartRate.Value <= 100 ? 2 : 3;
+				string? heartRateDescription = heartRateStatus switch
+				{
+					1 => "Nhịp tim chậm",
+					2 => "Nhịp tim bình thường",
+					3 => "Nhịp tim nhanh",
+					_ => null
+				};
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "heartRate",
+					Value = $"{metric.HeartRate} bpm",
+					Status = heartRateStatus,
+					Description = heartRateDescription
+				});
+			}
+			else
+			{
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "heartRate",
+					Value = null,
+					Status = -1,
+					Description = null
+				});
+			}
+
+			// Blood Sugar status if not null
+			if (metric.BloodSugar.HasValue)
+			{
+				int bloodSugarStatus = metric.BloodSugar.Value < 70 ? 1 : metric.BloodSugar.Value <= 140 ? 2 : 3;
+				string? bloodSugarDescription = bloodSugarStatus switch
+				{
+					1 => "Đường huyết thấp",
+					2 => "Đường huyết bình thường",
+					3 => "Đường huyết cao",
+					_ => null
+				};
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "bloodSugar",
+					Value = $"{metric.BloodSugar} mg/dL",
+					Status = bloodSugarStatus,
+					Description = bloodSugarDescription
+				});
+			}
+			else
+			{
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "bloodSugar",
+					Value = null,
+					Status = -1,
+					Description = null
+				});
+			}
+
+			// Body Temperature status if not null
+			if (metric.BodyTemperature.HasValue)
+			{
+				int temperatureStatus = metric.BodyTemperature.Value < 36.5 ? 1 : metric.BodyTemperature.Value <= 37.5 ? 2 : 3;
+				string? temperatureDescription = temperatureStatus switch
+				{
+					1 => "Nhiệt độ thấp",
+					2 => "Nhiệt độ bình thường",
+					3 => "Sốt",
+					_ => null
+				};
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "bodyTemperature",
+					Value = $"{metric.BodyTemperature} °C",
+					Status = temperatureStatus,
+					Description = temperatureDescription
+				});
+			}
+			else
+			{
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "bodyTemperature",
+					Value = null,
+					Status = -1,
+					Description = null
+				});
+			}
+
+			return await Task.FromResult(statusResult);
+		}
+
+
 	}
 }

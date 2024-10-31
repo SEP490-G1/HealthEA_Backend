@@ -105,6 +105,7 @@ namespace API.Controllers.Customer
 		}
 
 		[HttpGet("analyze/{id}")]
+		[Obsolete]
 		public async Task<IActionResult> AnalyzeDailyMetric(Guid id)
 		{
 			var dailyMetric = await repository.GetByIdAsync(id);
@@ -117,7 +118,8 @@ namespace API.Controllers.Customer
 			{
 				return BadRequest("You do not have permission to access this record.");
 			}
-			var result = await service.Analyze(dailyMetric);
+			var mapped = mapper.Map<DailyMetricReturnModel>(dailyMetric);
+			var result = await service.Analyze(mapped);
 			return Ok(result);
 		}
 
@@ -143,13 +145,47 @@ namespace API.Controllers.Customer
 			var dailyMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 			if (dailyMetric == null)
 			{
-				return BadRequest("Daily Metric Does Not Exists");
+				return NoContent();
 			}
 			var result = mapper.Map<DailyMetricReturnModel>(dailyMetric);
 			return Ok(result);
 		}
 
-		[HttpPost("today")]
+		[HttpGet("detailed/today")]
+		public async Task<ActionResult<DailyMetricStatusResult>> GetDetailedDailyMetricForToday()
+		{
+			var userId = userClaimsService.ClaimId(User);
+			var today = DateOnly.FromDateTime(DateTime.Today);
+			Console.WriteLine(today.ToString());
+			var dailyMetric = await repository.GetByUserIdAndDateAsync(userId, today);
+			if (dailyMetric == null)
+			{
+				return NoContent();
+			}
+			var mapped = mapper.Map<DailyMetricReturnModel>(dailyMetric);
+			var result = await service.GetStatus(mapped);
+			return Ok(result);
+		}
+
+		[HttpGet("detailed/{id}")]
+		public async Task<ActionResult<DailyMetricStatusResult>> GetDetailedDailyMetric(Guid id)
+		{
+			var dailyMetric = await repository.GetByIdAsync(id);
+			if (dailyMetric == null)
+			{
+				return NotFound();
+			}
+			var userId = userClaimsService.ClaimId(User);
+			if (dailyMetric.UserId != userId)
+			{
+				return BadRequest("You do not have permission to access this record.");
+			}
+			var mapped = mapper.Map<DailyMetricReturnModel>(dailyMetric);
+			var result = await service.GetStatus(mapped);
+			return Ok(result);
+		}
+
+		[HttpPatch("today")]
 		public async Task<IActionResult> AddOrUpdateDailyMetricForToday([FromBody] AddOrUpdateModel model)
 		{
 			var userId = userClaimsService.ClaimId(User);
@@ -168,7 +204,7 @@ namespace API.Controllers.Customer
 					SystolicBloodPressure = model.SystolicBloodPressure,
 					DiastolicBloodPressure = model.DiastolicBloodPressure,
 					HeartRate = model.HeartRate,
-					Steps = model.Steps,
+					BloodSugar = model.BloodSugar,
 					BodyTemperature	= model.BodyTemperature,
 				};
 				await repository.AddAsync(dailyMetric);
@@ -181,7 +217,7 @@ namespace API.Controllers.Customer
 				existingMetric.SystolicBloodPressure = model.SystolicBloodPressure;
 				existingMetric.DiastolicBloodPressure = model.DiastolicBloodPressure;
 				existingMetric.HeartRate = model.HeartRate;
-				existingMetric.Steps = model.Steps;
+				existingMetric.BloodSugar = model.BloodSugar;
 				existingMetric.BodyTemperature = model.BodyTemperature;
 				await repository.UpdateAsync(existingMetric);
 				return NoContent();
@@ -191,13 +227,13 @@ namespace API.Controllers.Customer
 
 	public class AddOrUpdateModel
 	{
-		public double Weight { get; set; }
-		public double Height { get; set; }
-		public int SystolicBloodPressure { get; set; }
-		public int DiastolicBloodPressure { get; set; }
-		public int HeartRate { get; set; }
-		public int Steps { get; set; }
-		public double BodyTemperature { get; set; }
+		public double? Weight { get; set; }
+		public double? Height { get; set; }
+		public int? SystolicBloodPressure { get; set; }
+		public int? DiastolicBloodPressure { get; set; }
+		public int? HeartRate { get; set; }
+		public double? BloodSugar { get; set; }
+		public double? BodyTemperature { get; set; }
 	}
 
 }
