@@ -145,7 +145,10 @@ namespace API.Controllers.Customer
 			var dailyMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 			if (dailyMetric == null)
 			{
-				return NoContent();
+				return Ok(new
+				{
+					Msg = "No Record"
+				});
 			}
 			var result = mapper.Map<DailyMetricReturnModel>(dailyMetric);
 			return Ok(result);
@@ -160,7 +163,9 @@ namespace API.Controllers.Customer
 			var dailyMetric = await repository.GetByUserIdAndDateAsync(userId, today);
 			if (dailyMetric == null)
 			{
-				return NoContent();
+				return Ok(new {
+					Msg = "No Record"
+				});
 			}
 			var mapped = mapper.Map<DailyMetricReturnModel>(dailyMetric);
 			var result = await service.GetStatus(mapped);
@@ -195,7 +200,8 @@ namespace API.Controllers.Customer
 
 			if (existingMetric == null)
 			{
-				var dailyMetric = new DailyMetric() { 
+				var dailyMetric = new DailyMetric
+				{
 					Id = Guid.NewGuid(),
 					Date = today,
 					UserId = userId,
@@ -205,24 +211,25 @@ namespace API.Controllers.Customer
 					DiastolicBloodPressure = model.DiastolicBloodPressure,
 					HeartRate = model.HeartRate,
 					BloodSugar = model.BloodSugar,
-					BodyTemperature	= model.BodyTemperature,
+					BodyTemperature = model.BodyTemperature,
 				};
 				await repository.AddAsync(dailyMetric);
 				return NoContent();
 			}
-			else
-			{
-				existingMetric.Weight = model.Weight;
-				existingMetric.Height = model.Height;
-				existingMetric.SystolicBloodPressure = model.SystolicBloodPressure;
-				existingMetric.DiastolicBloodPressure = model.DiastolicBloodPressure;
-				existingMetric.HeartRate = model.HeartRate;
-				existingMetric.BloodSugar = model.BloodSugar;
-				existingMetric.BodyTemperature = model.BodyTemperature;
+			else	{ 
+
+				if (model.Weight.HasValue) existingMetric.Weight = model.Weight.Value;
+				if (model.Height.HasValue) existingMetric.Height = model.Height.Value;
+				if (model.SystolicBloodPressure.HasValue) existingMetric.SystolicBloodPressure = model.SystolicBloodPressure.Value;
+				if (model.DiastolicBloodPressure.HasValue) existingMetric.DiastolicBloodPressure = model.DiastolicBloodPressure.Value;
+				if (model.HeartRate.HasValue) existingMetric.HeartRate = model.HeartRate.Value;
+				if (model.BloodSugar.HasValue) existingMetric.BloodSugar = model.BloodSugar.Value;
+				if (model.BodyTemperature.HasValue) existingMetric.BodyTemperature = model.BodyTemperature.Value;
 				await repository.UpdateAsync(existingMetric);
 				return NoContent();
 			}
 		}
+
 	}
 
 	public class AddOrUpdateModel
