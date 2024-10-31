@@ -91,7 +91,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 //builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
     Assembly.GetExecutingAssembly(),
-    typeof(CreateEventCommandHandler).Assembly
+    typeof(CreateEventWithUserCommandHandler).Assembly
 ));
 
 //builder.Services.AddMediatR(Assembly.GetExecutingAssembly());

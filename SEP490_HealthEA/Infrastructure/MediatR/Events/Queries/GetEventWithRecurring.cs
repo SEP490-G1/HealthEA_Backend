@@ -5,23 +5,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.MediatR.Events.Queries;
 
-public class GetEventWithPast : IRequest<List<EventDto>>
+public class GetEventWithRecurring : IRequest<List<EventDto>>
 {
 }
-public class GetEventWithPastHandler : IRequestHandler<GetEventWithPast, List<EventDto>>
+public class GetEventWithRecurringHandler : IRequestHandler<GetEventWithRecurring, List<EventDto>>
 {
     private readonly SqlDBContext _context;
 
-    public GetEventWithPastHandler(SqlDBContext context)
+    public GetEventWithRecurringHandler(SqlDBContext context)
     {
         _context = context;
     }
 
-    public async Task<List<EventDto>> Handle(GetEventWithPast request, CancellationToken cancellationToken)
+    public async Task<List<EventDto>> Handle(GetEventWithRecurring request, CancellationToken cancellationToken)
     {
-        var now = DateTime.UtcNow;
-        var pastEvents = await _context.Events
-            .Where(e => e.EventDateTime < now && e.Status == EventStatusConstants.Past)
+        var recurringEvents = await _context.Events
+            .Where(e => e.RepeatFrequency != EventDailyConstants.NotRepeat)
             .Select(e => new EventDto
             {
                 EventId = e.EventId,
@@ -29,6 +28,7 @@ public class GetEventWithPastHandler : IRequestHandler<GetEventWithPast, List<Ev
                 Description = e.Description,
                 EventDateTime = e.EventDateTime,
                 Location = e.Location,
+                RepeatFrequency = e.RepeatFrequency,
                 UserEvents = e.UserEvents.Select(ue => new UserEventDto
                 {
                     UserEventId = ue.UserEventId,
@@ -38,6 +38,6 @@ public class GetEventWithPastHandler : IRequestHandler<GetEventWithPast, List<Ev
             })
             .ToListAsync(cancellationToken);
 
-        return pastEvents;
+        return recurringEvents;
     }
 }

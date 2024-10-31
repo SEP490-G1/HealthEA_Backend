@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.MediatR.Events.Commands.CreateEvent;
 
-public class CreateEventCommand : IRequest<Guid>
+public class CreateEventWithUserCommand : IRequest<Guid>
 {
     public string? Title { get; set; }
     public string? Description { get; set; }
@@ -25,16 +25,16 @@ public class CreateEventCommand : IRequest<Guid>
     public string? CreatedBy { get; set; }
 }
 
-public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Guid>
+public class CreateEventWithUserCommandHandler : IRequestHandler<CreateEventWithUserCommand, Guid>
 {
     private readonly SqlDBContext _context;
 
-    public CreateEventCommandHandler(SqlDBContext context)
+    public CreateEventWithUserCommandHandler(SqlDBContext context)
     {
         _context = context;
     }
 
-    public async Task<Guid> Handle(CreateEventCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(CreateEventWithUserCommand request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 

@@ -16,17 +16,7 @@ public class EventsController : ControllerBase
         _mediator = mediator;
     }
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEvent(Guid id, [FromBody] UpdateEventCommand command, CancellationToken cancellationToken)
-    {
-        if (id != command.EventId)
-        {
-            return BadRequest("Event ID in URL does not match ID in request body.");
-        }
-        var result = await _mediator.Send(command, cancellationToken);
-        return Ok(new { Success = true, EventId = result });
-    }
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEventWithStatus(Guid id, [FromBody] UpdateEventCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateEvent(Guid id, [FromBody] UpdateEventWithUserCommand command, CancellationToken cancellationToken)
     {
         if (id != command.EventId)
         {
@@ -55,7 +45,7 @@ public class EventsController : ControllerBase
         }
     }
     [HttpPost]
-    public async Task<IActionResult> CreateEvent([FromBody] CreateEventCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateEvent([FromBody] CreateEventWithUserCommand command, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(command, cancellationToken);
         return Ok(result);
@@ -65,7 +55,7 @@ public class EventsController : ControllerBase
     {
         try
         {
-            var result = await _mediator.Send(new DeleteEventCommand { EventId = id }, cancellationToken);
+            var result = await _mediator.Send(new DeleteEventWithUserCommand { EventId = id }, cancellationToken);
             return Ok(new { Success = true, Deleted = result });
         }
         catch (Exception ex)

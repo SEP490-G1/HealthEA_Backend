@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.MediatR.Events.Commands.UpdateEvent;
 
-public class UpdateEventCommand : IRequest<Guid>
+public class UpdateEventWithUserCommand : IRequest<Guid>
 {
     public Guid EventId { get; set; }
     public string? Title { get; set; }
@@ -24,16 +24,16 @@ public class UpdateEventCommand : IRequest<Guid>
     public List<Guid> UserIds { get; set; } = new();
 }
 
-public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Guid>
+public class UpdateEventWithUserCommandHandler : IRequestHandler<UpdateEventWithUserCommand, Guid>
 {
     private readonly SqlDBContext _context;
 
-    public UpdateEventCommandHandler(SqlDBContext context)
+    public UpdateEventWithUserCommandHandler(SqlDBContext context)
     {
         _context = context;
     }
 
-    public async Task<Guid> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(UpdateEventWithUserCommand request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 

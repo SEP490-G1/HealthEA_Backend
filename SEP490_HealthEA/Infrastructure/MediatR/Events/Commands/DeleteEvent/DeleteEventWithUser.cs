@@ -5,21 +5,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.MediatR.Events.Commands.DeleteEvent;
 
-public class DeleteEventCommand : IRequest<bool>
+public class DeleteEventWithUserCommand : IRequest<bool>
 {
     public Guid EventId { get; set; }
 }
 
-public class DeleteEventCommandHandler : IRequestHandler<DeleteEventCommand, bool>
+public class DeleteEventWithUserCommandHandler : IRequestHandler<DeleteEventWithUserCommand, bool>
 {
     private readonly SqlDBContext _context;
 
-    public DeleteEventCommandHandler(SqlDBContext context)
+    public DeleteEventWithUserCommandHandler(SqlDBContext context)
     {
         _context = context;
     }
 
-    public async Task<bool> Handle(DeleteEventCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(DeleteEventWithUserCommand request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
