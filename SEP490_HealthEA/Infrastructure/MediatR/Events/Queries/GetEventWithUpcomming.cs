@@ -32,7 +32,7 @@ namespace Infrastructure.MediatR.Events.Queries
                     StartTime = e.StartTime,
                     EndTime = e.EndTime,
                     Location = e.Location,
-                    Status = e.Status,
+                    //Status = e.Status,
                     RepeatFrequency = e.RepeatFrequency,
                     RepeatInterval = e.RepeatInterval,
                     RepeatEndDate = e.RepeatEndDate,

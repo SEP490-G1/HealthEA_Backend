@@ -98,7 +98,7 @@ public class CreateEventWithUserCommandHandler : IRequestHandler<CreateEventWith
                     reminderDateTime = reminderDateTime.AddDays(interval);
                     break;
 
-                case EventDailyConstants.Weekyly:
+                case EventDailyConstants.Weekly:
                     reminderDateTime = reminderDateTime.AddDays(7 * interval);
                     break;
 

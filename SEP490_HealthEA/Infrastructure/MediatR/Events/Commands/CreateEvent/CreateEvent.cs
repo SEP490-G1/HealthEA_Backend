@@ -1,72 +1,68 @@
-﻿using Domain.Enum;
+﻿using Domain.Common.Exceptions;
+using Domain.Enum;
 using Domain.Models.Entities;
 using Infrastructure.MediatR.Events.Queries;
 using Infrastructure.SQLServer;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.MediatR.Events.Commands.UpdateEvent;
-public class UpdateEventCommand : IRequest<Guid>
+namespace Infrastructure.MediatR.Events.Commands.CreateEvent;
+
+public class CreateEventCommand : IRequest<Guid>
 {
-    public Guid EventId { get; set; }
     public string? Title { get; set; }
     public string? Description { get; set; }
-    public DateTime? EventDateTime { get; set; }
-    public TimeSpan? StartTime { get; set; }
-    public TimeSpan? EndTime { get; set; }
+    public DateTime EventDateTime { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan EndTime { get; set; }
     public string? Location { get; set; }
-    public EventDailyConstants? RepeatFrequency { get; set; }
-    public int? RepeatInterval { get; set; }
-    public DateTime? RepeatEndDate { get; set; }
+    public EventDailyConstants RepeatFrequency { get; set; } = EventDailyConstants.NotRepeat;
+    public int RepeatInterval { get; set; } = 1;
+    public DateTime RepeatEndDate { get; set; }
     public List<ReminderOffsetDto> ReminderOffsets { get; set; } = new List<ReminderOffsetDto>();
+    public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+    public string? CreatedBy { get; set; }
 }
-public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Guid>
+public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Guid>
 {
     private readonly SqlDBContext _context;
 
-    public UpdateEventCommandHandler(SqlDBContext context)
+    public CreateEventCommandHandler(SqlDBContext context)
     {
         _context = context;
     }
 
-    public async Task<Guid> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(CreateEventCommand request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        // Tìm sự kiện cần cập nhật
-        var eventEntity = await _context.Events
-            .Include(e => e.Reminders)
-            .FirstOrDefaultAsync(e => e.EventId == request.EventId, cancellationToken);
+        var eventEntity = new Event
+        {
+            Title = request.Title,
+            Description = request.Description,
+            EventDateTime = request.EventDateTime.Date,
+            StartTime = request.StartTime,
+            EndTime = request.EndTime,
+            Location = request.Location,
+            RepeatFrequency = request.RepeatFrequency,
+            RepeatInterval = request.RepeatInterval,
+            RepeatEndDate = request.RepeatEndDate,
+            CreatedAt = request.CreatedAt ?? DateTime.UtcNow,
+            CreatedBy = request.CreatedBy
+        };
 
-        if (eventEntity == null)
-            throw new Exception("Event not found");
+        await _context.Events.AddAsync(eventEntity, cancellationToken);
 
-        // Cập nhật thông tin sự kiện từ request
-        eventEntity.Title = request.Title ?? eventEntity.Title;
-        eventEntity.Description = request.Description ?? eventEntity.Description;
-        eventEntity.EventDateTime = request.EventDateTime?.Date ?? eventEntity.EventDateTime;
-        eventEntity.StartTime = request.StartTime ?? eventEntity.StartTime;
-        eventEntity.EndTime = request.EndTime ?? eventEntity.EndTime;
-        eventEntity.Location = request.Location ?? eventEntity.Location;
-        eventEntity.RepeatFrequency = request.RepeatFrequency ?? eventEntity.RepeatFrequency;
-        eventEntity.RepeatInterval = request.RepeatInterval ?? eventEntity.RepeatInterval;
-        eventEntity.RepeatEndDate = request.RepeatEndDate ?? eventEntity.RepeatEndDate;
+        DateTime reminderDateTime = request.EventDateTime.Date.Add(request.StartTime);
+        int interval = request.RepeatInterval > 0 ? request.RepeatInterval : 1;
 
-        // Xóa các reminders cũ
-        _context.Reminders.RemoveRange(eventEntity.Reminders);
-
-        // Tạo lại reminders mới
-        DateTime reminderDateTime = eventEntity.EventDateTime.Date.Add(eventEntity.StartTime);
-        int interval = eventEntity.RepeatInterval > 0 ? eventEntity.RepeatInterval : 1;
-
-        // Lặp qua các ngày từ ngày bắt đầu đến ngày kết thúc và thêm reminders
-        while (reminderDateTime <= eventEntity.RepeatEndDate)
+        // Tạo reminders từ ngày bắt đầu đến ngày kết thúc theo RepeatFrequency
+        while (reminderDateTime <= request.RepeatEndDate)
         {
             foreach (var reminderOffsetDto in request.ReminderOffsets)
             {
                 var reminderTime = CalculateReminderTime(reminderDateTime, reminderOffsetDto);
 
-                // Thêm reminder vào context
+                // Add reminder to context
                 var reminder = new Reminder
                 {
                     ReminderId = Guid.NewGuid(),
@@ -81,8 +77,8 @@ public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Gui
                 await _context.Reminders.AddAsync(reminder, cancellationToken);
             }
 
-            // Cập nhật ngày nhắc nhở tiếp theo dựa trên RepeatFrequency
-            switch (eventEntity.RepeatFrequency)
+            // Move reminderDateTime to the next occurrence based on RepeatFrequency
+            switch (request.RepeatFrequency)
             {
                 case EventDailyConstants.Daily:
                     reminderDateTime = reminderDateTime.AddDays(interval);
@@ -100,14 +96,13 @@ public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Gui
                     reminderDateTime = reminderDateTime.AddYears(interval);
                     break;
                 case EventDailyConstants.NotRepeat:
-                    reminderDateTime = eventEntity.RepeatEndDate.AddDays(1); // Để thoát vòng lặp
+                    reminderDateTime = request.RepeatEndDate.AddDays(1); // Exit loop
                     break;
                 default:
                     break;
             }
         }
 
-        // Lưu tất cả thay đổi vào cơ sở dữ liệu
         await _context.SaveChangesAsync(cancellationToken);
 
         return eventEntity.EventId;
@@ -125,3 +120,4 @@ public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Gui
         };
     }
 }
+
