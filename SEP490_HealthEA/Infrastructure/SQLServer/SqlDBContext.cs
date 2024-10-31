@@ -23,6 +23,9 @@ namespace Infrastructure.SQLServer
         public virtual DbSet<InvalidatedToken> InvalidatedTokens { get; set; }
 
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Event> Events { get; set; }
+        public virtual DbSet<UserEvent> UserEvents { get; set; }
+        public virtual DbSet<Reminder> Reminders { get; set; }
 
         public DbSet<Image> Images { get; set; }
 

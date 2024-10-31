@@ -16,6 +16,8 @@ using System;
 using System.Text;
 using Infrastructure.Services.Ocr;
 using Infrastructure.Services;
+using System.Reflection;
+using Infrastructure.MediatR.Events.Commands.CreateEvent;
 using Domain.Mappings;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -85,7 +87,18 @@ builder.Services.AddScoped<IMedicalRecordsService, MedicalRecordsService>();
 builder.Services.AddScoped<IOcrService, OcrService>();
 //config repo
 builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
+//builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+//builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
+    Assembly.GetExecutingAssembly(),
+    typeof(CreateEventWithUserCommandHandler).Assembly
+));
+
+//builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+
+
 builder.Services.AddScoped<IDailyMetricRepository, DailyMetricRepository>();
 builder.Services.AddScoped<IDailyMetricsAnalysisService, DailyMetricAnalysisService>();
 builder.Services.AddScoped<IUserClaimsService, UserClaimsService>();
