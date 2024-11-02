@@ -67,7 +67,7 @@ namespace Infrastructure.Services
 				};
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bmi",
+					MetricName = "BMI",
 					Value = $"{bmi:F1} kg/m²",
 					Status = bmiStatus,
 					Description = bmiDescription
@@ -77,7 +77,7 @@ namespace Infrastructure.Services
 			{
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bmi",
+					MetricName = "BMI",
 					Value = null,
 					Status = -1,
 					Description = null
@@ -102,7 +102,7 @@ namespace Infrastructure.Services
 				};
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bloodPressure",
+					MetricName = "Huyết áp",
 					Value = $"{metric.SystolicBloodPressure}/{metric.DiastolicBloodPressure} mmHg",
 					Status = bloodPressureStatus,
 					Description = bpDescription
@@ -112,7 +112,7 @@ namespace Infrastructure.Services
 			{
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bloodPressure",
+					MetricName = "Huyết áp",
 					Value = null,
 					Status = -1,
 					Description = null
@@ -132,7 +132,7 @@ namespace Infrastructure.Services
 				};
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "heartRate",
+					MetricName = "Nhịp tim",
 					Value = $"{metric.HeartRate} bpm",
 					Status = heartRateStatus,
 					Description = heartRateDescription
@@ -142,7 +142,7 @@ namespace Infrastructure.Services
 			{
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "heartRate",
+					MetricName = "Nhịp tim",
 					Value = null,
 					Status = -1,
 					Description = null
@@ -162,7 +162,7 @@ namespace Infrastructure.Services
 				};
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bloodSugar",
+					MetricName = "Đường huyết",
 					Value = $"{metric.BloodSugar} mg/dL",
 					Status = bloodSugarStatus,
 					Description = bloodSugarDescription
@@ -172,7 +172,7 @@ namespace Infrastructure.Services
 			{
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bloodSugar",
+					MetricName = "Đường huyết",
 					Value = null,
 					Status = -1,
 					Description = null
@@ -192,7 +192,7 @@ namespace Infrastructure.Services
 				};
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bodyTemperature",
+					MetricName = "Nhiệt độ",
 					Value = $"{metric.BodyTemperature} °C",
 					Status = temperatureStatus,
 					Description = temperatureDescription
@@ -202,7 +202,7 @@ namespace Infrastructure.Services
 			{
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bodyTemperature",
+					MetricName = "Nhiệt độ",
 					Value = null,
 					Status = -1,
 					Description = null
