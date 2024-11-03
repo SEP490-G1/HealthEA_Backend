@@ -19,6 +19,8 @@ using Infrastructure.Services;
 using System.Reflection;
 using Infrastructure.MediatR.Events.Commands.CreateEvent;
 using Domain.Mappings;
+using Infrastructure.Notification;
+using Quartz;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -69,8 +71,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
-//
+// dki Quartz va cronjob
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
 
+    var jobKey = new JobKey("reminderJob");
+    q.AddJob<ReminderJob>(opts => opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithIdentity("reminderTrigger")
+        .WithCronSchedule("0 08 14  * * ?")); 
+});
+
+// Đăng ký Quartz như một Hosted Service
+builder.Services.AddSingleton<IHostedService, QuartzHostedService>();
 
 //config DB connection
 builder.Services.AddDbContext<SqlDBContext>(option =>
