@@ -6,10 +6,6 @@ using System.Threading.Tasks;
 
 namespace Domain.Models.Entities
 {
-	using System;
-
-	namespace YourNamespace.Models
-	{
 		public class DailyMetric
 		{
 			public Guid Id { get; set; }
@@ -28,6 +24,4 @@ namespace Domain.Models.Entities
 			// Navigation property
 			public virtual User User { get; set; }
 		}
-	}
-
 }

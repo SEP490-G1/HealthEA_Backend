@@ -1,6 +1,7 @@
 using AutoMapper;
 using Domain.Models.DAO.DailyMetrics;
-using Domain.Models.Entities.YourNamespace.Models;
+using Domain.Models.DAO.Doctor;
+using Domain.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace Domain.Mappings
 		public MappingProfile()
 		{
 			CreateMap<DailyMetric, DailyMetricReturnModel>();
+			CreateMap<Doctor, DoctorDto>();
 		}
 	}
 }

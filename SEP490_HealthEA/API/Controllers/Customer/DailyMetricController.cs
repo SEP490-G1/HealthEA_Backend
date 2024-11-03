@@ -2,10 +2,8 @@
 using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
 using Domain.Models.DAO.DailyMetrics;
-using Domain.Models.Entities.YourNamespace.Models;
-using Infrastructure.Repositories;
+using Domain.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Customer

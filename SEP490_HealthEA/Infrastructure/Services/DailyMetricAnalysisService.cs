@@ -1,12 +1,5 @@
-﻿using Domain.Interfaces.IRepositories;
-using Domain.Interfaces.IServices;
+﻿using Domain.Interfaces.IServices;
 using Domain.Models.DAO.DailyMetrics;
-using Domain.Models.Entities.YourNamespace.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {

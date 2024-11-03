@@ -1,5 +1,5 @@
 using Domain.Interfaces.IRepositories;
-using Domain.Models.Entities.YourNamespace.Models;
+using Domain.Models.Entities;
 using Infrastructure.SQLServer;
 using Microsoft.EntityFrameworkCore;
 using System;
