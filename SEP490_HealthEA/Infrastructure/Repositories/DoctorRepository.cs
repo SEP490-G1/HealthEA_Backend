@@ -12,44 +12,49 @@ namespace Infrastructure.Repositories
 {
 	public class DoctorRepository : IDoctorRepository
 	{
-		private readonly SqlDBContext _context;
+		private readonly SqlDBContext context;
 
 		public DoctorRepository(SqlDBContext context)
 		{
-			_context = context;
+			this.context = context;
 		}
 
-		public async Task<IList<Doctor>> GetAllDoctors(string? query)
+		public async Task<IList<Doctor>> GetAllDoctors(string? nameQuery, string? cityQuery)
 		{
-			if (query == null)
+			IQueryable<Doctor> doctors = context.Doctors;
+			if (nameQuery != null)
 			{
-				return await _context.Doctors.ToListAsync();
+				doctors = doctors.Where(d => d.DisplayName.Contains(nameQuery));
 			}
-			return await _context.Doctors.Where(d => d.DisplayName.Contains(query)).ToListAsync();
+			if (cityQuery != null)
+			{
+				doctors = doctors.Where(d => d.ClinicCity.Contains(cityQuery));
+			}
+			return await doctors.ToListAsync();
 		}
 
 		public async Task<Doctor?> GetDoctorByIdAsync(Guid doctorId)
 		{
-			return await _context.Doctors.Include(d => d.User)
+			return await context.Doctors.Include(d => d.User)
 				.FirstOrDefaultAsync(d => d.Id == doctorId);
 		}
 
 		public async Task<Doctor?> GetDoctorByUserIdAsync(Guid userId)
 		{
-			return await _context.Doctors.Include(d => d.User)
+			return await context.Doctors.Include(d => d.User)
 				.FirstOrDefaultAsync(d => d.UserId == userId);
 		}
 
 		public async Task AddDoctorAsync(Doctor doctor)
 		{
-			_context.Doctors.Add(doctor);
-			await _context.SaveChangesAsync();
+			context.Doctors.Add(doctor);
+			await context.SaveChangesAsync();
 		}
 
 		public async Task UpdateDoctorAsync(Doctor doctor)
 		{
-			_context.Doctors.Update(doctor);
-			await _context.SaveChangesAsync();
+			context.Doctors.Update(doctor);
+			await context.SaveChangesAsync();
 		}
 
 		public async Task DeleteDoctorAsync(Guid doctorId)
@@ -57,8 +62,8 @@ namespace Infrastructure.Repositories
 			var doctor = await GetDoctorByIdAsync(doctorId);
 			if (doctor != null)
 			{
-				_context.Doctors.Remove(doctor);
-				await _context.SaveChangesAsync();
+				context.Doctors.Remove(doctor);
+				await context.SaveChangesAsync();
 			}
 		}
 	}
