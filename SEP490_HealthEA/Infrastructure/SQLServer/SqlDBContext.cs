@@ -29,6 +29,8 @@ namespace Infrastructure.SQLServer
 
 		public DbSet<Doctor> Doctors { get; set; }
 
+        public DbSet<DoctorReport> DoctorReports { get; set; }
+
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
@@ -130,7 +132,19 @@ namespace Infrastructure.SQLServer
 			.HasOne(d => d.User)
 			.WithOne(u => u.Doctor)
 			.HasForeignKey<Doctor>(d => d.UserId)
-			.OnDelete(DeleteBehavior.Cascade);  // Or use `Restrict` if you want to prevent user deletion if doctor data exists
+			.OnDelete(DeleteBehavior.Cascade);
+
+			modelBuilder.Entity<DoctorReport>()
+			.HasOne(dr => dr.Reporter)
+			.WithMany()
+			.HasForeignKey(dr => dr.ReporterId)
+			.OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<DoctorReport>()
+				.HasOne(dr => dr.ReportedDoctor)
+				.WithMany()
+				.HasForeignKey(dr => dr.ReportedDoctorId)
+				.OnDelete(DeleteBehavior.Restrict);
 		}
 
 
