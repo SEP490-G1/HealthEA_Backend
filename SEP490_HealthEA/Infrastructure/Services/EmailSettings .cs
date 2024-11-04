@@ -1,5 +1,4 @@
 ﻿namespace Infrastructure.Services;
-
 public class EmailSettings
 {
     public string SmtpHost { get; set; }

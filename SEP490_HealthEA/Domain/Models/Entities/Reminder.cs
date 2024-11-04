@@ -1,5 +1,4 @@
 ﻿using Domain.Enum;
-
 namespace Domain.Models.Entities;
 
 public class Reminder

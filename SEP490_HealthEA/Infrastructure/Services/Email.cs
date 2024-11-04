@@ -1,5 +1,4 @@
 ﻿namespace Infrastructure.Services;
-
 public class Email
 {
     public string SenderEmail { get; set; }

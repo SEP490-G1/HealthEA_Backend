@@ -30,7 +30,6 @@ namespace Infrastructure.Services
                 .Distinct()
                 .ToList();
 
-
                 if (!recipientEmails.Any())
                 {
                     Console.WriteLine("No users found for the specified reminder time.");

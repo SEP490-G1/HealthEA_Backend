@@ -1,7 +1,5 @@
 ﻿using Infrastructure.SQLServer;
-
 namespace Infrastructure.Notification;
-
 public class ReminderService
 {
     private readonly SqlDBContext _context;
