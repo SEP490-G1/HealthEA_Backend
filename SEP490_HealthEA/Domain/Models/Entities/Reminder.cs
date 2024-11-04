@@ -1,5 +1,4 @@
 ﻿using Domain.Enum;
-
 namespace Domain.Models.Entities;
 
 public class Reminder
@@ -11,7 +10,7 @@ public class Reminder
     public DateTime ReminderTime { get; set; }  // Calculated reminder time based on ReminderOffset and EventDateTime
     public string? Message { get; set; }
     public bool IsSent { get; set; } = false;
-
+    public virtual Event Events { get; set; }
     public void CalculateReminderTime(DateTime eventDateTime)
     {
         DateTime offsetTime = eventDateTime;
