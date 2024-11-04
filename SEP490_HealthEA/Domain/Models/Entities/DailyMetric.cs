@@ -19,6 +19,7 @@ namespace Domain.Models.Entities
 			public int? HeartRate { get; set; }
 			public double? BloodSugar { get; set; }
 			public double? BodyTemperature { get; set; }
+			public double? OxygenSaturation { get; set; }
 			public DateOnly Date { get; set; }
 
 			// Navigation property

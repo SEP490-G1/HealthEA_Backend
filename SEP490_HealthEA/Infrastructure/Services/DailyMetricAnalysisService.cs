@@ -71,7 +71,7 @@ namespace Infrastructure.Services
 				statusResult.Values.Add(new DailyMetricValue
 				{
 					MetricName = "BMI",
-					Value = null,
+					Value = "0 kg/m²",
 					Status = -1,
 					Description = null
 				});
@@ -106,7 +106,7 @@ namespace Infrastructure.Services
 				statusResult.Values.Add(new DailyMetricValue
 				{
 					MetricName = "Huyết áp",
-					Value = null,
+					Value = "0 mmHg",
 					Status = -1,
 					Description = null
 				});
@@ -136,7 +136,7 @@ namespace Infrastructure.Services
 				statusResult.Values.Add(new DailyMetricValue
 				{
 					MetricName = "Nhịp tim",
-					Value = null,
+					Value = "0 bpm",
 					Status = -1,
 					Description = null
 				});
@@ -166,7 +166,7 @@ namespace Infrastructure.Services
 				statusResult.Values.Add(new DailyMetricValue
 				{
 					MetricName = "Đường huyết",
-					Value = null,
+					Value = "0 mg/dL",
 					Status = -1,
 					Description = null
 				});
@@ -196,7 +196,35 @@ namespace Infrastructure.Services
 				statusResult.Values.Add(new DailyMetricValue
 				{
 					MetricName = "Nhiệt độ",
-					Value = null,
+					Value = "0 °C",
+					Status = -1,
+					Description = null
+				});
+			}
+			if (metric.OxygenSaturation.HasValue)
+			{
+				int oxygenStatus = metric.OxygenSaturation.Value < 95 ? 1 : metric.OxygenSaturation.Value <= 100 ? 2 : 3;
+				string? oxygenDescription = oxygenStatus switch
+				{
+					1 => "Độ bão hòa Oxy thấp",
+					2 => "Độ bão hòa Oxy bình thường",
+					3 => "Độ bão hòa Oxy cao",
+					_ => null
+				};
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "Độ bão hòa Oxy",
+					Value = $"{metric.OxygenSaturation} SpO2",
+					Status = oxygenStatus,
+					Description = oxygenDescription
+				});
+			}
+			else
+			{
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "Oxygen Saturation",
+					Value = "0 SpO2",
 					Status = -1,
 					Description = null
 				});

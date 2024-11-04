@@ -17,5 +17,9 @@ namespace Domain.Models.Entities
 		public string? Description { get; set; }
 		public string ClinicAddress { get; set; }
 		public string ClinicCity { get; set; }
+		public string Specialization { get; set; }
+		public int NumberOfAppointments { get; set; } = 0;
+		public int NumberOfVideoCalls { get; set; } = 0;
+		public string HistoryOfWork { get; set; } //json
 	}
 }

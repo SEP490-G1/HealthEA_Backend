@@ -66,11 +66,10 @@ namespace API.Controllers.Customer
 			return NoContent();
 		}
 
-		[HttpPut]
-		[Obsolete]
-		public async Task<IActionResult> UpdateDailyMetric([FromBody] DailyMetric dailyMetric)
+		[HttpPut("{id}")]
+		public async Task<IActionResult> UpdateDailyMetric(Guid id, [FromBody] AddOrUpdateModel model)
 		{
-			var existingMetric = await repository.GetByIdAsync(dailyMetric.Id);
+			var existingMetric = await repository.GetByIdAsync(id);
 			if (existingMetric == null)
 			{
 				return BadRequest("Daily Metric Does Not Exists");
@@ -80,8 +79,16 @@ namespace API.Controllers.Customer
 			{
 				return BadRequest("You do not have permission to access this record.");
 			}
-			dailyMetric.Date = DateOnly.FromDateTime(DateTime.Today);
-			await repository.UpdateAsync(dailyMetric);
+			existingMetric.Date = DateOnly.FromDateTime(DateTime.Today);
+			if (model.Weight.HasValue) existingMetric.Weight = model.Weight.Value;
+			if (model.Height.HasValue) existingMetric.Height = model.Height.Value;
+			if (model.SystolicBloodPressure.HasValue) existingMetric.SystolicBloodPressure = model.SystolicBloodPressure.Value;
+			if (model.DiastolicBloodPressure.HasValue) existingMetric.DiastolicBloodPressure = model.DiastolicBloodPressure.Value;
+			if (model.HeartRate.HasValue) existingMetric.HeartRate = model.HeartRate.Value;
+			if (model.BloodSugar.HasValue) existingMetric.BloodSugar = model.BloodSugar.Value;
+			if (model.BodyTemperature.HasValue) existingMetric.BodyTemperature = model.BodyTemperature.Value;
+			if (model.OxygenSaturation.HasValue) existingMetric.OxygenSaturation = model.OxygenSaturation.Value;
+			await repository.UpdateAsync(existingMetric);
 			return NoContent();
 		}
 
@@ -223,6 +230,7 @@ namespace API.Controllers.Customer
 				if (model.HeartRate.HasValue) existingMetric.HeartRate = model.HeartRate.Value;
 				if (model.BloodSugar.HasValue) existingMetric.BloodSugar = model.BloodSugar.Value;
 				if (model.BodyTemperature.HasValue) existingMetric.BodyTemperature = model.BodyTemperature.Value;
+				if (model.OxygenSaturation.HasValue) existingMetric.OxygenSaturation = model.OxygenSaturation.Value;
 				await repository.UpdateAsync(existingMetric);
 				return NoContent();
 			}
@@ -239,6 +247,7 @@ namespace API.Controllers.Customer
 		public int? HeartRate { get; set; }
 		public double? BloodSugar { get; set; }
 		public double? BodyTemperature { get; set; }
+		public double? OxygenSaturation { get; set; }
 	}
 
 }
