@@ -1,12 +1,5 @@
-﻿using Domain.Interfaces.IRepositories;
-using Domain.Interfaces.IServices;
+﻿using Domain.Interfaces.IServices;
 using Domain.Models.DAO.DailyMetrics;
-using Domain.Models.Entities.YourNamespace.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
@@ -67,7 +60,7 @@ namespace Infrastructure.Services
 				};
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bmi",
+					MetricName = "BMI",
 					Value = $"{bmi:F1} kg/m²",
 					Status = bmiStatus,
 					Description = bmiDescription
@@ -77,8 +70,8 @@ namespace Infrastructure.Services
 			{
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bmi",
-					Value = null,
+					MetricName = "BMI",
+					Value = "0 kg/m²",
 					Status = -1,
 					Description = null
 				});
@@ -102,7 +95,7 @@ namespace Infrastructure.Services
 				};
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bloodPressure",
+					MetricName = "Huyết áp",
 					Value = $"{metric.SystolicBloodPressure}/{metric.DiastolicBloodPressure} mmHg",
 					Status = bloodPressureStatus,
 					Description = bpDescription
@@ -112,8 +105,8 @@ namespace Infrastructure.Services
 			{
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bloodPressure",
-					Value = null,
+					MetricName = "Huyết áp",
+					Value = "0 mmHg",
 					Status = -1,
 					Description = null
 				});
@@ -132,7 +125,7 @@ namespace Infrastructure.Services
 				};
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "heartRate",
+					MetricName = "Nhịp tim",
 					Value = $"{metric.HeartRate} bpm",
 					Status = heartRateStatus,
 					Description = heartRateDescription
@@ -142,8 +135,8 @@ namespace Infrastructure.Services
 			{
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "heartRate",
-					Value = null,
+					MetricName = "Nhịp tim",
+					Value = "0 bpm",
 					Status = -1,
 					Description = null
 				});
@@ -162,7 +155,7 @@ namespace Infrastructure.Services
 				};
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bloodSugar",
+					MetricName = "Đường huyết",
 					Value = $"{metric.BloodSugar} mg/dL",
 					Status = bloodSugarStatus,
 					Description = bloodSugarDescription
@@ -172,8 +165,8 @@ namespace Infrastructure.Services
 			{
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bloodSugar",
-					Value = null,
+					MetricName = "Đường huyết",
+					Value = "0 mg/dL",
 					Status = -1,
 					Description = null
 				});
@@ -192,7 +185,7 @@ namespace Infrastructure.Services
 				};
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bodyTemperature",
+					MetricName = "Nhiệt độ",
 					Value = $"{metric.BodyTemperature} °C",
 					Status = temperatureStatus,
 					Description = temperatureDescription
@@ -202,8 +195,36 @@ namespace Infrastructure.Services
 			{
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "bodyTemperature",
-					Value = null,
+					MetricName = "Nhiệt độ",
+					Value = "0 °C",
+					Status = -1,
+					Description = null
+				});
+			}
+			if (metric.OxygenSaturation.HasValue)
+			{
+				int oxygenStatus = metric.OxygenSaturation.Value < 95 ? 1 : metric.OxygenSaturation.Value <= 100 ? 2 : 3;
+				string? oxygenDescription = oxygenStatus switch
+				{
+					1 => "Độ bão hòa Oxy thấp",
+					2 => "Độ bão hòa Oxy bình thường",
+					3 => "Độ bão hòa Oxy cao",
+					_ => null
+				};
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "Độ bão hòa Oxy",
+					Value = $"{metric.OxygenSaturation} SpO2",
+					Status = oxygenStatus,
+					Description = oxygenDescription
+				});
+			}
+			else
+			{
+				statusResult.Values.Add(new DailyMetricValue
+				{
+					MetricName = "Oxygen Saturation",
+					Value = "0 SpO2",
 					Status = -1,
 					Description = null
 				});

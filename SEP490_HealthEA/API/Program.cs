@@ -136,6 +136,7 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
 builder.Services.AddScoped<IDailyMetricRepository, DailyMetricRepository>();
 builder.Services.AddScoped<IDailyMetricsAnalysisService, DailyMetricAnalysisService>();
 builder.Services.AddScoped<IUserClaimsService, UserClaimsService>();
+builder.Services.AddScoped<IDoctorRepository,DoctorRepository>();
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 //another

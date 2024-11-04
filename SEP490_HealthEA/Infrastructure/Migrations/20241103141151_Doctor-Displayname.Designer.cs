@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(SqlDBContext))]
-    [Migration("20241023211114_sql")]
-    partial class sql
+    [Migration("20241103141151_Doctor-Displayname")]
+    partial class DoctorDisplayname
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,78 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Domain.Models.Entities.DailyMetric", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double?>("BloodSugar")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("BodyTemperature")
+                        .HasColumnType("float");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<int?>("DiastolicBloodPressure")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("HeartRate")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("Height")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("SystolicBloodPressure")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double?>("Weight")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DailyMetrics");
+                });
+
+            modelBuilder.Entity("Domain.Models.Entities.Doctor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClinicAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClinicCity")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Doctors");
+                });
 
             modelBuilder.Entity("Domain.Models.Entities.DocumentProfile", b =>
                 {
@@ -222,6 +294,28 @@ namespace Infrastructure.Migrations
                     b.ToTable("user", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Models.Entities.DailyMetric", b =>
+                {
+                    b.HasOne("Domain.Models.Entities.User", "User")
+                        .WithMany("DailyMetrics")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Models.Entities.Doctor", b =>
+                {
+                    b.HasOne("Domain.Models.Entities.User", "User")
+                        .WithOne("Doctor")
+                        .HasForeignKey("Domain.Models.Entities.Doctor", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Domain.Models.Entities.DocumentProfile", b =>
                 {
                     b.HasOne("Domain.Models.Entities.HealthProfile", "HealthProfile")
@@ -250,6 +344,10 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.User", b =>
                 {
+                    b.Navigation("DailyMetrics");
+
+                    b.Navigation("Doctor");
+
                     b.Navigation("healthProfiles");
                 });
 #pragma warning restore 612, 618

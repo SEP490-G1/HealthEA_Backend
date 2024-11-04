@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class sql : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -56,6 +56,52 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK__user__B9BE370F7E22D744", x => x.user_id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DailyMetrics",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Weight = table.Column<double>(type: "float", nullable: true),
+                    Height = table.Column<double>(type: "float", nullable: true),
+                    SystolicBloodPressure = table.Column<int>(type: "int", nullable: true),
+                    DiastolicBloodPressure = table.Column<int>(type: "int", nullable: true),
+                    HeartRate = table.Column<int>(type: "int", nullable: true),
+                    BloodSugar = table.Column<double>(type: "float", nullable: true),
+                    BodyTemperature = table.Column<double>(type: "float", nullable: true),
+                    Date = table.Column<DateOnly>(type: "date", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DailyMetrics", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DailyMetrics_user_UserId",
+                        column: x => x.UserId,
+                        principalTable: "user",
+                        principalColumn: "user_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Doctors",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClinicAddress = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Doctors", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Doctors_user_UserId",
+                        column: x => x.UserId,
+                        principalTable: "user",
+                        principalColumn: "user_id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -109,6 +155,17 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_DailyMetrics_UserId",
+                table: "DailyMetrics",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Doctors_UserId",
+                table: "Doctors",
+                column: "UserId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DocumentProfiles_PantientId",
                 table: "DocumentProfiles",
                 column: "PantientId");
@@ -134,6 +191,12 @@ namespace Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "DailyMetrics");
+
+            migrationBuilder.DropTable(
+                name: "Doctors");
+
             migrationBuilder.DropTable(
                 name: "DocumentProfiles");
 

@@ -1,11 +1,4 @@
-﻿using Domain.Models.Entities.YourNamespace.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace Domain.Models.Entities
 {
@@ -32,6 +25,8 @@ namespace Domain.Models.Entities
         public string? Status { get; set; }
 
         public string Username { get; set; } = null!;
+
+        public virtual Doctor? Doctor { get; set; }
         public virtual ICollection<HealthProfile>? healthProfiles { get; set; } = new List<HealthProfile>();
 
         public virtual ICollection<UserEvent> UserEvents { get; set; }

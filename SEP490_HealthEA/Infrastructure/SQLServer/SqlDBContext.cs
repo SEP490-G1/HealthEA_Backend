@@ -1,6 +1,5 @@
 ﻿
 using Domain.Models.Entities;
-using Domain.Models.Entities.YourNamespace.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SQLServer
@@ -30,6 +29,10 @@ namespace Infrastructure.SQLServer
         public DbSet<Image> Images { get; set; }
 
 		public DbSet<DailyMetric> DailyMetrics { get; set; }
+
+		public DbSet<Doctor> Doctors { get; set; }
+
+        public DbSet<DoctorReport> DoctorReports { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -128,7 +131,23 @@ namespace Infrastructure.SQLServer
 				.HasOne(dm => dm.User)
 				.WithMany(u => u.DailyMetrics)
 				.HasForeignKey(dm => dm.UserId);
+			modelBuilder.Entity<Doctor>()
+			.HasOne(d => d.User)
+			.WithOne(u => u.Doctor)
+			.HasForeignKey<Doctor>(d => d.UserId)
+			.OnDelete(DeleteBehavior.Cascade);
 
+			modelBuilder.Entity<DoctorReport>()
+			.HasOne(dr => dr.Reporter)
+			.WithMany()
+			.HasForeignKey(dr => dr.ReporterId)
+			.OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<DoctorReport>()
+				.HasOne(dr => dr.ReportedDoctor)
+				.WithMany()
+				.HasForeignKey(dr => dr.ReportedDoctorId)
+				.OnDelete(DeleteBehavior.Restrict);
 		}
 
 

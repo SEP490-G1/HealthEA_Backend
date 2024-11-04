@@ -4,6 +4,7 @@ using Infrastructure.SQLServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(SqlDBContext))]
-    partial class SqlDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241103142857_DoctorReports")]
+    partial class DoctorReports
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,9 +47,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<double?>("Height")
-                        .HasColumnType("float");
-
-                    b.Property<double?>("OxygenSaturation")
                         .HasColumnType("float");
 
                     b.Property<int?>("SystolicBloodPressure")
@@ -83,20 +83,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("HistoryOfWork")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("NumberOfAppointments")
-                        .HasColumnType("int");
-
-                    b.Property<int>("NumberOfVideoCalls")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Specialization")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
