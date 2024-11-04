@@ -21,6 +21,7 @@ using Infrastructure.MediatR.Events.Commands.CreateEvent;
 using Domain.Mappings;
 using Infrastructure.Notification;
 using Quartz;
+using System.Globalization;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -71,7 +72,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
-// dki Quartz va cronjob
+//config DB connection
+builder.Services.AddDbContext<SqlDBContext>(option =>
+{
+    var cnt = builder.Configuration.GetConnectionString("DBConnection");
+    option.UseSqlServer(cnt);
+});
+builder.Services.AddScoped<ReminderService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<EmailService>();
+
+
 builder.Services.AddQuartz(q =>
 {
     q.UseMicrosoftDependencyInjectionJobFactory();
@@ -79,26 +90,33 @@ builder.Services.AddQuartz(q =>
     var jobKey = new JobKey("reminderJob");
     q.AddJob<ReminderJob>(opts => opts.WithIdentity(jobKey));
 
-    q.AddTrigger(opts => opts
-        .ForJob(jobKey)
-        .WithIdentity("reminderTrigger")
-        .WithCronSchedule("0 08 14  * * ?")); 
-});
+    // Tạo scope để lấy dữ liệu từ ReminderService
+    using (var scope = builder.Services.BuildServiceProvider().CreateScope())
+    {
+        var reminderService = scope.ServiceProvider.GetRequiredService<ReminderService>();
+        var reminderTimes = reminderService.GetReminderTimes();
 
+        foreach (var reminderTime in reminderTimes)
+        {
+            // Tạo cron expression từ giờ và phút trong reminderTime
+            string cronExpression = $"0 {reminderTime.Minute} {reminderTime.Hour} * * ?";
+
+            // Tạo trigger cho từng ReminderTime
+            q.AddTrigger(opts => opts
+                .ForJob(jobKey)
+                .WithIdentity($"reminderTrigger-{reminderTime:HHmm}")
+                .UsingJobData("reminderTime", reminderTime.ToString("HH:mm", CultureInfo.InvariantCulture))
+                .WithCronSchedule(cronExpression));
+        }
+
+    }
+});
 // Đăng ký Quartz như một Hosted Service
 builder.Services.AddSingleton<IHostedService, QuartzHostedService>();
 
-//config DB connection
-builder.Services.AddDbContext<SqlDBContext>(option =>
-{
-    var cnt = builder.Configuration.GetConnectionString("DBConnection");
-    option.UseSqlServer(cnt);
-});
-
-
 //config service
 builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
-builder.Services.AddScoped<IImageRepository, ImageRepository>();
+builder.Services.AddScoped<IImageRepository, ImageRepository>(); 
 builder.Services.AddScoped<IMedicalRecordsService, MedicalRecordsService>();
 builder.Services.AddScoped<IOcrService, OcrService>();
 //config repo
