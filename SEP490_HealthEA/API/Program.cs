@@ -131,7 +131,13 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
 ));
 
 //builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+string firebaseServerKey = "YOUR_FIREBASE_SERVER_KEY"; 
 
+// Đăng ký FirebaseService với HttpClient
+builder.Services.AddHttpClient<FirebaseService>(client =>
+{
+    client.BaseAddress = new Uri("https://fcm.googleapis.com/");
+});
 
 builder.Services.AddScoped<IDailyMetricRepository, DailyMetricRepository>();
 builder.Services.AddScoped<IDailyMetricsAnalysisService, DailyMetricAnalysisService>();
