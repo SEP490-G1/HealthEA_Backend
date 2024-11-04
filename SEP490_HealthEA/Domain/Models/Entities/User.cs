@@ -28,7 +28,11 @@ namespace Domain.Models.Entities
 
         public virtual Doctor? Doctor { get; set; }
         public virtual ICollection<HealthProfile>? healthProfiles { get; set; } = new List<HealthProfile>();
-		public virtual ICollection<DailyMetric>? DailyMetrics { get; set; } = new List<DailyMetric>();
+
+        public virtual ICollection<UserEvent> UserEvents { get; set; }
+
+		    public virtual ICollection<DailyMetric>? DailyMetrics { get; set; } = new List<DailyMetric>();
 	}
+
 }
 
