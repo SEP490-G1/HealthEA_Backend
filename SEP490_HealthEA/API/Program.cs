@@ -1,27 +1,23 @@
-﻿
-using API.Middlewares;
+﻿using API.Middlewares;
+using Domain.Interfaces;
 using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
+using Domain.Mappings;
 using Domain.Services;
+using Infrastructure.MediatR.Events.Commands.CreateEvent;
+using Infrastructure.Notification;
 using Infrastructure.Repositories;
-using Domain.Common;
-using Domain.Interfaces;
+using Infrastructure.Services;
+using Infrastructure.Services.Ocr;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
-using System;
-using System.Text;
-using Infrastructure.Services.Ocr;
-using Infrastructure.Services;
-using System.Reflection;
-using Infrastructure.MediatR.Events.Commands.CreateEvent;
-using Domain.Mappings;
-using Infrastructure.Notification;
 using Quartz;
 using System.Globalization;
+using System.Reflection;
+using System.Text;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
