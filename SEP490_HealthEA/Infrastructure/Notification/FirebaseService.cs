@@ -1,48 +1,108 @@
-﻿namespace Infrastructure.Notification;
-
-using System;
-using System.Net.Http;
+﻿using Domain.Models.Entities;
+using Google.Apis.Auth.OAuth2;
+using Infrastructure.SQLServer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
-public class FirebaseService
+public class FirebaseSettings
+{
+    public string ProjectId { get; set; }
+}
+
+public class FirebaseNotificationService
 {
     private readonly HttpClient _httpClient;
-    private readonly string _firebaseServerKey;
+    private readonly FirebaseSettings _firebaseSettings;
+    private readonly SqlDBContext _context;
 
-    public FirebaseService(HttpClient httpClient, string firebaseServerKey)
+    public FirebaseNotificationService(HttpClient httpClient, IOptions<FirebaseSettings> firebaseSettings, SqlDBContext context)
     {
         _httpClient = httpClient;
-        _firebaseServerKey = firebaseServerKey;
+        _firebaseSettings = firebaseSettings.Value;
+        _context = context;
     }
 
     public async Task SendNotificationAsync(string deviceToken, string title, string body)
     {
-        var message = new FirebaseMessage
+        var accessToken = await GetAccessTokenAsync();
+
+        var message = new
         {
-            To = deviceToken,
-            Notification = new Notification
+            message = new
             {
-                Title = title,
-                Body = body
+                token = deviceToken,
+                notification = new
+                {
+                    title = title,
+                    body = body
+                }
             }
         };
 
         var jsonMessage = JsonSerializer.Serialize(message);
         var requestContent = new StringContent(jsonMessage, Encoding.UTF8, "application/json");
 
-        // Đặt tiêu đề (header) với `Authorization` chứa server key của Firebase
         _httpClient.DefaultRequestHeaders.Clear();
-        _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"key={_firebaseServerKey}");
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
 
-        var response = await _httpClient.PostAsync("https://fcm.googleapis.com/fcm/send", requestContent);
+        var url = $"https://fcm.googleapis.com/v1/projects/sep490-c3c0a/messages:send";
+        var response = await _httpClient.PostAsync(url, requestContent);
 
         if (!response.IsSuccessStatusCode)
         {
             var responseBody = await response.Content.ReadAsStringAsync();
-            throw new Exception($"Failed to send notification: {responseBody}");
+
+            // Xử lý lỗi "UNREGISTERED"
+            if (responseBody.Contains("\"errorCode\": \"UNREGISTERED\""))
+            {
+                Console.WriteLine("Device token is no longer valid. Removing from database...");
+                await InvalidateDeviceToken(deviceToken); // Xóa token khỏi cơ sở dữ liệu
+            }
+            else
+            {
+                throw new Exception($"Failed to send notification: {responseBody}");
+            }
         }
     }
-}
 
+
+    // Hàm để đánh dấu token là không hợp lệ hoặc xóa khỏi database
+    private async Task InvalidateDeviceToken(string deviceToken)
+    {
+        var tokenEntity = await _context.DeviceTokens.FirstOrDefaultAsync(dt => dt.DeviceToken == deviceToken);
+        if (tokenEntity != null)
+        {
+            _context.DeviceTokens.Remove(tokenEntity);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    private async Task<string> GetAccessTokenAsync()
+    {
+        //GoogleCredential credential;
+
+        //var serviceAccountKeyPath = "firebaseServiceAccount.json";
+
+        //using (var stream = new FileStream(serviceAccountKeyPath, FileMode.Open, FileAccess.Read))
+        //{
+        //    credential = GoogleCredential.FromStream(stream)
+        //        .CreateScoped("https://www.googleapis.com/auth/firebase.messaging");
+        //}
+
+        //var accessToken = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
+        //return accessToken;
+        Google.Apis.Auth.OAuth2.GoogleCredential credential;
+        using (var stream = new FileStream("firebaseServiceAccount.json", FileMode.Open, FileAccess.Read))
+        {
+            credential = Google.Apis.Auth.OAuth2.GoogleCredential.FromStream(stream)
+                .CreateScoped("https://www.googleapis.com/auth/firebase.messaging");
+        }
+
+        var token = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
+        return token;
+    }
+}

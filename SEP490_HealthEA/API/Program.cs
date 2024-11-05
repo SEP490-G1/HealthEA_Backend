@@ -1,29 +1,46 @@
-﻿using API.Middlewares;
-using Domain.Interfaces;
+﻿
+using API.Middlewares;
 using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
-using Domain.Mappings;
 using Domain.Services;
-using Infrastructure.MediatR.Events.Commands.CreateEvent;
-using Infrastructure.Notification;
 using Infrastructure.Repositories;
-using Infrastructure.Services;
-using Infrastructure.Services.Ocr;
+using Domain.Common;
+using Domain.Interfaces;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+
+using System;
+using System.Text;
+using Infrastructure.Services.Ocr;
+using Infrastructure.Services;
+using System.Reflection;
+using Infrastructure.MediatR.Events.Commands.CreateEvent;
+using Domain.Mappings;
+using Infrastructure.Notification;
 using Quartz;
 using System.Globalization;
-using System.Reflection;
-using System.Text;
+using Infrastructure.MediatR.Notices;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 // Read JWT Key from appsetting
 var jwtSettings = builder.Configuration.GetSection("Jwt");
+var projectId = "sep490-c3c0a";
+
+// Đăng ký FirebaseNotificationService với HttpClient và projectId
+//builder.Services.AddHttpClient<FirebaseNotificationService>(client =>
+//{
+//    client.BaseAddress = new Uri("https://fcm.googleapis.com/");
+//})
+//.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler())
+//.AddSingleton(sp => new FirebaseNotificationService(sp.GetRequiredService<HttpClient>(), projectId));
+
 // Add full cors 
 builder.Services.AddCors(options =>
 {
@@ -111,28 +128,36 @@ builder.Services.AddSingleton<IHostedService, QuartzHostedService>();
 
 //config service
 builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
-builder.Services.AddScoped<IImageRepository, ImageRepository>(); 
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IMedicalRecordsService, MedicalRecordsService>();
 builder.Services.AddScoped<IOcrService, OcrService>();
 //config repo
 builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
 //builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+//builder.Services.AddMediatR(typeof(CreateNoticeCommandHandler).Assembly);
+builder.Services.AddScoped<FirebaseNotificationService>();
 
-//builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(
     Assembly.GetExecutingAssembly(),
     typeof(CreateEventWithUserCommandHandler).Assembly
 ));
 
-//builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
-string firebaseServerKey = "YOUR_FIREBASE_SERVER_KEY"; 
+string serviceAccountFilePath = Path.Combine(builder.Environment.ContentRootPath, "firebaseServiceAccount.json");
 
-// Đăng ký FirebaseService với HttpClient
-builder.Services.AddHttpClient<FirebaseService>(client =>
+builder.Services.AddHttpClient<FirebaseNotificationService>();
+builder.Services.AddScoped<FirebaseNotificationService>(provider =>
 {
-    client.BaseAddress = new Uri("https://fcm.googleapis.com/");
+    var httpClient = provider.GetRequiredService<HttpClient>();
+    var firebaseSettings = provider.GetRequiredService<IOptions<FirebaseSettings>>();
+    var context = provider.GetRequiredService<SqlDBContext>();
+    return new FirebaseNotificationService(httpClient, firebaseSettings, context);
 });
+
+
+
+
 
 builder.Services.AddScoped<IDailyMetricRepository, DailyMetricRepository>();
 builder.Services.AddScoped<IDailyMetricsAnalysisService, DailyMetricAnalysisService>();
@@ -157,7 +182,7 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Title = "HealthEA API for Group 1",
         Description = "This is Token user: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlcm5hbWUiLCJqdGkiOiJlOTFiZDczZS0xOGUwLTQ1ZWQtYjA5ZS00ZThlZDA2YjNlNzgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJDVVNUT01FUiIsImV4cCI6MjMyOTQyODA3MSwiaXNzIjoiZHVvbmcxMi5jb20iLCJhdWQiOiJkdW9uZzEyLmNvbSJ9.Bl-iKNtu8RYQBVzRX5tQnzA5CHZN8SQsuWds-FDg5BI",
-       
+
     });
 
     // Setup JWT helper for Swagger
