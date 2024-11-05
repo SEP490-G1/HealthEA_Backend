@@ -24,7 +24,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Read JWT Key from appsetting
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-
 // Add full cors 
 builder.Services.AddCors(options =>
 {
