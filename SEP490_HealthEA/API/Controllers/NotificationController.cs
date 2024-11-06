@@ -18,7 +18,7 @@ public class NotificationController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpPost("send")]
+    [HttpPost("test-notice")]
     public async Task<IActionResult> SendNotification([FromBody] string deviceToken)
     {
         string title = "Thông báo mới!";
@@ -40,7 +40,7 @@ public class NotificationController : ControllerBase
         var result = await _mediator.Send(command);
         return Ok(new { message = result });
     }
-    [HttpPost("create-notice")]
+    [HttpPost]
     public async Task<IActionResult> CreateNotice([FromBody] CreateNoticeCommand command)
     {
         var result = await _mediator.Send(command);

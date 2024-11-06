@@ -1,9 +1,7 @@
-﻿using Domain.Models.Entities;
-using Google.Apis.Auth.OAuth2;
+﻿using Google.Apis.Auth.OAuth2;
 using Infrastructure.SQLServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -56,11 +54,10 @@ public class FirebaseNotificationService
         {
             var responseBody = await response.Content.ReadAsStringAsync();
 
-            // Xử lý lỗi "UNREGISTERED"
             if (responseBody.Contains("\"errorCode\": \"UNREGISTERED\""))
             {
                 Console.WriteLine("Device token is no longer valid. Removing from database...");
-                await InvalidateDeviceToken(deviceToken); // Xóa token khỏi cơ sở dữ liệu
+                await InvalidateDeviceToken(deviceToken); 
             }
             else
             {
@@ -69,8 +66,6 @@ public class FirebaseNotificationService
         }
     }
 
-
-    // Hàm để đánh dấu token là không hợp lệ hoặc xóa khỏi database
     private async Task InvalidateDeviceToken(string deviceToken)
     {
         var tokenEntity = await _context.DeviceTokens.FirstOrDefaultAsync(dt => dt.DeviceToken == deviceToken);
@@ -83,19 +78,7 @@ public class FirebaseNotificationService
 
     private async Task<string> GetAccessTokenAsync()
     {
-        //GoogleCredential credential;
-
-        //var serviceAccountKeyPath = "firebaseServiceAccount.json";
-
-        //using (var stream = new FileStream(serviceAccountKeyPath, FileMode.Open, FileAccess.Read))
-        //{
-        //    credential = GoogleCredential.FromStream(stream)
-        //        .CreateScoped("https://www.googleapis.com/auth/firebase.messaging");
-        //}
-
-        //var accessToken = await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
-        //return accessToken;
-        Google.Apis.Auth.OAuth2.GoogleCredential credential;
+        GoogleCredential credential;
         using (var stream = new FileStream("firebaseServiceAccount.json", FileMode.Open, FileAccess.Read))
         {
             credential = Google.Apis.Auth.OAuth2.GoogleCredential.FromStream(stream)

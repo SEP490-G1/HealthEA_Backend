@@ -15,8 +15,15 @@ public class QuartzHostedService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
-        await _scheduler.Start(cancellationToken);
+        try
+        {
+            _scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
+            await _scheduler.Start(cancellationToken);
+        }catch(Exception ex)
+        {
+
+        }
+       
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
