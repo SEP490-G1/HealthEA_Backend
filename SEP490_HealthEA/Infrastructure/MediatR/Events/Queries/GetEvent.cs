@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.MediatR.Events.Queries;
 
-public class GetEventQuery : IRequest<Event>
+public class GeEventWithDateQuery : IRequest<Event>
 {
     public Guid EventId { get; set; }
 }
 
-public class GetEventQueryHandler : IRequestHandler<GetEventQuery, Event>
+public class GetEventQueryHandler : IRequestHandler<GeEventWithDateQuery, Event>
 {
     private readonly SqlDBContext _context;
 
@@ -20,7 +20,7 @@ public class GetEventQueryHandler : IRequestHandler<GetEventQuery, Event>
         _context = context;
     }
 
-    public async Task<Event> Handle(GetEventQuery request, CancellationToken cancellationToken)
+    public async Task<Event> Handle(GeEventWithDateQuery request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
