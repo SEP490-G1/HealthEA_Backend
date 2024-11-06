@@ -1,5 +1,4 @@
-﻿using Domain.Common.Exceptions;
-using Domain.Enum;
+﻿using Domain.Enum;
 using Domain.Models.Entities;
 using Infrastructure.MediatR.Events.Queries;
 using Infrastructure.SQLServer;
@@ -22,6 +21,7 @@ public class CreateEventCommand : IRequest<Guid>
     public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
     public string? CreatedBy { get; set; }
 }
+
 public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Guid>
 {
     private readonly SqlDBContext _context;
@@ -35,34 +35,34 @@ public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Gui
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var eventEntity = new Event
-        {
-            Title = request.Title,
-            Description = request.Description,
-            EventDateTime = request.EventDateTime.Date,
-            StartTime = request.StartTime,
-            EndTime = request.EndTime,
-            Location = request.Location,
-            RepeatFrequency = request.RepeatFrequency,
-            RepeatInterval = request.RepeatInterval,
-            RepeatEndDate = request.RepeatEndDate,
-            CreatedAt = request.CreatedAt ?? DateTime.UtcNow,
-            CreatedBy = request.CreatedBy
-        };
-
-        await _context.Events.AddAsync(eventEntity, cancellationToken);
-
         DateTime reminderDateTime = request.EventDateTime.Date.Add(request.StartTime);
         int interval = request.RepeatInterval > 0 ? request.RepeatInterval : 1;
-
-        // Tạo reminders từ ngày bắt đầu đến ngày kết thúc theo RepeatFrequency
+        Guid originalEventId = Guid.NewGuid();
         while (reminderDateTime <= request.RepeatEndDate)
         {
+            var eventEntity = new Event
+            {
+                EventId = Guid.NewGuid(),
+                OriginalEventId = originalEventId,
+                Title = request.Title,
+                Description = request.Description,
+                EventDateTime = reminderDateTime,
+                StartTime = request.StartTime,
+                EndTime = request.EndTime,
+                Location = request.Location,
+                RepeatFrequency = request.RepeatFrequency,
+                RepeatInterval = request.RepeatInterval,
+                RepeatEndDate = request.RepeatEndDate,
+                CreatedAt = request.CreatedAt ?? DateTime.UtcNow,
+                CreatedBy = request.CreatedBy
+            };
+
+            await _context.Events.AddAsync(eventEntity, cancellationToken);
+
             foreach (var reminderOffsetDto in request.ReminderOffsets)
             {
                 var reminderTime = CalculateReminderTime(reminderDateTime, reminderOffsetDto);
 
-                // Add reminder to context
                 var reminder = new Reminder
                 {
                     ReminderId = Guid.NewGuid(),
@@ -77,35 +77,19 @@ public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Gui
                 await _context.Reminders.AddAsync(reminder, cancellationToken);
             }
 
-            // Move reminderDateTime to the next occurrence based on RepeatFrequency
-            switch (request.RepeatFrequency)
+            reminderDateTime = request.RepeatFrequency switch
             {
-                case EventDailyConstants.Daily:
-                    reminderDateTime = reminderDateTime.AddDays(interval);
-                    break;
-
-                case EventDailyConstants.Weekly:
-                    reminderDateTime = reminderDateTime.AddDays(7 * interval);
-                    break;
-
-                case EventDailyConstants.Monthly:
-                    reminderDateTime = reminderDateTime.AddMonths(interval);
-                    break;
-
-                case EventDailyConstants.Yearly:
-                    reminderDateTime = reminderDateTime.AddYears(interval);
-                    break;
-                case EventDailyConstants.NotRepeat:
-                    reminderDateTime = request.RepeatEndDate.AddDays(1); // Exit loop
-                    break;
-                default:
-                    break;
-            }
+                EventDailyConstants.Daily => reminderDateTime.AddDays(interval),
+                EventDailyConstants.Weekly => reminderDateTime.AddDays(7 * interval),
+                EventDailyConstants.Monthly => reminderDateTime.AddMonths(interval),
+                EventDailyConstants.Yearly => reminderDateTime.AddYears(interval),
+                _ => request.RepeatEndDate.AddDays(1) 
+            };
         }
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return eventEntity.EventId;
+        return originalEventId;
     }
 
     private DateTime CalculateReminderTime(DateTime eventDateTime, ReminderOffsetDto reminderOffsetDto)
@@ -120,4 +104,3 @@ public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Gui
         };
     }
 }
-

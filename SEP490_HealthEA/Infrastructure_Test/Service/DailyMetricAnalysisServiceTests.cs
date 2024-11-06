@@ -1,14 +1,9 @@
 using Domain.Models.Entities.YourNamespace.Models;
 using Infrastructure.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure_Test.Service
 {
-	public class DailyMetricAnalysisServiceTests
+    public class DailyMetricAnalysisServiceTests
 	{
 		private readonly DailyMetricAnalysisService service;
 
