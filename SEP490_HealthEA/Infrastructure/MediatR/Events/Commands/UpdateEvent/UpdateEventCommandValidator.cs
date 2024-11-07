@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace Infrastructure.MediatR.Events.Commands.UpdateEvent;
 
-public class UpdateEventCommandValidator : AbstractValidator<UpdateEventCommand>
+public class UpdateAllEventCommandValidator : AbstractValidator<UpdateAllEventCommand>
 {
-    public UpdateEventCommandValidator()
+    public UpdateAllEventCommandValidator()
     {
         RuleFor(x => x.EventId)
                .NotEmpty().WithMessage(ErrorCode.EVENT_ID_IS_NOT_EMPTY);

@@ -5,6 +5,7 @@ namespace Domain.Models.Entities;
 public class Event
 {
     public Guid EventId { get; set; } = Guid.NewGuid();
+    public Guid? OriginalEventId { get; set; } = Guid.NewGuid();
     public string? UserName { get; set; }
     public string? Title { get; set; }
     public string? Description { get; set; }

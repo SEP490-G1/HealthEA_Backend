@@ -3,7 +3,7 @@ using Infrastructure.Services;
 
 namespace Infrastructure_Test.Service
 {
-	public class DailyMetricAnalysisServiceTests
+    public class DailyMetricAnalysisServiceTests
 	{
 		private readonly DailyMetricAnalysisService service;
 
