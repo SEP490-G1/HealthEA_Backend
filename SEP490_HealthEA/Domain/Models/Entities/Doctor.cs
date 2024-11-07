@@ -11,7 +11,7 @@ namespace Domain.Models.Entities
 		public Guid Id { get; set; }
 		public Guid UserId { get; set; }
 		public User? User { get; set; }
-		public IEnumerable<DoctorReport> DoctorReports { get; set; }
+		public IEnumerable<UserReport> DoctorReports { get; set; }
 
 		public string DisplayName { get; set; }
 		public string? Description { get; set; }
