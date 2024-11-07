@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Interfaces.IRepositories;
+using Domain.Interfaces.IServices;
+using Domain.Models.DAO.Doctor;
 using Domain.Models.Entities;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -13,11 +15,13 @@ namespace API.Controllers.Customer
 	{
 		private readonly IUserReportRepository repository;
 		private readonly IMapper mapper;
+		private readonly IUserClaimsService userClaimsService;
 
-		public UserReportController(IMapper mapper, IUserReportRepository repository)
+		public UserReportController(IMapper mapper, IUserReportRepository repository, IUserClaimsService userClaimsService)
 		{
 			this.mapper = mapper;
 			this.repository = repository;
+			this.userClaimsService = userClaimsService;
 		}
 
 		[HttpGet("{id}")]
@@ -26,20 +30,18 @@ namespace API.Controllers.Customer
 			var report = await repository.GetReportByIdAsync(id);
 			if (report == null)
 				return NotFound();
-
-			return Ok(report);
+			var model = mapper.Map<UserReportDto>(report);
+			return Ok(model);
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateReport([FromBody] UserReport report)
+		public async Task<IActionResult> CreateReport([FromBody] UserReportAddDto model)
 		{
-			if (report == null || report.ReporterId == Guid.Empty)
-				return BadRequest("Report information is incomplete.");
-
+			var report = mapper.Map<UserReport>(model);
 			report.Id = Guid.NewGuid();
+			report.ReporterId = userClaimsService.ClaimId(User);
 			report.Status = 0;
 			report.CreatedAt = DateTime.UtcNow;
-
 			await repository.AddUserReportAsync(report);
 			return CreatedAtAction(nameof(GetReportById), new { id = report.Id }, report);
 		}
