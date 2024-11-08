@@ -32,7 +32,7 @@ public class NoticeCreatedEventHandler : INotificationHandler<NoticeCreatedEvent
         //    .Where(dt => dt.UserId == notice.RecipientId)
         //    .Select(dt => dt.DeviceToken)
         //    .FirstOrDefaultAsync(cancellationToken);
-        var deviceToken = "ee25qzlTnOJGR5A3rGUfX3:APA91bHYw0aY69neaJqaGyJKUMc5O2R0RD_8-fyk9HpIrj42UWG7zqqs62kgxh_eL-NI1BFtW1EGNCA7SjMsuSJscqGNh5YI_koez0Q7WsV6_r3ph9PrcE8";
+        var deviceToken = "dQU0n_tLRUzWpCtL1-VcRO:APA91bEGF5tx0Pb7AqTLK_SkEgi5cqPYYjNmad0expWSI1ul66kSc6N3-pQ0X-LwlXVPHSDwzPn4RAKVF5D-cV_NDoXao7Kt54oqf9_2rCwZ3yB6Vfr3fqU";
 
         if (deviceToken != null)
         {
