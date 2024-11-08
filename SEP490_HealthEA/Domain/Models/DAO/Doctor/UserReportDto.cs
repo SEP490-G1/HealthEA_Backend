@@ -13,6 +13,7 @@ namespace Domain.Models.DAO.Doctor
 		public Guid ReporterId { get; set; }
 		public string ReportType { get; set; }
 		public string ReportDescription { get; set; }
+		public Guid ReportedId { get; set; }
 		public int Status { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public DateTime? ResolvedAt { get; set; }

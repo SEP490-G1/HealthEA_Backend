@@ -88,6 +88,10 @@ namespace API.Controllers.Customer
 			if (model.BloodSugar.HasValue) existingMetric.BloodSugar = model.BloodSugar.Value;
 			if (model.BodyTemperature.HasValue) existingMetric.BodyTemperature = model.BodyTemperature.Value;
 			if (model.OxygenSaturation.HasValue) existingMetric.OxygenSaturation = model.OxygenSaturation.Value;
+			if (!existingMetric.Validate(out var error))
+			{
+				return BadRequest(error);
+			}
 			await repository.UpdateAsync(existingMetric);
 			return NoContent();
 		}
@@ -218,6 +222,10 @@ namespace API.Controllers.Customer
 					BloodSugar = model.BloodSugar,
 					BodyTemperature = model.BodyTemperature,
 				};
+				if (!dailyMetric.Validate(out var error))
+				{
+					return BadRequest(error);
+				}
 				await repository.AddAsync(dailyMetric);
 				return NoContent();
 			}
@@ -231,6 +239,10 @@ namespace API.Controllers.Customer
 				if (model.BloodSugar.HasValue) existingMetric.BloodSugar = model.BloodSugar.Value;
 				if (model.BodyTemperature.HasValue) existingMetric.BodyTemperature = model.BodyTemperature.Value;
 				if (model.OxygenSaturation.HasValue) existingMetric.OxygenSaturation = model.OxygenSaturation.Value;
+				if (!existingMetric.Validate(out var error))
+				{
+					return BadRequest(error);
+				}
 				await repository.UpdateAsync(existingMetric);
 				return NoContent();
 			}

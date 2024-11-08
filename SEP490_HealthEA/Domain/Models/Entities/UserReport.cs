@@ -14,6 +14,7 @@ namespace Domain.Models.Entities
 		public User Reporter { get; set; }
 		public string ReportType { get; set; }
 		public string ReportDescription { get; set; }
+		public Guid ReportedId {  get; set; }
 		public int Status { get; set; }
 		public DateTime CreatedAt { get; set; }
 		public DateTime? ResolvedAt { get; set; }

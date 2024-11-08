@@ -10,5 +10,6 @@ namespace Domain.Models.DAO.Doctor
 	{
 		public string ReportType { get; set; }
 		public string ReportDescription { get; set; }
+		public Guid ReportedId { get; set; }
 	}
 }
