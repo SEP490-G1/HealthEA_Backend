@@ -4,6 +4,7 @@ using Infrastructure.SQLServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(SqlDBContext))]
-    partial class SqlDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241107145002_ChangeReport")]
+    partial class ChangeReport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,28 +66,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("DailyMetrics");
-                });
-
-            modelBuilder.Entity("Domain.Models.Entities.DeviceTokenRequest", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DeviceToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DeviceType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DeviceTokens");
                 });
 
             modelBuilder.Entity("Domain.Models.Entities.Doctor", b =>
@@ -192,9 +173,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("OriginalEventId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("RepeatEndDate")
                         .HasColumnType("datetime2");
@@ -310,27 +288,6 @@ namespace Infrastructure.Migrations
                         .HasName("PK__invalida__3213E83F8938BA78");
 
                     b.ToTable("invalidated_token", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Models.Entities.Notice", b =>
-                {
-                    b.Property<Guid>("NoticeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("RecipientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("NoticeId");
-
-                    b.ToTable("Notices");
                 });
 
             modelBuilder.Entity("Domain.Models.Entities.Reminder", b =>
@@ -487,9 +444,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("ReportType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ReportedId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ReporterId")
                         .HasColumnType("uniqueidentifier");

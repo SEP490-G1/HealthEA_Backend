@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces.IRepositories
 {
-	public interface IDoctorReportRepository
+	public interface IUserReportRepository
 	{
-		Task AddDoctorReport(DoctorReport report);
+		Task AddUserReportAsync(UserReport report);
+		Task<UserReport?> GetReportByIdAsync(Guid reportId);
 	}
 }

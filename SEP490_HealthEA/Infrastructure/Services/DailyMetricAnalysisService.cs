@@ -223,7 +223,7 @@ namespace Infrastructure.Services
 			{
 				statusResult.Values.Add(new DailyMetricValue
 				{
-					MetricName = "Oxygen Saturation",
+					MetricName = "Độ bão hòa Oxy",
 					Value = "0 SpO2",
 					Status = -1,
 					Description = null
