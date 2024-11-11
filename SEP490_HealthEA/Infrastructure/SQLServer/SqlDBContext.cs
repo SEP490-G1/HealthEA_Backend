@@ -26,6 +26,7 @@ namespace Infrastructure.SQLServer
         public virtual DbSet<UserEvent> UserEvents { get; set; }
         public virtual DbSet<Reminder> Reminders { get; set; }
         public virtual DbSet<Notice> Notices { get; set; }
+        public virtual DbSet<Appointment> Appointments { get; set; }
         public virtual DbSet<DeviceTokenRequest> DeviceTokens { get; set; }
         
         public DbSet<Image> Images { get; set; }

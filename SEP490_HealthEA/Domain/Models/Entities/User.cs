@@ -31,8 +31,9 @@ namespace Domain.Models.Entities
 
         public virtual ICollection<UserEvent> UserEvents { get; set; }
 
-		    public virtual ICollection<DailyMetric>? DailyMetrics { get; set; } = new List<DailyMetric>();
-	}
+        public virtual ICollection<DailyMetric>? DailyMetrics { get; set; } = new List<DailyMetric>();
+        public virtual ICollection<Appointment> Appointments { get; set; }
+    }
 
 }
 
