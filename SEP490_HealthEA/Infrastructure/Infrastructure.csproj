@@ -41,7 +41,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="MediatR\Appoinment\Queries\" />
     <Folder Include="SQLServer\" />
   </ItemGroup>
 
