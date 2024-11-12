@@ -1,4 +1,5 @@
 ﻿using Domain.Common.Exceptions;
+using Domain.Models.Entities;
 using Infrastructure.Services;
 using Infrastructure.SQLServer;
 using MediatR;
@@ -71,7 +72,6 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
         appointment.Location = location;
         appointment.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync(cancellationToken);
         var userName = $"{user?.FirstName ?? ""} {user?.LastName ?? ""}".Trim();
         var doctorName = doctors?.DisplayName ?? "Bác sĩ";
         string appointmentDate = appointment?.Date != null ? appointment.Date.ToString("dd/MM/yyyy") : "Chưa xác định";
@@ -96,6 +96,24 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
     "
         );
 
+        var eventEntity = new Event
+        {
+            EventId = appointment.EventId,
+            UserName = userName,
+            Title = $"Cuộc hẹn với bác sĩ {doctorName}",
+            Description = appointment.Description,
+            EventDateTime = appointment.Date,
+            StartTime = appointment.StartTime,
+            EndTime = appointment.EndTime ?? TimeSpan.Zero,
+            Location = location,
+            //Status = "Approved",
+            CreatedAt = DateTime.UtcNow,
+            //CreatedBy = doctor?.Email,
+            Type = 2 
+        };
+
+        _context.Events.Add(eventEntity);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return true;
     }
