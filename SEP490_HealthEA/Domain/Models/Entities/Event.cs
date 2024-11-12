@@ -13,6 +13,7 @@ public class Event
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public string? Location { get; set; }
+    public int Type { get; set; } = 1;
     public EventStatusConstants? Status { get; set; }
     public EventDailyConstants RepeatFrequency { get; set; } // Tần suất lặp lại
     public int RepeatInterval { get; set; } = 1; // Khoảng thời gian lặp lại
