@@ -46,5 +46,27 @@ namespace API.Controllers.Customer
 			await repository.AddUserReportAsync(report);
 			return CreatedAtAction(nameof(GetReportById), new { id = report.Id }, report);
 		}
+
+		// GET: api/UserReport?status=0
+		[HttpGet]
+		public async Task<IActionResult> GetAllReports([FromQuery] int? status)
+		{
+			var reports = await repository.GetAllReportsAsync(status);
+			var result = mapper.Map<IEnumerable<UserReportDto>>(reports);
+			return Ok(result);
+		}
+
+		// PATCH: api/UserReport/{id}/status
+		[HttpPatch("{id}/status")]
+		public async Task<IActionResult> UpdateReportStatus(Guid id, [FromBody] ReportStatusDto model)
+		{
+			await repository.MarkReportStatusAsync(id, model.Status);
+			return NoContent();
+		}
+	}
+
+	public class ReportStatusDto
+	{
+		public int Status { get; set; }
 	}
 }
