@@ -10,6 +10,8 @@ namespace Domain.Interfaces.IRepositories
 	public interface IUserReportRepository
 	{
 		Task AddUserReportAsync(UserReport report);
+		Task<IEnumerable<UserReport>> GetAllReportsAsync(int? status = null);
 		Task<UserReport?> GetReportByIdAsync(Guid reportId);
+		Task MarkReportStatusAsync(Guid reportId, int status);
 	}
 }

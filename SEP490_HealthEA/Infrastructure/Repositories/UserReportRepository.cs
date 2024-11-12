@@ -32,6 +32,34 @@ namespace Infrastructure.Repositories
 				.FirstOrDefaultAsync(r => r.Id == reportId);
 		}
 
+		public async Task<IEnumerable<UserReport>> GetAllReportsAsync(int? status = null)
+		{
+			var query = context.UserReports.AsQueryable();
 
+			if (status.HasValue)
+			{
+				query = query.Where(r => r.Status == status);
+			}
+
+			return await query.ToListAsync();
+		}
+
+		public async Task MarkReportStatusAsync(Guid reportId, int status)
+		{
+			var report = await context.UserReports.FindAsync(reportId);
+
+			if (report != null)
+			{
+				report.Status = status;
+				if (status == 1)
+				{
+					report.ResolvedAt = DateTime.UtcNow;
+				} else
+				{
+					report.ResolvedAt = null;
+				}
+				await context.SaveChangesAsync();
+			}
+		}
 	}
 }
