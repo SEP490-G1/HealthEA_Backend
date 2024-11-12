@@ -25,6 +25,7 @@ using System.Globalization;
 using Infrastructure.MediatR.Notices;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Infrastructure.MediatR.Appoinment.Commands.CreateAppointment;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -154,7 +155,6 @@ builder.Services.AddScoped<FirebaseNotificationService>(provider =>
     var context = provider.GetRequiredService<SqlDBContext>();
     return new FirebaseNotificationService(httpClient, firebaseSettings, context);
 });
-
 
 
 
