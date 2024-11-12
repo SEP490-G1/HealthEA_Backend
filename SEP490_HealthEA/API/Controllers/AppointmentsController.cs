@@ -1,0 +1,73 @@
+﻿using Domain.Common.Exceptions;
+using Infrastructure.MediatR.Appoinment.Commands.CreateAppointment;
+using Infrastructure.MediatR.Reminders.Commands.CreateReminder;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+namespace API.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class AppointmentsController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public AppointmentsController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+    [HttpPost]
+    public async Task<IActionResult> CreateReminder([FromBody] CreateAppointmentCommand command, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            return Ok(new { Success = true, Message = "Appointment created successfully"});
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Success = false, Message = ex.Message });
+        }
+    }
+    [HttpPost("approve/{appointmentId}")]
+    public async Task<IActionResult> ApproveAppointment([FromBody] ApproveAppointmentCommand command, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            if (result)
+            {
+                return Ok(new { Success = true, Message = "Appointment approve successfully"});
+            }
+            else
+            {
+                return NotFound(new { Error = ErrorCode.APPOINTMENT_NOT_FOUND });
+            }
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Success = false, Message = ex.Message });
+        }
+    }
+    [HttpPost("reject/{appointmentId}")]
+    public async Task<IActionResult> RejectAppointment([FromBody] RejectAppointmentCommand command, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            if (result)
+            {
+                return Ok(new { Success = true, Message = "Appointment rejected successfully", AppointmentId = result });
+            }
+            else
+            {
+                return NotFound(new { Error = ErrorCode.APPOINTMENT_NOT_FOUND });
+            }
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { Success = false, Message = ex.Message });
+        }
+    }
+}

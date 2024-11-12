@@ -8,10 +8,12 @@ public class Appointment
     public Guid UserId { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
-    public DateTime StartTime { get; set; }
-    public DateTime EndTime { get; set; }
-    public string Location { get; set; }
+    public DateTime Date { get; set; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan? EndTime { get; set; }
+    public string? Location { get; set; }
     public string Status { get; set; } = "Pending";
+    public string? Type { get; set; } 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
     public virtual Event Events { get; set; }
