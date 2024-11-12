@@ -135,6 +135,7 @@ builder.Services.AddScoped<IOcrService, OcrService>();
 builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
 //builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserReportRepository, UserReportRepository>();
 //builder.Services.AddMediatR(typeof(CreateNoticeCommandHandler).Assembly);
 builder.Services.AddScoped<FirebaseNotificationService>();
 

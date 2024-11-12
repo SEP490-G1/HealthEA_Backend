@@ -53,7 +53,7 @@ namespace Domain.Models.Entities
 				return false;
 			}
 
-			if (HeartRate.HasValue && (HeartRate.Value < 40))
+			if (HeartRate.HasValue && HeartRate.Value <= 0)
 			{
 				validationError = "Invalid Heart Rate";
 				return false;

@@ -42,6 +42,7 @@ namespace API.Controllers.Customer
 			report.ReporterId = userClaimsService.ClaimId(User);
 			report.Status = 0;
 			report.CreatedAt = DateTime.UtcNow;
+			Console.WriteLine(report.ReporterId);
 			await repository.AddUserReportAsync(report);
 			return CreatedAtAction(nameof(GetReportById), new { id = report.Id }, report);
 		}
