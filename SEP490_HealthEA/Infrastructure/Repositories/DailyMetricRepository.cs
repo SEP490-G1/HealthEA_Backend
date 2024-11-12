@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,37 +13,37 @@ namespace Infrastructure.Repositories
 {
 	public class DailyMetricRepository : IDailyMetricRepository
 	{
-		private readonly SqlDBContext _context;
+		private readonly SqlDBContext context;
 
 		public DailyMetricRepository(SqlDBContext context)
 		{
-			_context = context;
+			this.context = context;
 		}
 
 		public async Task<DailyMetric?> GetByIdAsync(Guid id)
 		{
-			return await _context.DailyMetrics
+			return await context.DailyMetrics
 				.Include(dm => dm.User)
 				.FirstOrDefaultAsync(dm => dm.Id == id);
 		}
 
 		public async Task<IEnumerable<DailyMetric>> GetAllByUserIdAsync(Guid userId)
 		{
-			return await _context.DailyMetrics
+			return await context.DailyMetrics
 				.Where(dm => dm.UserId == userId)
 				.ToListAsync();
 		}
 
 		public async Task AddAsync(DailyMetric dailyMetric)
 		{
-			await _context.DailyMetrics.AddAsync(dailyMetric);
-			await _context.SaveChangesAsync();
+			await context.DailyMetrics.AddAsync(dailyMetric);
+			await context.SaveChangesAsync();
 		}
 
 		public async Task UpdateAsync(DailyMetric dailyMetric)
 		{
-			_context.DailyMetrics.Update(dailyMetric);
-			await _context.SaveChangesAsync();
+			context.DailyMetrics.Update(dailyMetric);
+			await context.SaveChangesAsync();
 		}
 
 		public async Task DeleteAsync(Guid id)
@@ -50,22 +51,37 @@ namespace Infrastructure.Repositories
 			var dailyMetric = await GetByIdAsync(id);
 			if (dailyMetric != null)
 			{
-				_context.DailyMetrics.Remove(dailyMetric);
-				await _context.SaveChangesAsync();
+				context.DailyMetrics.Remove(dailyMetric);
+				await context.SaveChangesAsync();
 			}
 		}
 
 		public async Task<IEnumerable<DailyMetric>> GetByUserIdAndDateRangeAsync(Guid userId, DateOnly startDate, DateOnly endDate)
 		{
-			return await _context.DailyMetrics
+			return await context.DailyMetrics
 				.Where(dm => dm.UserId == userId && dm.Date >= startDate && dm.Date <= endDate)
 				.ToListAsync();
 		}
 
 		public async Task<DailyMetric?> GetByUserIdAndDateAsync(Guid userId, DateOnly date)
 		{
-			return await _context.DailyMetrics
+			return await context.DailyMetrics
 				.FirstOrDefaultAsync(dm => dm.UserId == userId && dm.Date == date);
+		}
+
+		public async Task<DailyMetric?> GetLatestByUserId(Guid userId)
+		{
+			return await context.DailyMetrics
+				.FirstOrDefaultAsync(dm => dm.UserId == userId);
+		}
+
+		public async Task<T?> GetMostRecentValueAsync<T>(Guid userId, Expression<Func<DailyMetric, T?>> field) where T : struct
+		{
+			return await context.DailyMetrics
+				.Where(m => m.UserId == userId && field.Body != null)
+				.OrderByDescending(m => m.Date)
+				.Select(field)
+				.FirstOrDefaultAsync();
 		}
 	}
 }

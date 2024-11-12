@@ -199,6 +199,32 @@ namespace API.Controllers.Customer
 			return Ok(result);
 		}
 
+		[HttpGet("detailed/latest")]
+		public async Task<ActionResult<DailyMetricReturnModel>> GetRecentDailyMetric()
+		{
+			var userId = userClaimsService.ClaimId(User);
+			var today = DateOnly.FromDateTime(DateTime.Today);
+			var dailyMetric = await repository.GetLatestByUserId(userId);
+
+			if (dailyMetric == null)
+			{
+				return Ok(new { Msg = "No Record" });
+			}
+
+			dailyMetric.Weight ??= await repository.GetMostRecentValueAsync(userId, m => m.Weight);
+			dailyMetric.Height ??= await repository.GetMostRecentValueAsync(userId, m => m.Height);
+			dailyMetric.SystolicBloodPressure ??= await repository.GetMostRecentValueAsync(userId, m => m.SystolicBloodPressure);
+			dailyMetric.DiastolicBloodPressure ??= await repository.GetMostRecentValueAsync(userId, m => m.DiastolicBloodPressure);
+			dailyMetric.HeartRate ??= await repository.GetMostRecentValueAsync(userId, m => m.HeartRate);
+			dailyMetric.BloodSugar ??= await repository.GetMostRecentValueAsync(userId, m => m.BloodSugar);
+			dailyMetric.BodyTemperature ??= await repository.GetMostRecentValueAsync(userId, m => m.BodyTemperature);
+			dailyMetric.OxygenSaturation ??= await repository.GetMostRecentValueAsync(userId, m => m.OxygenSaturation);
+
+			var mapped = mapper.Map<DailyMetricReturnModel>(dailyMetric);
+			var result = await service.GetStatus(mapped);
+			return Ok(result);
+		}
+
 		[HttpPatch("today")]
 		public async Task<IActionResult> AddOrUpdateDailyMetricForToday([FromBody] AddOrUpdateModel model)
 		{
@@ -221,6 +247,7 @@ namespace API.Controllers.Customer
 					HeartRate = model.HeartRate,
 					BloodSugar = model.BloodSugar,
 					BodyTemperature = model.BodyTemperature,
+					OxygenSaturation = model.OxygenSaturation,
 				};
 				if (!dailyMetric.Validate(out var error))
 				{
