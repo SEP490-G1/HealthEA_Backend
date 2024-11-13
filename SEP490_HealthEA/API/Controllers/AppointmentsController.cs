@@ -1,4 +1,5 @@
 ﻿using Domain.Common.Exceptions;
+using Domain.Models.Entities;
 using Infrastructure.MediatR.Appoinment.Commands.CreateAppointment;
 using Infrastructure.MediatR.Appoinment.Queries;
 using Infrastructure.MediatR.Common;
@@ -43,7 +44,7 @@ public class AppointmentsController : ControllerBase
         try
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(new { Success = true, Message = "Appointment created successfully"});
+            return Ok(new { Success = true, Message = "Appointment created successfully", AppointmentId = result});
         }
         catch (Exception ex)
         {
