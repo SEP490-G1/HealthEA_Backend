@@ -24,7 +24,6 @@ public class Event
     public string? UpdatedBy { get; set; }
     public virtual ICollection<Reminder> Reminders { get; set; }
     public virtual ICollection<UserEvent> UserEvents { get; set; }
-    public virtual ICollection<Appointment> Appointments { get; set; }
 
 }
 
