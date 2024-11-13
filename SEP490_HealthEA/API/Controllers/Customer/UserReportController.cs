@@ -17,11 +17,14 @@ namespace API.Controllers.Customer
 		private readonly IMapper mapper;
 		private readonly IUserClaimsService userClaimsService;
 
-		public UserReportController(IMapper mapper, IUserReportRepository repository, IUserClaimsService userClaimsService)
+		private readonly IDoctorRepository doctorRepository;
+
+		public UserReportController(IMapper mapper, IUserReportRepository repository, IUserClaimsService userClaimsService, IDoctorRepository doctorRepository)
 		{
 			this.mapper = mapper;
 			this.repository = repository;
 			this.userClaimsService = userClaimsService;
+			this.doctorRepository = doctorRepository;
 		}
 
 		[HttpGet("{id}")]
@@ -31,6 +34,16 @@ namespace API.Controllers.Customer
 			if (report == null)
 				return NotFound();
 			var model = mapper.Map<UserReportDto>(report);
+			//Get type
+			if (model.ReportType == "doctor")
+			{
+				var obj = await doctorRepository.GetDoctorByIdAsync(model.ReportedId);
+				if (obj != null)
+				{
+					model.Reported = new ReportedObjectDto();
+					model.Reported.Name = obj.DisplayName;
+				}
+			}
 			return Ok(model);
 		}
 

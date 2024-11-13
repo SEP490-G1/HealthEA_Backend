@@ -53,15 +53,15 @@ namespace API.Controllers.Customer
 		}
 
 		[HttpPost]
-		[Obsolete]
-		public async Task<ActionResult> CreateDailyMetric([FromBody] DailyMetric dailyMetric)
+		public async Task<ActionResult> CreateDailyMetric([FromBody] DailyMetricAddModel model)
 		{
-			if (!ModelState.IsValid)
+			var dailyMetric = mapper.Map<DailyMetric>(model);
+			if (!dailyMetric.Validate(out var error))
 			{
-				return BadRequest(ModelState);
+				return BadRequest(error);
 			}
 			dailyMetric.Id = new Guid();
-			dailyMetric.Date = DateOnly.FromDateTime(DateTime.Today);
+			dailyMetric.UserId = userClaimsService.ClaimId(User);
 			await repository.AddAsync(dailyMetric);
 			return NoContent();
 		}
@@ -288,5 +288,7 @@ namespace API.Controllers.Customer
 		public double? BodyTemperature { get; set; }
 		public double? OxygenSaturation { get; set; }
 	}
+
+	
 
 }
