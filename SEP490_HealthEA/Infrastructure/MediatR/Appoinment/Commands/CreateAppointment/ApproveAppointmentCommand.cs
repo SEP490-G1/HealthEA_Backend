@@ -112,7 +112,7 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
 
         var eventEntity = new Event
         {
-            EventId = appointment.EventId,
+            EventId = new Guid(),
             UserName = userName,
             Title = $"Cuộc hẹn với bác sĩ {doctorName}",
             Description = appointment.Description,
