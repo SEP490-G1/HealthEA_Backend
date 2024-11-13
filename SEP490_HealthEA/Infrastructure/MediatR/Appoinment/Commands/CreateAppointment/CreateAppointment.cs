@@ -81,6 +81,19 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
 
         _context.Appointments.Add(appointment);
 
+        var schedules = await _context.Schedules
+      .FirstOrDefaultAsync(s =>
+          s.DoctorId == appointment.DoctorId &&
+          s.Date == appointment.Date &&
+          s.StartTime == appointment.StartTime &&
+          s.EndTime == appointment.EndTime,
+          cancellationToken);
+        if (schedule != null)
+        {
+            schedule.Status = "Unavailable";
+            _context.Schedules.Update(schedules);
+        }
+
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == appointment.UserId, cancellationToken);
         var doctor = await _context.Users.FirstOrDefaultAsync(u => u.UserId == appointment.DoctorId, cancellationToken);
         if(doctor == null)

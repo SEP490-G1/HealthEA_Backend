@@ -72,6 +72,20 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
         appointment.Location = location;
         appointment.UpdatedAt = DateTime.UtcNow;
 
+        var schedule = await _context.Schedules
+       .FirstOrDefaultAsync(s =>
+           s.DoctorId == appointment.DoctorId &&
+           s.Date == appointment.Date &&
+           s.StartTime == appointment.StartTime &&
+           s.EndTime == appointment.EndTime,
+           cancellationToken);
+        if (schedule != null)
+        {
+            schedule.Status = "Unavailable";
+            _context.Schedules.Update(schedule);
+        }
+        //_context.Appointments.Update(appointment);
+
         var userName = $"{user?.FirstName ?? ""} {user?.LastName ?? ""}".Trim();
         var doctorName = doctors?.DisplayName ?? "Bác sĩ";
         string appointmentDate = appointment?.Date != null ? appointment.Date.ToString("dd/MM/yyyy") : "Chưa xác định";
