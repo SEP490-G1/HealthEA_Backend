@@ -18,6 +18,7 @@ namespace Domain.Mappings
 			CreateMap<Doctor, DoctorDto>();
 			CreateMap<UserReport, UserReportDto>();
 			CreateMap<UserReportAddDto, UserReport>();
+			CreateMap<DailyMetricAddModel, DailyMetric>();
 		}
 	}
 }
