@@ -67,7 +67,6 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
         {
             DoctorId = request.DoctorId,
             UserId = request.UserId,
-            EventId = Guid.NewGuid(),
             Title = title,
             Description = request.Description,
             Date = request.Date,
@@ -95,7 +94,7 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
         }
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == appointment.UserId, cancellationToken);
-        var doctor = await _context.Users.FirstOrDefaultAsync(u => u.UserId == appointment.DoctorId, cancellationToken);
+        var doctor = await _context.Users.Include(u => u.Doctor).FirstOrDefaultAsync(u => u.Doctor!.Id == appointment.DoctorId, cancellationToken);
         if(doctor == null)
         {
             throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);

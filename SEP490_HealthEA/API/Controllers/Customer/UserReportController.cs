@@ -17,11 +17,14 @@ namespace API.Controllers.Customer
 		private readonly IMapper mapper;
 		private readonly IUserClaimsService userClaimsService;
 
-		public UserReportController(IMapper mapper, IUserReportRepository repository, IUserClaimsService userClaimsService)
+		private readonly IDoctorRepository doctorRepository;
+
+		public UserReportController(IMapper mapper, IUserReportRepository repository, IUserClaimsService userClaimsService, IDoctorRepository doctorRepository)
 		{
 			this.mapper = mapper;
 			this.repository = repository;
 			this.userClaimsService = userClaimsService;
+			this.doctorRepository = doctorRepository;
 		}
 
 		[HttpGet("{id}")]
@@ -31,6 +34,16 @@ namespace API.Controllers.Customer
 			if (report == null)
 				return NotFound();
 			var model = mapper.Map<UserReportDto>(report);
+			//Get type
+			if (model.ReportType == "doctor")
+			{
+				var obj = await doctorRepository.GetDoctorByIdAsync(model.ReportedId);
+				if (obj != null)
+				{
+					model.Reported = new ReportedObjectDto();
+					model.Reported.Name = obj.DisplayName;
+				}
+			}
 			return Ok(model);
 		}
 
@@ -42,8 +55,31 @@ namespace API.Controllers.Customer
 			report.ReporterId = userClaimsService.ClaimId(User);
 			report.Status = 0;
 			report.CreatedAt = DateTime.UtcNow;
+			Console.WriteLine(report.ReporterId);
 			await repository.AddUserReportAsync(report);
 			return CreatedAtAction(nameof(GetReportById), new { id = report.Id }, report);
 		}
+
+		// GET: api/UserReport?status=0
+		[HttpGet]
+		public async Task<IActionResult> GetAllReports([FromQuery] int? status)
+		{
+			var reports = await repository.GetAllReportsAsync(status);
+			var result = mapper.Map<IEnumerable<UserReportDto>>(reports);
+			return Ok(result);
+		}
+
+		// PATCH: api/UserReport/{id}/status
+		[HttpPatch("{id}/status")]
+		public async Task<IActionResult> UpdateReportStatus(Guid id, [FromBody] ReportStatusDto model)
+		{
+			await repository.MarkReportStatusAsync(id, model.Status);
+			return NoContent();
+		}
+	}
+
+	public class ReportStatusDto
+	{
+		public int Status { get; set; }
 	}
 }

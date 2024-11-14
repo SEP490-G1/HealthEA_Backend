@@ -1,4 +1,5 @@
 ﻿using Domain.Common.Exceptions;
+using Domain.Interfaces.IServices;
 using Domain.Models.Entities;
 using Infrastructure.MediatR.Appoinment.Commands.CreateAppointment;
 using Infrastructure.MediatR.Appoinment.Queries;
@@ -15,12 +16,14 @@ namespace API.Controllers;
 public class AppointmentsController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IUserClaimsService service;
 
-    public AppointmentsController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-    [HttpGet]
+	public AppointmentsController(IMediator mediator, IUserClaimsService service)
+	{
+		_mediator = mediator;
+		this.service = service;
+	}
+	[HttpGet]
     public async Task<ActionResult<PaginatedList<AppointmentDto>>> GetAppointmentWithPagination([FromQuery] GetAppointment query, CancellationToken cancellationToken)
     {
         return await _mediator.Send(query, cancellationToken);
@@ -41,6 +44,8 @@ public class AppointmentsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateReminder([FromBody] CreateAppointmentCommand command, CancellationToken cancellationToken)
     {
+        command.UserId = service.ClaimId(User);
+        Console.WriteLine(command.UserId);
         try
         {
             var result = await _mediator.Send(command, cancellationToken);

@@ -4,6 +4,7 @@ using Infrastructure.SQLServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(SqlDBContext))]
-    partial class SqlDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241113150303_Schedule")]
+    partial class Schedule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,6 +47,9 @@ namespace Infrastructure.Migrations
                     b.Property<TimeSpan?>("EndTime")
                         .HasColumnType("time");
 
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
@@ -70,6 +76,8 @@ namespace Infrastructure.Migrations
                     b.HasKey("AppointmentId");
 
                     b.HasIndex("DoctorId");
+
+                    b.HasIndex("EventId");
 
                     b.HasIndex("UserId");
 
@@ -598,6 +606,12 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Models.Entities.Event", "Events")
+                        .WithMany("Appointments")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Models.Entities.User", "Users")
                         .WithMany("Appointments")
                         .HasForeignKey("UserId")
@@ -605,6 +619,8 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Doctors");
+
+                    b.Navigation("Events");
 
                     b.Navigation("Users");
                 });
@@ -706,6 +722,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.Event", b =>
                 {
+                    b.Navigation("Appointments");
+
                     b.Navigation("Reminders");
 
                     b.Navigation("UserEvents");
