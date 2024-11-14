@@ -8,6 +8,5 @@ namespace Domain.Services
 {
     public class BaseServices
     {
-
     }
 }
