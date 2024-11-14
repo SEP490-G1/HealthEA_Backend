@@ -36,15 +36,15 @@ public class RejectAppointmentHandler : IRequestHandler<RejectAppointmentCommand
         {
             throw new Exception("Bác sĩ đã phản hồi lịch hẹn này trước đó.");
         }
-        var doctors = await _context.Doctors
-            .FirstOrDefaultAsync(d => d.Id == appointment.DoctorId, cancellationToken);
-        if (doctors == null)
-        {
-            throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
-        }
-        var doctor = await _context.Users
-            .FirstOrDefaultAsync(d => d.UserId == appointment.DoctorId, cancellationToken);
-        if (doctor == null)
+		var doctors = await _context.Doctors
+			.Include(e => e.User)
+			.FirstOrDefaultAsync(d => d.Id == appointment.DoctorId, cancellationToken);
+		if (doctors == null)
+		{
+			throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
+		}
+		var doctor = doctors.User;
+		if (doctor == null)
         {
             throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
         }
