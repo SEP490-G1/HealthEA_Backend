@@ -8,6 +8,7 @@ namespace Infrastructure.MediatR.Events.Commands.DeleteEvent;
 public class DeleteEventCommand : IRequest<bool>
 {
     public Guid EventId { get; set; }
+    public Guid UserId { get; set; }
 }
 
 public class DeleteEventCommandHandler : IRequestHandler<DeleteEventCommand, bool>

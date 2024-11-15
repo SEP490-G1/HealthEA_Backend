@@ -9,6 +9,7 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent;
 
 public class UpdateAllEventCommand : IRequest<Guid>
 {
+    public Guid UserId { get; set; }
     public Guid EventId { get; set; }
     public Guid? OriginalEventId { get; set; } = Guid.NewGuid();
     public string? Title { get; set; }
@@ -56,8 +57,13 @@ public class UpdateAllEventCommandHandler : IRequestHandler<UpdateAllEventComman
         originalEvent.RepeatFrequency = request.RepeatFrequency ?? originalEvent.RepeatFrequency;
         originalEvent.RepeatInterval = request.RepeatInterval ?? originalEvent.RepeatInterval;
         originalEvent.RepeatEndDate = request.RepeatEndDate ?? originalEvent.RepeatEndDate;
+        var eventIdsToDelete = eventEntities.Select(e => e.EventId).ToList();
+        var userEventsToDelete = await _context.UserEvents
+       .Where(ue => eventIdsToDelete.Contains(ue.EventId))
+       .ToListAsync(cancellationToken);
 
         _context.Reminders.RemoveRange(eventEntities.SelectMany(e => e.Reminders));
+        _context.UserEvents.RemoveRange(userEventsToDelete);
         _context.Events.RemoveRange(eventEntities.Where(e => e.OriginalEventId == request.OriginalEventId));
 
         DateTime reminderDateTime = originalEvent.EventDateTime.Date.Add(originalEvent.StartTime);
@@ -83,6 +89,17 @@ public class UpdateAllEventCommandHandler : IRequestHandler<UpdateAllEventComman
             };
 
             await _context.Events.AddAsync(eventClone, cancellationToken);
+
+            var userEvent = new UserEvent
+            {
+                UserEventId = Guid.NewGuid(),
+                UserId = request.UserId,
+                EventId = eventClone.EventId,
+                IsAccepted = true,
+                IsOrganizer = true
+            };
+
+            await _context.UserEvents.AddAsync(userEvent, cancellationToken);
 
             foreach (var reminderOffsetDto in request.ReminderOffsets)
             {

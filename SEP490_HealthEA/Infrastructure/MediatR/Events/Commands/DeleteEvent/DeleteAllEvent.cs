@@ -8,6 +8,7 @@ namespace Infrastructure.MediatR.Events.Commands.DeleteEvent;
 public class DeleteAllEventCommand : IRequest<bool>
 {
     public Guid OriginalEventId { get; set; } = Guid.NewGuid();
+    public Guid UserId { get; set; }
 }
 
 
@@ -35,6 +36,14 @@ public class DeleteAllEventCommandHandler : IRequestHandler<DeleteAllEventComman
                 throw new Exception(ErrorCode.EVENT_NOT_FOUND);
             }
 
+            var eventIdsToDelete = eventsToDelete.Select(e => e.EventId).ToList();
+
+            var userEventsToDelete = await _context.UserEvents
+                .Where(ue => eventIdsToDelete.Contains(ue.EventId))
+                .ToListAsync(cancellationToken);
+
+            _context.UserEvents.RemoveRange(userEventsToDelete);
+
             foreach (var eventToDelete in eventsToDelete)
             {
                 _context.Reminders.RemoveRange(eventToDelete.Reminders);
@@ -44,12 +53,14 @@ public class DeleteAllEventCommandHandler : IRequestHandler<DeleteAllEventComman
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return true; 
+            return true;
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return false;
         }
     }
+
 
 }

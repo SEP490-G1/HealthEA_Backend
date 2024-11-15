@@ -6,6 +6,7 @@ namespace Infrastructure.MediatR.Events.Queries;
 
 public class GetEventsQuery : IRequest<List<EventDto>>
 {
+    public Guid UserId { get; set; } = Guid.Empty;
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
 }
@@ -21,11 +22,11 @@ public class GetEventsQueryHandler : IRequestHandler<GetEventsQuery, List<EventD
     public async Task<List<EventDto>> Handle(GetEventsQuery request, CancellationToken cancellationToken)
     {
         var events = await _context.Events
-            .Where(e => e.EventDateTime >= request.StartDate && e.EventDateTime <= request.EndDate)
+            .Where(e => e.UserEvents.Any(ue => ue.UserId == request.UserId) && e.EventDateTime >= request.StartDate && e.EventDateTime <= request.EndDate)
             .Select(e => new EventDto
             {
                 EventId = e.EventId,
-                UserName = e.UserName,
+                //UserName = e.UserName,
                 Title = e.Title,
                 Description = e.Description,
                 EventDateTime = e.EventDateTime,

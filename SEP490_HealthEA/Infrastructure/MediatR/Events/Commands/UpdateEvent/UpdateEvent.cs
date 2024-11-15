@@ -7,6 +7,7 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent;
 
 public class UpdateEventCommand : IRequest<Guid>
 {
+    public Guid UserId { get; set; }
     public Guid EventId { get; set; }
     public string? Title { get; set; }
     public string? Description { get; set; }
