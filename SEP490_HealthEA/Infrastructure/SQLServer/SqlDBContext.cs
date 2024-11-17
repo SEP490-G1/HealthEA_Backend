@@ -38,6 +38,8 @@ namespace Infrastructure.SQLServer
 
         public DbSet<UserReport> UserReports { get; set; }
 
+		public DbSet<News> News { get; set; }
+
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
@@ -150,6 +152,8 @@ namespace Infrastructure.SQLServer
 			modelBuilder.Entity<News>(entity =>
 			{
 				entity.HasKey(n => n.Id);
+				entity.Property(n => n.Id)
+					  .ValueGeneratedOnAdd();
 				entity.Property(n => n.Title)
 					  .IsRequired()
 					  .HasMaxLength(200);
