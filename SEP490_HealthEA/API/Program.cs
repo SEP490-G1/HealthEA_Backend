@@ -132,6 +132,7 @@ builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IMedicalRecordsService, MedicalRecordsService>();
 builder.Services.AddScoped<IOcrService, OcrService>();
+builder.Services.AddScoped<INewsRepository, NewsRepository>();
 //config repo
 builder.Services.AddScoped<IMedicalRecordRepository, MedicalRecordsRepository>();
 //builder.Services.AddScoped<IEventRepository, EventRepository>();

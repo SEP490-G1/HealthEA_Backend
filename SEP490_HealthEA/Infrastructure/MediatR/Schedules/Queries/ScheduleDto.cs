@@ -2,5 +2,7 @@
 
 public class ScheduleDto
 {
-    public TimeSpan StartTime { get; set; }
+    public Guid ScheduleId { get; set; }
+
+	public TimeSpan StartTime { get; set; }
 }

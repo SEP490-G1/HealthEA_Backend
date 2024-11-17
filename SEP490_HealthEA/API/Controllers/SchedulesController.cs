@@ -1,4 +1,6 @@
-﻿using Infrastructure.MediatR.Schedules.Commands.CreateSchedule;
+﻿using Domain.Interfaces.IRepositories;
+using Domain.Interfaces.IServices;
+using Infrastructure.MediatR.Schedules.Commands.CreateSchedule;
 using Infrastructure.MediatR.Schedules.Commands.DeleteSchedule;
 using Infrastructure.MediatR.Schedules.Queries;
 using MediatR;
@@ -11,12 +13,16 @@ namespace API.Controllers;
 public class SchedulesController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly IUserClaimsService service;
+    private readonly IDoctorRepository doctorRepository;
 
-    public SchedulesController(IMediator mediator)
-    {
-        _mediator = mediator;
-    }
-    [HttpGet("by-day")]
+	public SchedulesController(IMediator mediator, IUserClaimsService service, IDoctorRepository doctorRepository)
+	{
+		_mediator = mediator;
+		this.service = service;
+		this.doctorRepository = doctorRepository;
+	}
+	[HttpGet("by-day")]
     public async Task<IActionResult> GetSchedulesByDay([FromQuery] DateTime date, [FromQuery] Guid? doctorId)
     {
         var query = new GetScheduleByDayQuery
@@ -34,9 +40,33 @@ public class SchedulesController : ControllerBase
 
         return Ok(schedules);
     }
-    [HttpPost]
+
+	[HttpGet("is-user/{id}")]
+	public async Task<IActionResult> IsUserTheDoctor(Guid id)
+	{
+		var userId = service.ClaimId(User);
+		var doctor = await doctorRepository.GetDoctorByUserIdAsync(userId);
+		if (doctor == null)
+		{
+			return BadRequest(new { Success = false, Message = "User is not a doctor!" });
+		}
+        if (doctor.Id != id)
+        {
+			return BadRequest(new { Success = false, Message = "User is not this doctor!" });
+		}
+		return Ok(new { Success = true, Message = "User is this doctor." });
+	}
+
+	[HttpPost]
     public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleCommand command)
     {
+        var userId = service.ClaimId(User);
+        var doctor = await doctorRepository.GetDoctorByUserIdAsync(userId);
+        if (doctor == null)
+        {
+			return BadRequest(new { Success = false, Message = "User is not a doctor!" });
+		}
+        command.DoctorId = doctor.Id;
         try
         {
             var schedules = await _mediator.Send(command);

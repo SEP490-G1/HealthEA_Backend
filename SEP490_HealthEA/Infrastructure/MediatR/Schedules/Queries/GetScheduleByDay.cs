@@ -41,6 +41,7 @@ public class GetScheduleByDayHandler : IRequestHandler<GetScheduleByDayQuery, Li
             .Select(s => new ScheduleDto
             {
                 StartTime = s.StartTime,
+                ScheduleId = s.ScheduleId,
             })
             .ToListAsync(cancellationToken);
 
