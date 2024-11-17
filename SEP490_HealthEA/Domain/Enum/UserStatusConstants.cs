@@ -11,6 +11,5 @@ namespace Domain.Enum
         public const string INACTIVE = "INACTIVE";
         public const string ACTIVE = "ACTIVE";
         public const string BANNED = "BANNED";
-     
     }
 }
