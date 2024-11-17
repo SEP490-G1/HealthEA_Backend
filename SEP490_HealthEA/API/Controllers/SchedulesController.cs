@@ -26,7 +26,7 @@ public class SchedulesController : ControllerBase
         };
 
         var schedules = await _mediator.Send(query);
- 
+
         if (schedules == null || schedules.Count == 0)
         {
             return NotFound("Không có lịch hẹn cho ngày này.");

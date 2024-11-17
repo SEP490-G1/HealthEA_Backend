@@ -21,7 +21,7 @@ namespace API.Controllers.Customer
 
         }
 
-        //get a docmuent profile record of o type 
+        //get a docmuent profile record of o type
         [HttpGet("{idHealprofile}/{typeDocuemntProfile}")]
         public IActionResult getListDocumentProfile(Guid idHealthprofile, int typeDocuemntProfile)
         {

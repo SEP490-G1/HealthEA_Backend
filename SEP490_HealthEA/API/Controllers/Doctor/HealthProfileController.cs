@@ -10,6 +10,5 @@ namespace API.Controllers.Doctor
     [ApiController]
     public class HealthProfileController : BaseController
     {
-      
     }
 }
