@@ -103,6 +103,7 @@ namespace Domain.Models.Entities
         /// This property contains scheduled appointments.
         /// </remarks>
         public virtual ICollection<Appointment> Appointments { get; set; }
+        public virtual ICollection<Notice> Notices { get; set; }
     }
 
 }

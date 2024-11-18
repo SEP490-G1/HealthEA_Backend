@@ -5,32 +5,40 @@ using Infrastructure.MediatR.Appoinment.Commands.CreateAppointment;
 using Infrastructure.MediatR.Appoinment.Queries;
 using Infrastructure.MediatR.Common;
 using Infrastructure.MediatR.Reminders.Commands.CreateReminder;
+using Infrastructure.Services;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace API.Controllers;
 
 [Route("api/[controller]")]
+[Authorize]
 [ApiController]
 public class AppointmentsController : ControllerBase
 {
     private readonly IMediator _mediator;
-    private readonly IUserClaimsService service;
+    private readonly IUserClaimsService userClaimsService;
 
-	public AppointmentsController(IMediator mediator, IUserClaimsService service)
+    public AppointmentsController(IMediator mediator, IUserClaimsService userClaimsService)
 	{
 		_mediator = mediator;
-		this.service = service;
-	}
+        this.userClaimsService = userClaimsService;
+    }
 	[HttpGet]
+    [Authorize(Roles = "DOCTOR")]
     public async Task<ActionResult<PaginatedList<AppointmentDto>>> GetAppointmentWithPagination([FromQuery] GetAppointment query, CancellationToken cancellationToken)
     {
+        var userId = userClaimsService.ClaimId(User);
+        query.UserId = userId;
         return await _mediator.Send(query, cancellationToken);
     }
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetAppointmentsByUserId(Guid userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
+
         var query = new GetAppointmentByUserId
         {
             UserId = userId,
@@ -42,9 +50,13 @@ public class AppointmentsController : ControllerBase
         return Ok(result);
     }
     [HttpPost]
-    public async Task<IActionResult> CreateReminder([FromBody] CreateAppointmentCommand command, CancellationToken cancellationToken)
+    [Authorize(Roles = "CUSTOMER")]
+
+    public async Task<IActionResult> CreateAppointment([FromBody] CreateAppointmentCommand command, CancellationToken cancellationToken)
     {
-        command.UserId = service.ClaimId(User);
+        var userId = userClaimsService.ClaimId(User);
+        var userRole = userClaimsService.ClaimRole(User);
+        command.UserId = userId;
         Console.WriteLine(command.UserId);
         try
         {
@@ -57,10 +69,14 @@ public class AppointmentsController : ControllerBase
         }
     }
     [HttpPost("approve/{appointmentId}")]
+    [Authorize(Roles = "DOCTOR,ADMIN")]
     public async Task<IActionResult> ApproveAppointment([FromBody] ApproveAppointmentCommand command, CancellationToken cancellationToken)
     {
         try
         {
+            var userId = userClaimsService.ClaimId(User);
+            var userRole = userClaimsService.ClaimRole(User);
+            command.UserId = userId;
             var result = await _mediator.Send(command, cancellationToken);
             if (result)
             {
@@ -77,10 +93,14 @@ public class AppointmentsController : ControllerBase
         }
     }
     [HttpPost("reject/{appointmentId}")]
+    [Authorize(Roles = "DOCTOR,ADMIN")]
     public async Task<IActionResult> RejectAppointment([FromBody] RejectAppointmentCommand command, CancellationToken cancellationToken)
     {
         try
         {
+            var userId = userClaimsService.ClaimId(User);
+            var userRole = userClaimsService.ClaimRole(User);
+            command.UserId = userId;
             var result = await _mediator.Send(command, cancellationToken);
             if (result)
             {

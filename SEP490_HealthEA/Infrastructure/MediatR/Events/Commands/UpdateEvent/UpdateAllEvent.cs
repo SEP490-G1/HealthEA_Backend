@@ -1,4 +1,5 @@
-﻿using Domain.Enum;
+﻿using Domain.Common.Exceptions;
+using Domain.Enum;
 using Domain.Models.Entities;
 using Infrastructure.MediatR.Events.Queries;
 using Infrastructure.SQLServer;
@@ -9,6 +10,7 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent;
 
 public class UpdateAllEventCommand : IRequest<Guid>
 {
+    public Guid UserId { get; set; }
     public Guid EventId { get; set; }
     public Guid? OriginalEventId { get; set; } = Guid.NewGuid();
     public string? Title { get; set; }
@@ -42,8 +44,15 @@ public class UpdateAllEventCommandHandler : IRequestHandler<UpdateAllEventComman
             .ToListAsync(cancellationToken);
 
         if (!eventEntities.Any())
-            throw new Exception("Event not found");
+            throw new Exception(ErrorCode.EVENT_NOT_FOUND);
+        var userEvents = await _context.UserEvents
+       .Where(ue => ue.EventId == request.EventId && ue.UserId == request.UserId)
+       .ToListAsync(cancellationToken);
 
+        if (!userEvents.Any())
+        {
+            throw new Exception(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
         var originalEvent = eventEntities.FirstOrDefault(e => e.EventId == request.EventId) ?? eventEntities.First();
 
         originalEvent.Title = request.Title ?? originalEvent.Title;
@@ -56,8 +65,13 @@ public class UpdateAllEventCommandHandler : IRequestHandler<UpdateAllEventComman
         originalEvent.RepeatFrequency = request.RepeatFrequency ?? originalEvent.RepeatFrequency;
         originalEvent.RepeatInterval = request.RepeatInterval ?? originalEvent.RepeatInterval;
         originalEvent.RepeatEndDate = request.RepeatEndDate ?? originalEvent.RepeatEndDate;
+        var eventIdsToDelete = eventEntities.Select(e => e.EventId).ToList();
+        var userEventsToDelete = await _context.UserEvents
+       .Where(ue => eventIdsToDelete.Contains(ue.EventId))
+       .ToListAsync(cancellationToken);
 
         _context.Reminders.RemoveRange(eventEntities.SelectMany(e => e.Reminders));
+        _context.UserEvents.RemoveRange(userEventsToDelete);
         _context.Events.RemoveRange(eventEntities.Where(e => e.OriginalEventId == request.OriginalEventId));
 
         DateTime reminderDateTime = originalEvent.EventDateTime.Date.Add(originalEvent.StartTime);
@@ -83,6 +97,17 @@ public class UpdateAllEventCommandHandler : IRequestHandler<UpdateAllEventComman
             };
 
             await _context.Events.AddAsync(eventClone, cancellationToken);
+
+            var userEvent = new UserEvent
+            {
+                UserEventId = Guid.NewGuid(),
+                UserId = request.UserId,
+                EventId = eventClone.EventId,
+                IsAccepted = true,
+                IsOrganizer = true
+            };
+
+            await _context.UserEvents.AddAsync(userEvent, cancellationToken);
 
             foreach (var reminderOffsetDto in request.ReminderOffsets)
             {

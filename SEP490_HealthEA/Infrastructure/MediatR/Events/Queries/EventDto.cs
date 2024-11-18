@@ -6,7 +6,7 @@ namespace Infrastructure.MediatR.Events.Queries;
 public class EventDto
 {
     public Guid EventId { get; set; }
-    public string? UserName { get; set; }
+    //public string? UserName { get; set; }
     public string? Title { get; set; }
     public string? Description { get; set; }
     public DateTime EventDateTime { get; set; }
@@ -18,5 +18,6 @@ public class EventDto
     public int RepeatInterval { get; set; }
     public DateTime RepeatEndDate { get; set; }
     public List<UserEventDto> UserEvents { get; set; }
+    public List<ReminderDTO> Reminders { get; set; }
 }
 

@@ -7,7 +7,7 @@ namespace Infrastructure.MediatR.Schedules.Queries;
 
 public class GetScheduleByDayQuery : IRequest<List<ScheduleDto>>
 {
-    public Guid? DoctorId { get; set; }
+    public Guid UserId { get; set; }
     public DateTime Date { get; set; }
 }
 public class GetScheduleByDayHandler : IRequestHandler<GetScheduleByDayQuery, List<ScheduleDto>>
@@ -21,20 +21,13 @@ public class GetScheduleByDayHandler : IRequestHandler<GetScheduleByDayQuery, Li
 
     public async Task<List<ScheduleDto>> Handle(GetScheduleByDayQuery request, CancellationToken cancellationToken)
     {
-        var doctorExists = await _context.Doctors
-           .AnyAsync(d => d.Id == request.DoctorId.Value, cancellationToken);
-
-        if (!doctorExists)
+        var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.UserId == request.UserId);
+        if (doctor == null)
         {
-            throw new Exception(ErrorCode.DOCTOR_NOT_FOUND); 
+            throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
         }
         var query = _context.Schedules
-               .Where(s => s.Date == request.Date && s.Status == "Available");
-
-        if (request.DoctorId.HasValue)
-        {
-            query = query.Where(s => s.DoctorId == request.DoctorId.Value);
-        }
+               .Where(s => s.Date == request.Date && s.Status == "Available" && s.DoctorId == doctor.Id);
 
         var schedules = await query
             .OrderBy(s => s.StartTime)

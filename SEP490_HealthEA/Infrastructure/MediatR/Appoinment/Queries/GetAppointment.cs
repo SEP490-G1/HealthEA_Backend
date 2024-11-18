@@ -1,12 +1,15 @@
-﻿using Infrastructure.MediatR.Common;
+﻿using Domain.Common.Exceptions;
+using Infrastructure.MediatR.Common;
 using Infrastructure.SQLServer;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace Infrastructure.MediatR.Appoinment.Queries;
 
 public class GetAppointment : IRequest<PaginatedList<AppointmentDto>>
 {
+    public Guid UserId { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 10;
 }
@@ -21,7 +24,13 @@ public class GetAppointmentHandler : IRequestHandler<GetAppointment, PaginatedLi
 
     public async Task<PaginatedList<AppointmentDto>> Handle(GetAppointment request, CancellationToken cancellationToken)
     {
-        var query = _context.Appointments
+        cancellationToken.ThrowIfCancellationRequested();
+        var doctor =await _context.Doctors.FirstOrDefaultAsync(d => d.UserId == request.UserId);
+        if (doctor == null)
+        {
+            throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
+        }
+        var query = _context.Appointments.Where(a => a.DoctorId == doctor.Id)
                               .Select(a => new AppointmentDto
                               {
                                   AppointmentId = a.AppointmentId,
