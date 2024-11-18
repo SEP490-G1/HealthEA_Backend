@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace API.Controllers;
 
@@ -27,9 +28,11 @@ public class AppointmentsController : ControllerBase
         this.userClaimsService = userClaimsService;
     }
 	[HttpGet]
+    [Authorize(Roles = "DOCTOR")]
     public async Task<ActionResult<PaginatedList<AppointmentDto>>> GetAppointmentWithPagination([FromQuery] GetAppointment query, CancellationToken cancellationToken)
     {
         var userId = userClaimsService.ClaimId(User);
+        query.UserId = userId;
         return await _mediator.Send(query, cancellationToken);
     }
     [HttpGet("{userId}")]
@@ -66,10 +69,14 @@ public class AppointmentsController : ControllerBase
         }
     }
     [HttpPost("approve/{appointmentId}")]
+    [Authorize(Roles = "DOCTOR,ADMIN")]
     public async Task<IActionResult> ApproveAppointment([FromBody] ApproveAppointmentCommand command, CancellationToken cancellationToken)
     {
         try
         {
+            var userId = userClaimsService.ClaimId(User);
+            var userRole = userClaimsService.ClaimRole(User);
+            command.UserId = userId;
             var result = await _mediator.Send(command, cancellationToken);
             if (result)
             {
@@ -86,10 +93,14 @@ public class AppointmentsController : ControllerBase
         }
     }
     [HttpPost("reject/{appointmentId}")]
+    [Authorize(Roles = "DOCTOR,ADMIN")]
     public async Task<IActionResult> RejectAppointment([FromBody] RejectAppointmentCommand command, CancellationToken cancellationToken)
     {
         try
         {
+            var userId = userClaimsService.ClaimId(User);
+            var userRole = userClaimsService.ClaimRole(User);
+            command.UserId = userId;
             var result = await _mediator.Send(command, cancellationToken);
             if (result)
             {

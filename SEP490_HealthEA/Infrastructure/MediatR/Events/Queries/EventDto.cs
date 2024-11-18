@@ -18,5 +18,6 @@ public class EventDto
     public int RepeatInterval { get; set; }
     public DateTime RepeatEndDate { get; set; }
     public List<UserEventDto> UserEvents { get; set; }
+    public List<ReminderDTO> Reminders { get; set; }
 }
 

@@ -24,42 +24,41 @@ public class DeleteAllEventCommandHandler : IRequestHandler<DeleteAllEventComman
 
     public async Task<bool> Handle(DeleteAllEventCommand request, CancellationToken cancellationToken)
     {
-        try
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var eventsToDelete = await _context.Events
+            .Where(e => e.OriginalEventId == request.OriginalEventId)
+            .Include(e => e.Reminders)
+            .ToListAsync(cancellationToken);
+
+        if (!eventsToDelete.Any())
         {
-            var eventsToDelete = await _context.Events
-                .Where(e => e.OriginalEventId == request.OriginalEventId)
-                .Include(e => e.Reminders)
-                .ToListAsync(cancellationToken);
-
-            if (!eventsToDelete.Any())
-            {
-                throw new Exception(ErrorCode.EVENT_NOT_FOUND);
-            }
-
-            var eventIdsToDelete = eventsToDelete.Select(e => e.EventId).ToList();
-
-            var userEventsToDelete = await _context.UserEvents
-                .Where(ue => eventIdsToDelete.Contains(ue.EventId))
-                .ToListAsync(cancellationToken);
-
-            _context.UserEvents.RemoveRange(userEventsToDelete);
-
-            foreach (var eventToDelete in eventsToDelete)
-            {
-                _context.Reminders.RemoveRange(eventToDelete.Reminders);
-            }
-
-            _context.Events.RemoveRange(eventsToDelete);
-
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return true;
+            throw new Exception(ErrorCode.EVENT_NOT_FOUND);
         }
-        catch (Exception ex)
+
+        var eventIdsToDelete = eventsToDelete.Select(e => e.EventId).ToList();
+
+        var userEvents = await _context.UserEvents
+            .Where(ue => eventIdsToDelete.Contains(ue.EventId) && ue.UserId == request.UserId)
+            .ToListAsync(cancellationToken);
+
+        if (userEvents.Count == 0)
         {
-            Console.WriteLine(ex.Message);
-            return false;
+            throw new Exception(ErrorCode.UNAUTHORIZED_ACCESS);
         }
+
+        _context.UserEvents.RemoveRange(userEvents);
+
+        foreach (var eventToDelete in eventsToDelete)
+        {
+            _context.Reminders.RemoveRange(eventToDelete.Reminders);
+        }
+
+        _context.Events.RemoveRange(eventsToDelete);
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return true;
     }
 
 

@@ -1,4 +1,5 @@
-﻿using Domain.Enum;
+﻿using Domain.Common.Exceptions;
+using Domain.Enum;
 using Domain.Models.Entities;
 using Infrastructure.MediatR.Events.Queries;
 using Infrastructure.SQLServer;
@@ -43,8 +44,15 @@ public class UpdateAllEventCommandHandler : IRequestHandler<UpdateAllEventComman
             .ToListAsync(cancellationToken);
 
         if (!eventEntities.Any())
-            throw new Exception("Event not found");
+            throw new Exception(ErrorCode.EVENT_NOT_FOUND);
+        var userEvents = await _context.UserEvents
+       .Where(ue => ue.EventId == request.EventId && ue.UserId == request.UserId)
+       .ToListAsync(cancellationToken);
 
+        if (!userEvents.Any())
+        {
+            throw new Exception(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
         var originalEvent = eventEntities.FirstOrDefault(e => e.EventId == request.EventId) ?? eventEntities.First();
 
         originalEvent.Title = request.Title ?? originalEvent.Title;

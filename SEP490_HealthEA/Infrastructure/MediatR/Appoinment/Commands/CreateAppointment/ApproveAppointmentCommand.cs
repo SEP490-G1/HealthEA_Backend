@@ -10,6 +10,7 @@ namespace Infrastructure.MediatR.Appoinment.Commands.CreateAppointment;
 public class ApproveAppointmentCommand : IRequest<bool>
 {
     public Guid AppointmentId { get; set; }
+    public Guid UserId { get; set; }
 }
 public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentCommand, bool>
 {
@@ -46,7 +47,7 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
             throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
         }
         var doctor = doctors.User;
-		if (doctor == null)
+        if (doctor == null)
         {
             throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
         }
@@ -90,25 +91,36 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
         var doctorName = doctors?.DisplayName ?? "Bác sĩ";
         string appointmentDate = appointment?.Date != null ? appointment.Date.ToString("dd/MM/yyyy") : "Chưa xác định";
         string appointmentTime = appointment?.StartTime != null ? appointment.StartTime.ToString(@"hh\:mm") : "Chưa xác định";
+        Thread thread = new Thread(async () =>
+        {
+            try
+            {
+                await _emailService.SendEmailAsync(
+                    user?.Email ?? "",
+                    "PHẢN HỒI LỊCH KHÁM",
+                    $@"
+<h2>Xin chào {userName},</h2>
+<p>Chúng tôi vui mừng thông báo rằng <b>lịch khám</b> của bạn đã được bác sĩ <b>{doctorName}</b> chấp nhận.</p>
+<p>Dưới đây là thông tin chi tiết về lịch hẹn của bạn:</p>
+<ul>
+    <li><b>Loại cuộc hẹn:</b> {appointment?.Type ?? "Chưa xác định"}</li>
+    <li><b>Ngày:</b> {appointmentDate}</li>
+    <li><b>Thời gian:</b> {appointmentTime}</li>
+    <li><b>Địa điểm:</b> {location ?? "Chưa xác định"}</li>
+</ul>
+<p>Vui lòng đến đúng giờ và mang theo các giấy tờ cần thiết nếu có. Nếu bạn cần hỗ trợ thêm, vui lòng liên hệ với chúng tôi.</p>
+<p>Trân trọng,</p>
+<p><b>G1_SEP490</b></p>"
+                );
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send email: {ex.Message}");
+            }
+        });
 
-       await _emailService.SendEmailAsync(
-            user?.Email ?? "",
-            "PHẢN HỒI LỊCH KHÁM",
-            $@"
-    <h2>Xin chào {userName},</h2>
-    <p>Chúng tôi vui mừng thông báo rằng <b>lịch khám</b> của bạn đã được bác sĩ <b>{doctorName}</b> chấp nhận.</p>
-    <p>Dưới đây là thông tin chi tiết về lịch hẹn của bạn:</p>
-    <ul>
-        <li><b>Loại cuộc hẹn:</b> {appointment?.Type ?? "Chưa xác định"}</li>
-        <li><b>Ngày:</b> {appointmentDate}</li>
-        <li><b>Thời gian:</b> {appointmentTime}</li>
-        <li><b>Địa điểm:</b> {location ?? "Chưa xác định"}</li>
-    </ul>
-    <p>Vui lòng đến đúng giờ và mang theo các giấy tờ cần thiết nếu có. Nếu bạn cần hỗ trợ thêm, vui lòng liên hệ với chúng tôi.</p>
-    <p>Trân trọng,</p>
-    <p><b>G1_SEP490</b></p>
-    "
-        );
+        thread.Start();
+
 
         var eventEntity = new Event
         {
@@ -123,7 +135,7 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
             //Status = "Approved",
             CreatedAt = DateTime.UtcNow,
             //CreatedBy = doctor?.Email,
-            Type = 2 
+            Type = 2
         };
 
         _context.Events.Add(eventEntity);

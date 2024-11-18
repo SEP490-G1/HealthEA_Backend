@@ -32,7 +32,7 @@ public class DeleteScheduleHandler : IRequestHandler<DeleteScheduleCommand, bool
 
         if (schedule == null)
         {
-            throw new Exception(ErrorCode.SCHEDULE_NOT_FOUND);
+            throw new Exception(ErrorCode.UNAUTHORIZED_SCHEDULE);
         }
 
         _context.Schedules.Remove(schedule);

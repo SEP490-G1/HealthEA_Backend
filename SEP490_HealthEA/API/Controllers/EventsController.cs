@@ -1,4 +1,5 @@
 ﻿using Domain.Interfaces.IServices;
+using Domain.Models.Entities;
 using Infrastructure.MediatR.Events.Commands.CreateEvent;
 using Infrastructure.MediatR.Events.Commands.DeleteEvent;
 using Infrastructure.MediatR.Events.Commands.UpdateEvent;
@@ -64,7 +65,8 @@ public class EventsController : ControllerBase
     {
         try
         {
-            var query = new GeEventWithDateQuery { EventId = id };
+            var userId = userClaimsService.ClaimId(User);
+            var query = new GeEventWithIDQuery { EventId = id, UserId = userId };
             var result = await _mediator.Send(query, cancellationToken);
             return Ok(new { Success = true, Event = result });
         }
