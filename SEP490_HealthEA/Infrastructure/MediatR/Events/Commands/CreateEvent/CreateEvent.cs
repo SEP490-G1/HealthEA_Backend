@@ -8,6 +8,7 @@ namespace Infrastructure.MediatR.Events.Commands.CreateEvent;
 
 public class CreateEventCommand : IRequest<Guid>
 {
+    public Guid UserId { get; set; }
     public string? Title { get; set; }
     public string? Description { get; set; }
     public DateTime EventDateTime { get; set; }
@@ -42,6 +43,7 @@ public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Gui
         {
             var eventEntity = new Event
             {
+                //UserId = request.UserId,
                 EventId = Guid.NewGuid(),
                 OriginalEventId = originalEventId,
                 Title = request.Title,
@@ -58,6 +60,17 @@ public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Gui
             };
 
             await _context.Events.AddAsync(eventEntity, cancellationToken);
+
+            var userEvent = new UserEvent
+            {
+                UserEventId = Guid.NewGuid(),
+                UserId = request.UserId,
+                EventId = eventEntity.EventId,
+                IsAccepted = true,
+                IsOrganizer = true
+            };
+
+            await _context.UserEvents.AddAsync(userEvent, cancellationToken);
 
             foreach (var reminderOffsetDto in request.ReminderOffsets)
             {

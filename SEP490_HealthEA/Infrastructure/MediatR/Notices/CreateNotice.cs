@@ -30,6 +30,7 @@ public class CreateNoticeCommandHandler : IRequestHandler<CreateNoticeCommand, s
             UserId = request.UserId,
             RecipientId = request.RecipientId,
             Message = request.Message,
+            CreatedAt = DateTime.Now
         };
 
         _context.Notices.Add(notice);

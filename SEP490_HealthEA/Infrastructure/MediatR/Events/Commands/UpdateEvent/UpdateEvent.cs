@@ -7,6 +7,7 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent;
 
 public class UpdateEventCommand : IRequest<Guid>
 {
+    public Guid UserId { get; set; }
     public Guid EventId { get; set; }
     public string? Title { get; set; }
     public string? Description { get; set; }
@@ -37,7 +38,12 @@ public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Gui
         {
             throw new Exception(ErrorCode.EVENT_NOT_FOUND);
         }
-
+        var userEvent = await _context.UserEvents
+           .FirstOrDefaultAsync(ue => ue.EventId == request.EventId && ue.UserId == request.UserId, cancellationToken);
+        if (userEvent == null)
+        {
+            throw new Exception(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
         eventEntity.Title = request.Title ?? eventEntity.Title;
         eventEntity.Description = request.Description ?? eventEntity.Description;
         eventEntity.EventDateTime = request.EventDateTime ?? eventEntity.EventDateTime;

@@ -10,6 +10,7 @@ namespace Infrastructure.MediatR.Appoinment.Commands.CreateAppointment;
 public class RejectAppointmentCommand : IRequest<bool>
 {
     public Guid AppointmentId { get; set; }
+    public Guid UserId { get; set; }
 }
 
 public class RejectAppointmentHandler : IRequestHandler<RejectAppointmentCommand, bool>
@@ -62,18 +63,29 @@ public class RejectAppointmentHandler : IRequestHandler<RejectAppointmentCommand
 
         var userName = $"{user?.FirstName ?? ""} {user?.LastName ?? ""}".Trim();
         var doctorName = doctors?.DisplayName ?? "Bác sĩ";
-
-        _emailService.SendEmail(
-     user?.Email ?? "",
-     "PHẢN HỒI LỊCH KHÁM",
-     $@"
+        Thread thread = new Thread(async () =>
+        {
+            try
+            {
+                await _emailService.SendEmailAsync(
+    user?.Email ?? "",
+    "PHẢN HỒI LỊCH KHÁM",
+    $@"
     <h2>Xin chào {user?.FirstName} {user?.LastName},</h2>
     <p>Chúng tôi rất tiếc phải thông báo rằng bác sĩ đã từ chối lịch hẹn khám của bạn.</p>
     <p>Vui lòng liên hệ lại nếu bạn cần hỗ trợ hoặc đặt lịch hẹn khác.</p>
     <p>Trân trọng,</p>
     <p><b>G1_SEP490</b></p>
     "
- );
+);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send email: {ex.Message}");
+            }
+        });
+
+        thread.Start();
 
 
         return true;

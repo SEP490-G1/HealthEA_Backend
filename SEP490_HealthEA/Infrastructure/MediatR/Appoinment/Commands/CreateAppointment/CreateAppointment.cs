@@ -55,14 +55,7 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
         string title = $"Tư vấn về {request.Title} với {doctorExists.DisplayName}";
         string address = doctorExists.ClinicAddress;
         string location = "test";
-        //if (request.Type == "Offline")
-        //{
-        //    location = doctorExists.ClinicAddress;
-        //}
-        //else if (request.Type == "Online")
-        //{
-        //    location = $"https://meet.example.com/{Guid.NewGuid()}";
-        //}
+
         var appointment = new Appointment
         {
             DoctorId = request.DoctorId,
@@ -95,18 +88,27 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == appointment.UserId, cancellationToken);
         var doctor = await _context.Users.Include(u => u.Doctor).FirstOrDefaultAsync(u => u.Doctor!.Id == appointment.DoctorId, cancellationToken);
-        if(doctor == null)
+        Thread emailThread = new Thread(() =>
         {
-            throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
-        }
+            try
+            {
+                if (user != null && doctor != null)
+                {
+                    _emailService.SendAppointmentEmailsAsync(
+                        userEmail: user.Email,
+                        doctorEmail: doctor.Email,
+                        userName: $"{user.FirstName} {user.LastName}",
+                        doctorName: $"{doctor.FirstName} {doctor.LastName}"
+                    ).Wait(); 
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending emails: {ex.Message}");
+            }
+        });
 
-        _emailService.SendAppointmentEmails(
-            userEmail: user.Email,
-            doctorEmail: doctor.Email,
-            userName: user.FirstName + user.LastName,
-            doctorName: doctor.FirstName + doctor.LastName
-        );
-
+        emailThread.Start();
 
 
         await _context.SaveChangesAsync(cancellationToken);
