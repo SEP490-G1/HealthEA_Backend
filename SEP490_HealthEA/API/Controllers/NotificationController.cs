@@ -1,6 +1,9 @@
-﻿using Infrastructure.MediatR.DeviceToken;
+﻿using Domain.Interfaces.IServices;
+using Infrastructure.MediatR.DeviceToken;
 using Infrastructure.MediatR.Notices;
+using Infrastructure.MediatR.Schedules.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -11,13 +14,29 @@ public class NotificationController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly FirebaseNotificationService _firebaseService;
+    private readonly IUserClaimsService userClaimsService;
 
-    public NotificationController(FirebaseNotificationService firebaseService, IMediator mediator)
+
+    public NotificationController(FirebaseNotificationService firebaseService, IMediator mediator, IUserClaimsService userClaimsService)
     {
         _firebaseService = firebaseService;
         _mediator = mediator;
+        this.userClaimsService = userClaimsService;
     }
+    [HttpGet()]
+    [Authorize]
+    public async Task<IActionResult> GetNotice()
+    {
+        var userId = userClaimsService.ClaimId(User);
+        var query = new GetListNoticeQuery
+        {
+            UserId = userId
+        };
 
+        var notices = await _mediator.Send(query);
+
+        return Ok(notices);
+    }
     [HttpPost("test-notice")]
     public async Task<IActionResult> SendNotification([FromBody] string deviceToken)
     {
@@ -41,8 +60,11 @@ public class NotificationController : ControllerBase
         return Ok(new { message = result });
     }
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateNotice([FromBody] CreateNoticeCommand command)
     {
+        var userId = userClaimsService.ClaimId(User);
+        command.UserId = userId;
         var result = await _mediator.Send(command);
         return Ok(new { message = result });
     }

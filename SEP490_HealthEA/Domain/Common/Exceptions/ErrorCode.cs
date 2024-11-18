@@ -13,4 +13,5 @@ public static class ErrorCode
     public const string USER_EVENT_NOT_FOUND = "USER_EVENT_NOT_FOUND";
     public const string UNAUTHORIZED_ACCESS = "EventId does not belong to you.";
     public const string UNAUTHORIZED_SCHEDULE = "Schedule does not belong to you.";
+    public const string NOTICES_NOT_FOUND = "NOTICES_NOT_FOUND";
 }
