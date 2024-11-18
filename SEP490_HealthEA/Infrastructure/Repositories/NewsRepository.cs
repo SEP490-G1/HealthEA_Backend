@@ -31,6 +31,11 @@ namespace Infrastructure.Repositories
 			return await context.News.FindAsync(id);
 		}
 
+		public async Task<News?> GetLatestAsync()
+		{
+			return await context.News.OrderByDescending(n => n.CreatedAt).FirstOrDefaultAsync();
+		}
+
 		public async Task<IEnumerable<News>> GetByCategoryAsync(string category)
 		{
 			return await context.News

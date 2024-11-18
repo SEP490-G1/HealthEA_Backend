@@ -15,5 +15,6 @@ namespace Domain.Interfaces.IRepositories
 		Task AddAsync(News news);
 		Task UpdateAsync(News news);
 		Task DeleteAsync(Guid id);
+		Task<News?> GetLatestAsync();
 	}
 }
