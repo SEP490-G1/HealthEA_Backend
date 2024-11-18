@@ -37,6 +37,15 @@ namespace API.Controllers.Admin
 			return Ok(news);
 		}
 
+		[HttpGet("latest")]
+		public async Task<ActionResult<News>> GetLatest()
+		{
+			var news = await repository.GetLatestAsync();
+			if (news == null)
+				return NotFound();
+			return Ok(news);
+		}
+
 		[HttpPost]
 		public async Task<IActionResult> Create(AddOrUpdateNewsDto news)
 		{
