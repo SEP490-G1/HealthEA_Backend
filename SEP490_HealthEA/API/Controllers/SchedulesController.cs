@@ -1,4 +1,4 @@
-﻿using Domain.Interfaces.IServices;
+using Domain.Interfaces.IServices;
 using Infrastructure.MediatR.Schedules.Commands.CreateSchedule;
 using Infrastructure.MediatR.Schedules.Commands.DeleteSchedule;
 using Infrastructure.MediatR.Schedules.Queries;

@@ -12,5 +12,6 @@ namespace Domain.Models.DAO.Doctor
 		public string? Description { get; set; }
 		public string ClinicAddress { get; set; }
 		public string ClinicCity { get; set; }
+		public string Specialization { get; set; }
 	}
 }

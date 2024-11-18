@@ -1,4 +1,4 @@
-﻿using Domain.Enum;
+using Domain.Enum;
 using MediatR;
 using System;
 
@@ -25,6 +25,5 @@ public class Event
     public string? UpdatedBy { get; set; }
     public virtual ICollection<Reminder> Reminders { get; set; }
     public virtual ICollection<UserEvent> UserEvents { get; set; }
-
 }
 

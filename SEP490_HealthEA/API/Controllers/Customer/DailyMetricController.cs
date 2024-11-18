@@ -256,7 +256,7 @@ namespace API.Controllers.Customer
 				await repository.AddAsync(dailyMetric);
 				return NoContent();
 			}
-			else	{ 
+			else {
 
 				if (model.Weight.HasValue) existingMetric.Weight = model.Weight.Value;
 				if (model.Height.HasValue) existingMetric.Height = model.Height.Value;
@@ -288,7 +288,5 @@ namespace API.Controllers.Customer
 		public double? BodyTemperature { get; set; }
 		public double? OxygenSaturation { get; set; }
 	}
-
-	
 
 }

@@ -1,6 +1,7 @@
 using AutoMapper;
 using Domain.Models.DAO.DailyMetrics;
 using Domain.Models.DAO.Doctor;
+using Domain.Models.DAO.Newses;
 using Domain.Models.Entities;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace Domain.Mappings
 			CreateMap<UserReport, UserReportDto>();
 			CreateMap<UserReportAddDto, UserReport>();
 			CreateMap<DailyMetricAddModel, DailyMetric>();
+			CreateMap<AddOrUpdateNewsDto, News>();
 		}
 	}
 }
