@@ -40,5 +40,5 @@ public class CreateNoticeCommandHandler : IRequestHandler<CreateNoticeCommand, s
 
         return "Notice created and notification sent!";
     }
-
+   
 }

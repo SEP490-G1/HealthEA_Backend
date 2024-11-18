@@ -23,46 +23,119 @@ public class FirebaseNotificationService
         _context = context;
     }
 
+    //public async Task SendNotificationAsync(string deviceToken, string title, string body)
+    //{
+    //    var accessToken = await GetAccessTokenAsync();
+
+    //    var message = new
+    //    {
+    //        message = new
+    //        {
+    //            token = deviceToken,
+    //            notification = new
+    //            {
+    //                title = title,
+    //                body = body
+    //            }
+    //        }
+    //    };
+
+    //    var jsonMessage = JsonSerializer.Serialize(message);
+    //    var requestContent = new StringContent(jsonMessage, Encoding.UTF8, "application/json");
+
+    //    _httpClient.DefaultRequestHeaders.Clear();
+    //    _httpClient.DefaultRequestHeaders.Authorization =
+    //        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+    //    var url = $"https://fcm.googleapis.com/v1/projects/sep490-c3c0a/messages:send";
+    //    var response = await _httpClient.PostAsync(url, requestContent);
+
+    //    if (!response.IsSuccessStatusCode)
+    //    {
+    //        var responseBody = await response.Content.ReadAsStringAsync();
+
+    //        if (responseBody.Contains("\"errorCode\": \"UNREGISTERED\""))
+    //        {
+    //            Console.WriteLine("Device token is no longer valid. Removing from database...");
+    //            await InvalidateDeviceToken(deviceToken); 
+    //        }
+    //        else
+    //        {
+    //            throw new Exception($"Failed to send notification: {responseBody}");
+    //        }
+    //    }
+    //}
+
+    //private async Task InvalidateDeviceToken(string deviceToken)
+    //{
+    //    var tokenEntity = await _context.DeviceTokens.FirstOrDefaultAsync(dt => dt.DeviceToken == deviceToken);
+    //    if (tokenEntity != null)
+    //    {
+    //        _context.DeviceTokens.Remove(tokenEntity);
+    //        await _context.SaveChangesAsync();
+    //    }
+    //}
+    private static readonly SemaphoreSlim _notificationLock = new SemaphoreSlim(1, 1);
+
     public async Task SendNotificationAsync(string deviceToken, string title, string body)
     {
-        var accessToken = await GetAccessTokenAsync();
-
-        var message = new
+        if (string.IsNullOrEmpty(deviceToken))
         {
-            message = new
+            Console.WriteLine("Device token is null or empty. Skipping notification.");
+            return;
+        }
+
+        try
+        {
+            await _notificationLock.WaitAsync();
+
+            var accessToken = await GetAccessTokenAsync();
+
+            var message = new
             {
-                token = deviceToken,
-                notification = new
+                message = new
                 {
-                    title = title,
-                    body = body
+                    token = deviceToken,
+                    notification = new
+                    {
+                        title = title,
+                        body = body
+                    }
+                }
+            };
+
+            var jsonMessage = JsonSerializer.Serialize(message);
+            var requestContent = new StringContent(jsonMessage, Encoding.UTF8, "application/json");
+
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+            var url = $"https://fcm.googleapis.com/v1/projects/sep490-c3c0a/messages:send";
+            var response = await _httpClient.PostAsync(url, requestContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+
+                if (responseBody.Contains("\"errorCode\": \"UNREGISTERED\""))
+                {
+                    Console.WriteLine("Device token is no longer valid. Removing from database...");
+                    await InvalidateDeviceToken(deviceToken);
+                }
+                else
+                {
+                    throw new Exception($"Failed to send notification: {responseBody}");
                 }
             }
-        };
-
-        var jsonMessage = JsonSerializer.Serialize(message);
-        var requestContent = new StringContent(jsonMessage, Encoding.UTF8, "application/json");
-
-        _httpClient.DefaultRequestHeaders.Clear();
-        _httpClient.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-
-        var url = $"https://fcm.googleapis.com/v1/projects/sep490-c3c0a/messages:send";
-        var response = await _httpClient.PostAsync(url, requestContent);
-
-        if (!response.IsSuccessStatusCode)
+        }
+        catch (Exception ex)
         {
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            if (responseBody.Contains("\"errorCode\": \"UNREGISTERED\""))
-            {
-                Console.WriteLine("Device token is no longer valid. Removing from database...");
-                await InvalidateDeviceToken(deviceToken); 
-            }
-            else
-            {
-                throw new Exception($"Failed to send notification: {responseBody}");
-            }
+            Console.WriteLine($"Error sending notification: {ex.Message}");
+        }
+        finally
+        {
+            _notificationLock.Release();
         }
     }
 

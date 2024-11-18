@@ -1,15 +1,18 @@
 ﻿using Domain.Common.Exceptions;
+using Infrastructure.MediatR.Common;
 using Infrastructure.SQLServer;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.MediatR.Notices;
 
-public class GetListNoticeQuery : IRequest<List<NoticeDto>>
+public class GetListNoticeQuery : IRequest<PaginatedList<NoticeDto>>
 {
     public Guid UserId { get; set; }
+    public int PageNumber { get; set; } = 1;
+    public int PageSize { get; set; } = 10;
 }
-public class GetListNoticeHandler : IRequestHandler<GetListNoticeQuery, List<NoticeDto>>
+public class GetListNoticeHandler : IRequestHandler<GetListNoticeQuery, PaginatedList<NoticeDto>>
 {
     private readonly SqlDBContext _context;
 
@@ -18,20 +21,12 @@ public class GetListNoticeHandler : IRequestHandler<GetListNoticeQuery, List<Not
         _context = context;
     }
 
-    public async Task<List<NoticeDto>> Handle(GetListNoticeQuery request, CancellationToken cancellationToken)
+    public async Task<PaginatedList<NoticeDto>> Handle(GetListNoticeQuery request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var user = await _context.Users
-       .FirstOrDefaultAsync(u => u.UserId == request.UserId, cancellationToken);
-
-        if (user == null)
-        {
-            throw new Exception(ErrorCode.USER_NOT_FOUND);
-        }
-
-        var notices = await _context.Notices
-            .Where(n => n.RecipientId == request.UserId)
+        var query = _context.Notices
+            .Where(n => n.UserId == request.UserId)
             .Include(n => n.Users)
             .Select(n => new NoticeDto
             {
@@ -39,14 +34,17 @@ public class GetListNoticeHandler : IRequestHandler<GetListNoticeQuery, List<Not
                 Message = n.Message,
                 RecipientName = $"{n.Users.FirstName} {n.Users.LastName}",
                 CreatedAt = n.CreatedAt
-            })
-            .ToListAsync(cancellationToken);
+            });
 
-        if (notices == null || !notices.Any())
+        var paginatedNotices = await PaginatedList<NoticeDto>.CreateAsync(
+            query, request.PageNumber, request.PageSize
+        );
+
+        if (paginatedNotices == null || !paginatedNotices.Items.Any())
         {
             throw new Exception(ErrorCode.NOTICES_NOT_FOUND);
         }
 
-        return notices;
+        return paginatedNotices;
     }
 }
