@@ -5,9 +5,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=HealthDb_Dev
+    url: jdbc:sqlserver://160.25.233.36:1433;databaseName=DOAN
     username: sa
-    password: 123456
+    password: Ho@ng321
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
     jpa:
