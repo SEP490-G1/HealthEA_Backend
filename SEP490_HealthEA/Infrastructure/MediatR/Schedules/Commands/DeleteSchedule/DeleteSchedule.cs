@@ -8,6 +8,7 @@ namespace Infrastructure.MediatR.Schedules.Commands.DeleteSchedule;
 public class DeleteScheduleCommand : IRequest<bool>
 {
     public Guid ScheduleId { get; set; }
+    public Guid UserId { get; set; }
 }
 public class DeleteScheduleHandler : IRequestHandler<DeleteScheduleCommand, bool>
 {
@@ -20,8 +21,14 @@ public class DeleteScheduleHandler : IRequestHandler<DeleteScheduleCommand, bool
 
     public async Task<bool> Handle(DeleteScheduleCommand request, CancellationToken cancellationToken)
     {
+        var doctor = await _context.Doctors.FirstOrDefaultAsync(d=>d.UserId == request.UserId);
+        if (doctor == null)
+        {
+            throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
+        }
+
         var schedule = await _context.Schedules
-            .FirstOrDefaultAsync(s => s.ScheduleId == request.ScheduleId, cancellationToken);
+            .FirstOrDefaultAsync(s => s.ScheduleId == request.ScheduleId && s.DoctorId == doctor.Id, cancellationToken);
 
         if (schedule == null)
         {

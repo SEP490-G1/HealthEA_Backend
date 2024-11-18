@@ -63,7 +63,7 @@ public class RejectAppointmentHandler : IRequestHandler<RejectAppointmentCommand
         var userName = $"{user?.FirstName ?? ""} {user?.LastName ?? ""}".Trim();
         var doctorName = doctors?.DisplayName ?? "Bác sĩ";
 
-        _emailService.SendEmail(
+       await _emailService.SendEmailAsync(
      user?.Email ?? "",
      "PHẢN HỒI LỊCH KHÁM",
      $@"

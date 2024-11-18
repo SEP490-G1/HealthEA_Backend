@@ -16,7 +16,7 @@ namespace Infrastructure.Services
             _emailSettings = emailSettings.Value;
             _context = context;
         }
-        public void SendAppointmentEmails(string userEmail, string doctorEmail, string userName, string doctorName)
+        public async Task SendAppointmentEmailsAsync(string userEmail, string doctorEmail, string userName, string doctorName)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace Infrastructure.Services
                     {
                         var userSubject = "LỊCH HẸN KHÁM";
                         var userBody = $"Xin chào {userName},\n\nLịch hẹn của bạn đã gửi đến bác sĩ {doctorName}.";
-                        SendEmail(userEmail, userSubject, userBody);
+                        await SendEmailAsync(userEmail, userSubject, userBody);
                     }
 
 
@@ -39,7 +39,7 @@ namespace Infrastructure.Services
                     {
                         var doctorSubject = "LỊCH HẸN KHÁM";
                         var doctorBody = $"Xin chào bác sĩ {doctorName},\n\nĐang có bệnh nhân {userName} muốn hẹn lịch khám với bạn.";
-                        SendEmail(doctorEmail, doctorSubject, doctorBody);
+                        await SendEmailAsync(doctorEmail, doctorSubject, doctorBody);
                     }
 
                 }
@@ -49,8 +49,8 @@ namespace Infrastructure.Services
                 Console.WriteLine("An error occurred while sending emails: " + ex.Message);
             }
         }
-      
-        public void SendEmail(string recipientEmail, string subject, string body)
+
+        public async Task SendEmailAsync(string recipientEmail, string subject, string body)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace Infrastructure.Services
                     };
                     mailMessage.To.Add(recipientEmail);
 
-                    smtpClient.Send(mailMessage);
+                    await smtpClient.SendMailAsync(mailMessage);
                     Console.WriteLine($"Email sent to {recipientEmail}");
                 }
             }
@@ -77,6 +77,7 @@ namespace Infrastructure.Services
                 Console.WriteLine($"Error sending email to {recipientEmail}: {ex.Message}");
             }
         }
+
         public void SendEmailToAllUsers(Email email, DateTime reminderTime)
         {
             try

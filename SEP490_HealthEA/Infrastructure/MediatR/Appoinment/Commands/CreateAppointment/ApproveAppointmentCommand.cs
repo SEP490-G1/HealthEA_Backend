@@ -91,7 +91,7 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
         string appointmentDate = appointment?.Date != null ? appointment.Date.ToString("dd/MM/yyyy") : "Chưa xác định";
         string appointmentTime = appointment?.StartTime != null ? appointment.StartTime.ToString(@"hh\:mm") : "Chưa xác định";
 
-        _emailService.SendEmail(
+       await _emailService.SendEmailAsync(
             user?.Email ?? "",
             "PHẢN HỒI LỊCH KHÁM",
             $@"

@@ -8,7 +8,7 @@ namespace Infrastructure.MediatR.Schedules.Commands.CreateSchedule;
 
 public class CreateScheduleCommand : IRequest<List<Schedule>>
 {
-    public Guid DoctorId { get; set; }
+    public Guid UserId { get; set; }
     public DateTime Date { get; set; }
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
@@ -32,14 +32,16 @@ public class CreateScheduleHandler : IRequestHandler<CreateScheduleCommand, List
             throw new Exception("Không thể tạo lịch cho ngày trong quá khứ.");
         }
 
-        var doctorExists = await _context.Doctors.AnyAsync(d => d.Id == request.DoctorId, cancellationToken);
-        if (!doctorExists)
+        //var doctorExists = await _context.Doctors.AnyAsync(d => d.Id == request.DoctorId, cancellationToken);
+        var doctorExists = await _context.Doctors
+            .FirstOrDefaultAsync(d => d.UserId == request.UserId, cancellationToken);
+        if (doctorExists == null)
         {
             throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
         }
 
         var overlappingSchedules = await _context.Schedules
-            .Where(s => s.DoctorId == request.DoctorId
+            .Where(s => s.DoctorId == doctorExists.Id
                         && s.Date == request.Date
                         && ((s.StartTime < request.EndTime && s.EndTime > request.StartTime)))
             .ToListAsync(cancellationToken);
@@ -55,7 +57,7 @@ public class CreateScheduleHandler : IRequestHandler<CreateScheduleCommand, List
             var schedule = new Schedule
             {
                 ScheduleId = Guid.NewGuid(),
-                DoctorId = request.DoctorId,
+                DoctorId = doctorExists.Id,
                 Date = request.Date,
                 StartTime = time,
                 EndTime = time + slotDuration,
