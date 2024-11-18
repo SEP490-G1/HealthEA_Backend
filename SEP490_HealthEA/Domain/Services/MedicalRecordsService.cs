@@ -82,6 +82,13 @@ namespace Domain.Services
         #endregion
 
         #region method
+        /**
+         * GetAllHealProfileByToken function
+         * 
+         * @param ClaimsPrincipal claim
+         * 
+         * @return ServiceResult result
+        */
         public ServiceResult GetAllHealProfileByToken(ClaimsPrincipal claim)
         {
             var userName = claimAccount(claim);
@@ -111,6 +118,14 @@ namespace Domain.Services
             return result;
         }
 
+        /**
+         * GetCommonInfoHealProfileById function
+         * 
+         * @param ClaimsPrincipal claim
+         * @param Guid id
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult GetCommonInfoHealProfileById(ClaimsPrincipal claim, Guid id)
         {
             string devMsg = DevMsg.GetSuccess;
@@ -177,6 +192,13 @@ namespace Domain.Services
             };
         }
 
+        /**
+         * validateProfile function
+         * 
+         * @param HealthProfileInputDAO profile
+         * 
+         * @return KeyValuePair<HealthProfileInputDAO, bool>
+        */
         private KeyValuePair<HealthProfileInputDAO, bool> validateProfile(HealthProfileInputDAO profile)
         {
             bool prime = true;
@@ -197,6 +219,15 @@ namespace Domain.Services
             }
             return new KeyValuePair<HealthProfileInputDAO, bool>(profile, prime);
         }
+
+        /**
+         * AddNewHealthProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param HealthProfileInputDAO profile
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult AddNewHealthProfile(ClaimsPrincipal claims, HealthProfileInputDAO profile)
         {
             string devMsg = DevMsg.AddSuccess;
@@ -255,6 +286,14 @@ namespace Domain.Services
             return result;
         }
 
+        /**
+         * RemoveHealthProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult RemoveHealthProfile(ClaimsPrincipal claims, Guid id)
         {
             string devMsg = DevMsg.DeleteSucess;
@@ -291,6 +330,15 @@ namespace Domain.Services
             return result;
         }
 
+        /**
+         * UpdateShareHealthProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * @param int stone
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult UpdateShareHealthProfile(ClaimsPrincipal claims, Guid id, int stone)
         {
             string devMsg = DevMsg.UpdateSuccess;
@@ -327,6 +375,15 @@ namespace Domain.Services
             return result;
         }
 
+        /**
+         * UpdateInfoHealthProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * @param HealthProfileInputDAO profile
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult UpdateInfoHealthProfile(ClaimsPrincipal claims, Guid id, HealthProfileInputDAO profile)
         {
             string devMsg = DevMsg.UpdateSuccess;
@@ -390,6 +447,14 @@ namespace Domain.Services
             return result;
         }
 
+        /**
+         * createDocumentProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param DocumentProfileInputDAO profile
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult createDocumentProfile(ClaimsPrincipal claims, DocumentProfileInputDAO profile)
         {
             string devMsg = DevMsg.AddSuccess;
@@ -426,6 +491,14 @@ namespace Domain.Services
             return result;
         }
 
+        /**
+         * GetDocumentProfileDetail function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult GetDocumentProfileDetail(ClaimsPrincipal claims, Guid id)
         {
             ServiceResult result = new ServiceResult()
@@ -470,6 +543,15 @@ namespace Domain.Services
             return result;
 
         }
+
+        /**
+         * checkRole function
+         * 
+         * @param string role
+         * @param int statusID
+         * 
+         * @return bool
+        */
         private bool checkRole(string role, int statusID)
         {
             if (statusID == 0)
@@ -491,6 +573,14 @@ namespace Domain.Services
             return true;
         }
 
+        /**
+         * DeleteDocumentProfileByid function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult DeleteDocumentProfileByid(ClaimsPrincipal claims, Guid id)
         {
             ServiceResult result = new ServiceResult()
@@ -520,6 +610,15 @@ namespace Domain.Services
             return result;
         }
 
+        /**
+         * UpdateDocumentProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * @param DocumentProfileInputDAO doc
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult UpdateDocumentProfile(ClaimsPrincipal claims, Guid id, DocumentProfileInputDAO doc)
         {
             ServiceResult result = new ServiceResult()
@@ -550,6 +649,15 @@ namespace Domain.Services
             return result;
         }
 
+        /**
+         * GetListDocumentProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid idHealprofile
+         * @param int type
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult GetListDocumentProfile(ClaimsPrincipal claims, Guid idHealprofile, int type)
         {
             ServiceResult result = new ServiceResult()
@@ -568,8 +676,7 @@ namespace Domain.Services
                 return result;
             }
             DocumentProfile res = _repository.GetDocumentProfiles(type, idUser, idHealprofile);
-            
-            
+
             result.data = res;
             return result;
         }

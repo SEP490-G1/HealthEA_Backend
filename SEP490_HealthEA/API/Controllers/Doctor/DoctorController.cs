@@ -66,6 +66,7 @@ namespace API.Controllers.Doctor
 			doctor.DisplayName = data.DisplayName;
 			doctor.ClinicAddress = data.ClinicAddress;
 			doctor.ClinicCity = data.ClinicCity;
+			doctor.Specialization = data.Specialization;
 			await repository.UpdateDoctorAsync(doctor);
 			return NoContent();
 		}
