@@ -27,6 +27,13 @@ namespace API.Controllers.Admin
 			return Ok(news);
 		}
 
+		[HttpGet("random")]
+		public async Task<ActionResult<IEnumerable<News>>> GetRandom([FromQuery] int count)
+		{
+			var news = await repository.GetRandomNewsAsync(count);
+			return Ok(news);
+		}
+
 		[HttpGet("{id}")]
 		public async Task<ActionResult<News>> GetById(Guid id)
 		{

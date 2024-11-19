@@ -65,5 +65,13 @@ namespace Infrastructure.Repositories
 				await context.SaveChangesAsync();
 			}
 		}
+
+		public async Task<IEnumerable<News>> GetRandomNewsAsync(int count)
+		{
+			return await context.News
+				.OrderBy(n => Guid.NewGuid())
+				.Take(count)                 
+				.ToListAsync();
+		}
 	}
 }
