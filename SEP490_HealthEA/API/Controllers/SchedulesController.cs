@@ -24,7 +24,7 @@ public class SchedulesController : ControllerBase
     }
     
     [HttpGet("by-day")]
-    [Authorize(Roles = "DOCTOR")]
+    [Authorize]
     public async Task<IActionResult> GetSchedulesByDay([FromQuery] DateTime date, [FromQuery] Guid? doctorId)
     {
         var userId = userClaimsService.ClaimId(User);

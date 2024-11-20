@@ -34,6 +34,7 @@ public class GetEventsQueryHandler : IRequestHandler<GetEventsQuery, List<EventD
                 EndTime = e.EndTime,
                 Location = e.Location,
                 Status = e.Status,
+                Type = e.Type,
                 RepeatFrequency = e.RepeatFrequency,
                 RepeatInterval = e.RepeatInterval,
                 RepeatEndDate = e.RepeatEndDate

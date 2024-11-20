@@ -13,6 +13,7 @@ public class EventDto
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public string? Location { get; set; }
+    public int Type { get; set; }
     public EventStatusConstants? Status { get; set; }
     public EventDailyConstants RepeatFrequency { get; set; }
     public int RepeatInterval { get; set; }
