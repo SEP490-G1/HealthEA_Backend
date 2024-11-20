@@ -1,7 +1,9 @@
+using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
 using Infrastructure.MediatR.Schedules.Commands.CreateSchedule;
 using Infrastructure.MediatR.Schedules.Commands.DeleteSchedule;
 using Infrastructure.MediatR.Schedules.Queries;
+using Infrastructure.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,23 +17,24 @@ public class SchedulesController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly IUserClaimsService userClaimsService;
+	private readonly IDoctorRepository doctorRepository;
 
 
-    public SchedulesController(IMediator mediator, IUserClaimsService userClaimsService)
-    {
-        _mediator = mediator;
-        this.userClaimsService = userClaimsService;
-    }
-    
-    [HttpGet("by-day")]
-    [Authorize]
-    public async Task<IActionResult> GetSchedulesByDay([FromQuery] DateTime date, [FromQuery] Guid? doctorId)
+	public SchedulesController(IMediator mediator, IUserClaimsService userClaimsService, IDoctorRepository doctorRepository)
+	{
+		_mediator = mediator;
+		this.userClaimsService = userClaimsService;
+		this.doctorRepository = doctorRepository;
+	}
+
+	[HttpGet("by-day")]
+    public async Task<IActionResult> GetSchedulesByDay([FromQuery] DateTime date, [FromQuery] Guid doctorId)
     {
         var userId = userClaimsService.ClaimId(User);
         var userRole = userClaimsService.ClaimRole(User);
         var query = new GetScheduleByDayQuery
         {
-            UserId = userId,
+            DoctorId = doctorId,
             Date = date
         };
 
@@ -84,4 +87,20 @@ public class SchedulesController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+	[HttpGet("is-user/{id}")]
+	public async Task<IActionResult> IsUserTheDoctor(Guid id)
+	{
+		var userId = userClaimsService.ClaimId(User);
+		var doctor = await doctorRepository.GetDoctorByUserIdAsync(userId);
+		if (doctor == null)
+		{
+			return BadRequest(new { Success = false, Message = "User is not a doctor!" });
+		}
+		if (doctor.Id != id)
+		{
+			return BadRequest(new { Success = false, Message = "User is not this doctor!" });
+		}
+		return Ok(new { Success = true, Message = "User is this doctor." });
+	}
 }
