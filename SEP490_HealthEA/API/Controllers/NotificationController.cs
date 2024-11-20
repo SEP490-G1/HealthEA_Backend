@@ -23,20 +23,23 @@ public class NotificationController : ControllerBase
         _mediator = mediator;
         this.userClaimsService = userClaimsService;
     }
-    [HttpGet()]
+    [HttpGet]
     [Authorize]
-    public async Task<IActionResult> GetNotice()
+    public async Task<IActionResult> GetNotices([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
         var userId = userClaimsService.ClaimId(User);
         var query = new GetListNoticeQuery
         {
-            UserId = userId
+            UserId = userId,
+            PageNumber = pageNumber,
+            PageSize = pageSize
         };
 
         var notices = await _mediator.Send(query);
 
         return Ok(notices);
     }
+
     [HttpPost("test-notice")]
     public async Task<IActionResult> SendNotification([FromBody] string deviceToken)
     {
@@ -54,8 +57,11 @@ public class NotificationController : ControllerBase
         }
     }
     [HttpPost("register-token")]
+    [Authorize]
     public async Task<IActionResult> RegisterDeviceToken([FromBody] RegisterDeviceTokenCommand command)
     {
+        var userId = userClaimsService.ClaimId(User);
+        command.UserId = userId;
         var result = await _mediator.Send(command);
         return Ok(new { message = result });
     }

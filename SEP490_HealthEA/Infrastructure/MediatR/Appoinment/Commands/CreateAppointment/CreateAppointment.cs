@@ -2,6 +2,7 @@
 using Domain.Models.Entities;
 using FluentValidation;
 using Google;
+using Infrastructure.MediatR.Notices;
 using Infrastructure.Services;
 using Infrastructure.SQLServer;
 using MediatR;
@@ -27,11 +28,13 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
 
     private readonly SqlDBContext _context;
     private readonly EmailService _emailService;
+    private readonly FirebaseNotificationService _firebaseNotificationService;
 
-    public CreateAppointmentHandler(SqlDBContext context, EmailService emailService)
+    public CreateAppointmentHandler(SqlDBContext context, EmailService emailService, FirebaseNotificationService firebaseNotificationService)
     {
         _context = context;
         _emailService = emailService;
+        _firebaseNotificationService = firebaseNotificationService;
     }
     public async Task<Guid> Handle(CreateAppointmentCommand request, CancellationToken cancellationToken)
     {
@@ -88,6 +91,46 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == appointment.UserId, cancellationToken);
         var doctor = await _context.Users.Include(u => u.Doctor).FirstOrDefaultAsync(u => u.Doctor!.Id == appointment.DoctorId, cancellationToken);
+
+        //var doctorDeviceToken = await _context.DeviceTokens
+        //   .Where(dt => dt.UserId == doctor.UserId)
+        //   .Select(dt => dt.DeviceToken)
+        //   .FirstOrDefaultAsync();
+
+        //var userDeviceToken = await _context.DeviceTokens
+        //    .Where(dt => dt.UserId == user.UserId)
+        //    .Select(dt => dt.DeviceToken)
+        //    .FirstOrDefaultAsync();
+
+        //if (!string.IsNullOrEmpty(doctorDeviceToken))
+        //{
+        //    await _firebaseNotificationService.SendNotificationAsync(
+        //        doctorDeviceToken,
+        //        "Cuộc hẹn mới",
+        //        $"Bạn có một cuộc hẹn mới với bệnh nhân {user.FirstName} {user.LastName}."
+        //    );
+        //}
+
+        //if (!string.IsNullOrEmpty(userDeviceToken))
+        //{
+        //    await _firebaseNotificationService.SendNotificationAsync(
+        //        userDeviceToken,
+        //        "Cuộc hẹn của bạn đã được tạo",
+        //        $"Cuộc hẹn với bác sĩ {doctor.FirstName} {doctor.LastName} đã được xác nhận."
+        //    );
+        //}
+        Thread firebaseThread = new Thread(() =>
+        {
+            try
+            {
+                 SendFirebaseNotificationsAsync(user, doctor);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending emails: {ex.Message}");
+            }
+        });
+
         Thread emailThread = new Thread(() =>
         {
             try
@@ -99,7 +142,7 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
                         doctorEmail: doctor.Email,
                         userName: $"{user.FirstName} {user.LastName}",
                         doctorName: $"{doctor.FirstName} {doctor.LastName}"
-                    ).Wait(); 
+                    ).Wait();
                 }
             }
             catch (Exception ex)
@@ -109,10 +152,44 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
         });
 
         emailThread.Start();
-
-
+        Thread.Sleep(100);
+        firebaseThread.Start();
+        Thread.Sleep(100);
+        //emailThread.Join();
+        //firebaseThread.Join();
         await _context.SaveChangesAsync(cancellationToken);
 
         return appointment.AppointmentId;
     }
+    private async Task SendFirebaseNotificationsAsync(User user, User doctor)
+    {
+        var doctorDeviceToken = await _context.DeviceTokens
+            .Where(dt => dt.UserId == doctor.UserId)
+            .Select(dt => dt.DeviceToken)
+            .FirstOrDefaultAsync();
+
+        var userDeviceToken = await _context.DeviceTokens
+            .Where(dt => dt.UserId == user.UserId)
+            .Select(dt => dt.DeviceToken)
+            .FirstOrDefaultAsync();
+
+        if (!string.IsNullOrEmpty(doctorDeviceToken))
+        {
+            await _firebaseNotificationService.SendNotificationAsync(
+                doctorDeviceToken,
+                "Cuộc hẹn mới",
+                $"Bạn có một cuộc hẹn mới với bệnh nhân {user.FirstName} {user.LastName}."
+            );
+        }
+
+        if (!string.IsNullOrEmpty(userDeviceToken))
+        {
+            await _firebaseNotificationService.SendNotificationAsync(
+                userDeviceToken,
+                "Cuộc hẹn của bạn đã được tạo",
+                $"Cuộc hẹn với bác sĩ {doctor.FirstName} {doctor.LastName} đã được xác nhận."
+            );
+        }
+    }
+
 }

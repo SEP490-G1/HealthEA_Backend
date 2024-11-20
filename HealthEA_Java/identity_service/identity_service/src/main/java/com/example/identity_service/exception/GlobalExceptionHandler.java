@@ -15,7 +15,8 @@ import java.util.Objects;
 
 @ControllerAdvice
 @Slf4j
-public class GlobalExceptionHandler {
+public class
+GlobalExceptionHandler {
     private static final String MIN_ATTRIBUTE = "min";
 
 //    @ExceptionHandler(value = Exception.class) //everywhere that has runtime exception
