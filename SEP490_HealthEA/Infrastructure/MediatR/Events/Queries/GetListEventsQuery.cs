@@ -22,11 +22,13 @@ public class GetEventsQueryHandler : IRequestHandler<GetEventsQuery, List<EventD
     public async Task<List<EventDto>> Handle(GetEventsQuery request, CancellationToken cancellationToken)
     {
         var events = await _context.Events
-            .Where(e => e.UserEvents.Any(ue => ue.UserId == request.UserId) && e.EventDateTime >= request.StartDate && e.EventDateTime <= request.EndDate)
+            .Where(e => e.UserEvents.Any(ue => ue.UserId == request.UserId) &&
+                        e.EventDateTime >= request.StartDate &&
+                        e.EventDateTime <= request.EndDate)
             .Select(e => new EventDto
             {
                 EventId = e.EventId,
-                //UserName = e.UserName,
+                OriginalEventId = e.OriginalEventId,
                 Title = e.Title,
                 Description = e.Description,
                 EventDateTime = e.EventDateTime,
@@ -36,11 +38,16 @@ public class GetEventsQueryHandler : IRequestHandler<GetEventsQuery, List<EventD
                 Status = e.Status,
                 Type = e.Type,
                 RepeatFrequency = e.RepeatFrequency,
-                RepeatInterval = e.RepeatInterval,
-                RepeatEndDate = e.RepeatEndDate
+                RepeatEndDate = e.RepeatEndDate,
+                ReminderOffsetDtos = e.Reminders.Select(r => new ReminderOffsetDto
+                {
+                    OffsetUnit = r.OffsetUnit,
+                    OffsetValue = r.ReminderOffset
+                }).ToList()
             })
             .ToListAsync(cancellationToken);
 
         return events;
     }
+
 }

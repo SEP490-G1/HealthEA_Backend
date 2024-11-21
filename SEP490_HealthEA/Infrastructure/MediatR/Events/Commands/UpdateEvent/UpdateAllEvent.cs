@@ -154,7 +154,7 @@ public class UpdateAllEventCommandHandler : IRequestHandler<UpdateAllEventComman
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return originalEvent.OriginalEventId ?? originalEvent.EventId;
+        return originalEvent.OriginalEventId ;
     }
 
 
