@@ -1,4 +1,6 @@
 ﻿using Domain.Common.Exceptions;
+using Domain.Models.Entities;
+using Infrastructure.MediatR.Events.Queries;
 using Infrastructure.SQLServer;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +17,7 @@ public class UpdateEventCommand : IRequest<Guid>
     public TimeSpan? StartTime { get; set; }
     public TimeSpan? EndTime { get; set; }
     public string? Location { get; set; }
+    public List<ReminderOffsetDto>? ReminderOffsetDtos { get; set; }
 }
 
 public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Guid>
@@ -51,6 +54,20 @@ public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Gui
         eventEntity.EndTime = request.EndTime ?? eventEntity.EndTime;
         eventEntity.Location = request.Location ?? eventEntity.Location;
 
+        if (request.ReminderOffsetDtos != null && request.ReminderOffsetDtos.Any())
+        {
+            _context.Reminders.RemoveRange(eventEntity.Reminders);
+
+            var newReminders = request.ReminderOffsetDtos.Select(r => new Reminder
+            {
+                ReminderId = Guid.NewGuid(),
+                EventId = eventEntity.EventId,
+                OffsetUnit = r.OffsetUnit,
+                ReminderOffset = r.OffsetValue
+            }).ToList();
+
+            await _context.Reminders.AddRangeAsync(newReminders, cancellationToken);
+        }
         await _context.SaveChangesAsync(cancellationToken);
 
         return eventEntity.EventId;
