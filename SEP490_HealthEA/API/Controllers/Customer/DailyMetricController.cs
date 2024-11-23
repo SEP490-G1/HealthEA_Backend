@@ -27,7 +27,7 @@ namespace API.Controllers.Customer
 		}
 
 		[HttpGet("{id}")]
-		public async Task<ActionResult<DailyMetric>> GetDailyMetricById(Guid id)
+		public async Task<IActionResult> GetDailyMetricById(Guid id)
 		{
 			var dailyMetric = await repository.GetByIdAsync(id);
 			if (dailyMetric == null)
@@ -60,8 +60,14 @@ namespace API.Controllers.Customer
 			{
 				return BadRequest(error);
 			}
+			var userId = userClaimsService.ClaimId(User);
+			var dayDailyMetric = await repository.GetByUserIdAndDateAsync(userId, model.Date);
+			if (dayDailyMetric != null)
+			{
+				return BadRequest("Daily Metric has existed on this day.");
+			}
 			dailyMetric.Id = new Guid();
-			dailyMetric.UserId = userClaimsService.ClaimId(User);
+			dailyMetric.UserId = userId;
 			await repository.AddAsync(dailyMetric);
 			return NoContent();
 		}
