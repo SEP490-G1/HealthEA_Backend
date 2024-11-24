@@ -457,9 +457,14 @@ namespace Domain.Services
         */
         public ServiceResult createDocumentProfile(ClaimsPrincipal claims, DocumentProfileInputDAO profile)
         {
-            string devMsg = DevMsg.AddSuccess;
-            string userMsg = UserMsg.AddSuccess;
-            HttpStatusCode hr = HttpStatusCode.OK;
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = DevMsg.AddSuccess,
+                userMsg = UserMsg.AddSuccess,
+                statusCode = HttpStatusCode.OK,
+                data = null
+            };
+          
             Guid idUser = claimId(claims);
             DocumentProfile doc = new DocumentProfile()
             {
@@ -473,21 +478,32 @@ namespace Domain.Services
                 LastModifyDate = DateTime.Now,
                 Status = 0,
             };
-            var res = _repository.CreateDocumentProfile(doc);
-            ServiceResult result = new ServiceResult()
+            try
             {
-                devMsg = devMsg,
-                userMsg = userMsg,
-                statusCode = hr,
-                data = res
-            };
-            if (res <= 0)
-            {
-                result.devMsg = DevMsg.AddErr;
-                result.userMsg = UserMsg.AddErr;
-                result.statusCode = HttpStatusCode.NotFound;
+                var res = _repository.CreateDocumentProfile(doc);
+                result.data = res;
             }
-
+            catch (Exception ex)
+            {
+                if(ex.Message == "0")
+                {
+                    result.devMsg = "Không tồn tại dữ liệu";
+                    result.userMsg = "Không tồn tại dữ liệu";
+                    result.statusCode = HttpStatusCode.BadRequest;
+                    result.data = 0;
+                }
+                else if(ex.Message == "-1")
+                {
+                    result.devMsg = "Không có quyền truy cập";
+                    result.userMsg = "Không có quyền truy cập";
+                    result.statusCode = HttpStatusCode.Unauthorized;
+                    result.data = 0;
+                }
+                else
+                {
+                    throw new Exception(ex.Message);    
+                }
+            }
             return result;
         }
 
@@ -675,9 +691,33 @@ namespace Domain.Services
                 result.statusCode = HttpStatusCode.Unauthorized;
                 return result;
             }
-            DocumentProfile res = _repository.GetDocumentProfiles(type, idUser, idHealprofile);
+            try
+            {
+                var res = _repository.GetDocumentProfiles(type, idUser, idHealprofile);
+                result.data = res;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Equals("-1"))
+                {
+                    result.devMsg = "Bạn không có quyền truy cập";
+                    result.userMsg = "Bạn không có quyền truy cập";
+                    result.statusCode = HttpStatusCode.Unauthorized;
+                    result.data = new List<DocumentProfile>();
+                }
+                else if (ex.Message.Equals("0"))
+                {
+                    result.devMsg = "Hồ sơ không tồn tại";
+                    result.userMsg = "Hồ sơ không tồn tại";
+                    result.statusCode = HttpStatusCode.OK;
+                    result.data = new List<DocumentProfile>();
+                }
+                else
+                {
+                    throw new Exception(ex.Message);
+                }
+            }
 
-            result.data = res;
             return result;
         }
 

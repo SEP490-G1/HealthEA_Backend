@@ -44,7 +44,7 @@ namespace Domain.Interfaces.IRepositories
         /// <param name="id"></param>
         /// <returns></returns>
         public int UpdateHealthProfile(HealthProfile healthProfile, Guid id);
-        public DocumentProfile GetDocumentProfiles(int type, Guid id, Guid PantientId);
+        public IList<DocumentProfileDTO> GetDocumentProfiles(int type, Guid id, Guid PantientId);
         public int CreateDocumentProfile(DocumentProfile doc);
         public DocumentProfile GetDocumentProfilesDetailbyId(Guid ids);
         public int DeleteDocumentProfilebyId(Guid id, Guid idUser);
