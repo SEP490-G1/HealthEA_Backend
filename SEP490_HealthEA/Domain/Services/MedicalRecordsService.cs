@@ -30,17 +30,16 @@ namespace Domain.Services
         #region properties
         private IMedicalRecordRepository _repository;
         private IUserRepository _userRepository;
-        private Mapper _HealprofileMapper;
+        private readonly IMapper _HealprofileMapper;
         #endregion
         #region Constructor
-        public MedicalRecordsService(IMedicalRecordRepository medicalRecordRepository, IUserRepository userRepository)
+        public MedicalRecordsService(IMedicalRecordRepository medicalRecordRepository, IUserRepository userRepository, IMapper mapper)
         {
             _repository = medicalRecordRepository;
             _userRepository = userRepository;
             //auto mapper
-            var _config = new MapperConfiguration(cfg => cfg.CreateMap<HealthProfile, HealthProfileOutputDAO>().ReverseMap());
 
-            _HealprofileMapper = new Mapper(_config);
+            _HealprofileMapper = mapper;
         }
         #endregion
         #region Private Method
@@ -481,7 +480,8 @@ namespace Domain.Services
             try
             {
                 var res = _repository.CreateDocumentProfile(doc);
-                result.data = res;
+                var itemNew = _HealprofileMapper.Map<DocumentProfileDTO>(doc);
+                result.data = doc;
             }
             catch (Exception ex)
             {
@@ -654,14 +654,22 @@ namespace Domain.Services
             }
 
             int res = _repository.UpdateDocumentProfile(idUser, id, doc);
-            if (res <= 0)
+            if (res == 0)
             {
                 result.devMsg = DevMsg.UpdateErr;
                 result.userMsg = UserMsg.UpdateErr;
                 result.statusCode = HttpStatusCode.NotFound;
                 return result;
             }
-            result.data = doc;
+            if(res  == -1)
+            {
+                result.devMsg = "Người dùng không có quyền cập nhật!";
+                result.userMsg = "Người dùng không có quyền cập nhật!";
+                result.statusCode = HttpStatusCode.Unauthorized;
+                return result;
+            }
+
+            result.data = res;
             return result;
         }
 

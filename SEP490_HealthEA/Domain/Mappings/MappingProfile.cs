@@ -16,7 +16,8 @@ namespace Domain.Mappings
 	{
 		public MappingProfile()
 		{
-			CreateMap<DailyMetric, DailyMetricReturnModel>();
+			CreateMap<HealthProfile, HealthProfileOutputDAO>();
+            CreateMap<DailyMetric, DailyMetricReturnModel>();
 			CreateMap<DocumentProfile, DocumentProfileDTO>();
 			CreateMap<Doctor, DoctorDto>();
 			CreateMap<UserReport, UserReportDto>();
