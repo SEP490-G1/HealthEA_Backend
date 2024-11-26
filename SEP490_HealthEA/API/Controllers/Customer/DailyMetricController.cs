@@ -209,7 +209,6 @@ namespace API.Controllers.Customer
 		public async Task<ActionResult<DailyMetricReturnModel>> GetRecentDailyMetric()
 		{
 			var userId = userClaimsService.ClaimId(User);
-			var today = DateOnly.FromDateTime(DateTime.Today);
 			var dailyMetric = await repository.GetLatestByUserId(userId);
 
 			if (dailyMetric == null)
