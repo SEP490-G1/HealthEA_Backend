@@ -73,6 +73,8 @@ namespace API.Controllers.Admin
 			currentEntity.Author = news.Author;
 			currentEntity.Category = news.Category;
 			currentEntity.Content = news.Content;
+			currentEntity.ImageUrl = news.ImageUrl;
+			Console.WriteLine(currentEntity.ImageUrl);
 			currentEntity.UpdatedAt = DateTime.Now;
 			await repository.UpdateAsync(currentEntity);
 			return NoContent();
