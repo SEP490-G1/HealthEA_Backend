@@ -21,7 +21,7 @@ namespace Infrastructure.Repositories
 
 		public async Task<IList<Doctor>> GetAllDoctors(string? nameQuery, string? cityQuery)
 		{
-			IQueryable<Doctor> doctors = context.Doctors;
+			IQueryable<Doctor> doctors = context.Doctors.Include(d => d.User);
 			if (nameQuery != null)
 			{
 				doctors = doctors.Where(d => d.DisplayName.Contains(nameQuery));
