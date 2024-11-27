@@ -22,7 +22,7 @@ public class ChatService {
         // Xây dựng prompt dựa trên ngôn ngữ
         String prompt;
         if ("vi".equalsIgnoreCase(language)) {
-            prompt = "Người dùng có tình trạng sức khỏe sau: " +
+            prompt = "Người dùng có tình trạng sức khỏe nhw sau: " +
                     "Cân nặng: " + dailyMetricsResponse.getWeight() +
                     "Chiều cao: " + dailyMetricsResponse.getHeight() +
                     "Huyết áp: " + dailyMetricsResponse.getSystolicBloodPressure() + "/" + dailyMetricsResponse.getDiastolicBloodPressure() +
