@@ -45,5 +45,7 @@ namespace Domain.Models.Entities
         /// Gets or sets the date and time when the news article was last updated.
         /// </summary>
 		public DateTime? UpdatedAt { get; set; }
+
+        public string? ImageUrl { get; set; }
 	}
 }

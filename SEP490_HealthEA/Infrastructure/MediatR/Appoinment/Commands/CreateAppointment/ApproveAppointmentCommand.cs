@@ -137,8 +137,26 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
             //CreatedBy = doctor?.Email,
             Type = 2
         };
-
         _context.Events.Add(eventEntity);
+
+        var userEvent = new UserEvent
+        {
+            UserEventId = Guid.NewGuid(),
+            UserId = user.UserId,
+            EventId = eventEntity.EventId,
+
+        };
+
+        var reminder = new Reminder
+        {
+            ReminderId = Guid.NewGuid(),
+            EventId = eventEntity.EventId,
+            ReminderTime = appointment.Date.AddDays(-1).Add(appointment.StartTime),
+            Message = $"Bạn có lịch hẹn với bác sĩ {doctorName} vào lúc {appointmentTime} ngày {appointmentDate}. Địa điểm: {location}.",
+        };
+
+        _context.UserEvents.Add(userEvent);
+        _context.Reminders.Add(reminder);
         await _context.SaveChangesAsync(cancellationToken);
 
         return true;

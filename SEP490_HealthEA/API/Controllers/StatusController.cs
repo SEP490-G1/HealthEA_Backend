@@ -14,50 +14,51 @@ namespace API.Controllers
         {
             _mediator = mediator;
         }
+        //#region status
+        //// API cho sự kiện Upcoming
+        //[HttpGet("upcoming")]
+        //public async Task<IActionResult> GetUpcomingEvents(CancellationToken cancellationToken)
+        //{
+        //    var query = new GetEventWithUpcoming();
+        //    var events = await _mediator.Send(query, cancellationToken);
+        //    return Ok(new { Success = true, Data = events });
+        //}
 
-        // API cho sự kiện Upcoming
-        [HttpGet("upcoming")]
-        public async Task<IActionResult> GetUpcomingEvents(CancellationToken cancellationToken)
-        {
-            var query = new GetEventWithUpcoming();
-            var events = await _mediator.Send(query, cancellationToken);
-            return Ok(new { Success = true, Data = events });
-        }
+        //// API cho sự kiện Pending
+        //[HttpGet("pending")]
+        //public async Task<IActionResult> GetPendingEvents(CancellationToken cancellationToken)
+        //{
+        //    var query = new GetEventWithPending();
+        //    var events = await _mediator.Send(query, cancellationToken);
+        //    return Ok(new { Success = true, Data = events });
+        //}
 
-        // API cho sự kiện Pending
-        [HttpGet("pending")]
-        public async Task<IActionResult> GetPendingEvents(CancellationToken cancellationToken)
-        {
-            var query = new GetEventWithPending();
-            var events = await _mediator.Send(query, cancellationToken);
-            return Ok(new { Success = true, Data = events });
-        }
+        //// API cho sự kiện Recurring
+        //[HttpGet("recurring")]
+        //public async Task<IActionResult> GetRecurringEvents(CancellationToken cancellationToken)
+        //{
+        //    var query = new GetEventWithRecurring();
+        //    var events = await _mediator.Send(query, cancellationToken);
+        //    return Ok(new { Success = true, Data = events });
+        //}
 
-        // API cho sự kiện Recurring
-        [HttpGet("recurring")]
-        public async Task<IActionResult> GetRecurringEvents(CancellationToken cancellationToken)
-        {
-            var query = new GetEventWithRecurring();
-            var events = await _mediator.Send(query, cancellationToken);
-            return Ok(new { Success = true, Data = events });
-        }
+        //// API cho sự kiện Past
+        //[HttpGet("past")]
+        //public async Task<IActionResult> GetPastEvents(CancellationToken cancellationToken)
+        //{
+        //    var query = new GetEventWithPast();
+        //    var events = await _mediator.Send(query, cancellationToken);
+        //    return Ok(new { Success = true, Data = events });
+        //}
 
-        // API cho sự kiện Past
-        [HttpGet("past")]
-        public async Task<IActionResult> GetPastEvents(CancellationToken cancellationToken)
-        {
-            var query = new GetEventWithPast();
-            var events = await _mediator.Send(query, cancellationToken);
-            return Ok(new { Success = true, Data = events });
-        }
-
-        // API cho sự kiện Cancelled
-        [HttpGet("cancelled")]
-        public async Task<IActionResult> GetCancelledEvents(CancellationToken cancellationToken)
-        {
-            var query = new GetEventWithCancel();
-            var events = await _mediator.Send(query, cancellationToken);
-            return Ok(new { Success = true, Data = events });
-        }
+        //// API cho sự kiện Cancelled
+        //[HttpGet("cancelled")]
+        //public async Task<IActionResult> GetCancelledEvents(CancellationToken cancellationToken)
+        //{
+        //    var query = new GetEventWithCancel();
+        //    var events = await _mediator.Send(query, cancellationToken);
+        //    return Ok(new { Success = true, Data = events });
+        //}
+        //#endregion
     }
 }

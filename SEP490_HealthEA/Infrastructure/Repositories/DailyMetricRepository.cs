@@ -72,16 +72,18 @@ namespace Infrastructure.Repositories
 		public async Task<DailyMetric?> GetLatestByUserId(Guid userId)
 		{
 			return await context.DailyMetrics
+				.OrderByDescending(dm => dm.Date)
 				.FirstOrDefaultAsync(dm => dm.UserId == userId);
 		}
 
 		public async Task<T?> GetMostRecentValueAsync<T>(Guid userId, Expression<Func<DailyMetric, T?>> field) where T : struct
 		{
-			return await context.DailyMetrics
-				.Where(m => m.UserId == userId && field.Body != null)
+			var list = await context.DailyMetrics
+				.Where(m => m.UserId == userId)
 				.OrderByDescending(m => m.Date)
 				.Select(field)
-				.FirstOrDefaultAsync();
+				.ToListAsync();
+			return list.FirstOrDefault(o => o.HasValue);
 		}
 	}
 }

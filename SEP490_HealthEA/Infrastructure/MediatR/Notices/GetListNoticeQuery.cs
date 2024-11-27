@@ -40,10 +40,10 @@ public class GetListNoticeHandler : IRequestHandler<GetListNoticeQuery, Paginate
             query, request.PageNumber, request.PageSize
         );
 
-        if (paginatedNotices == null || !paginatedNotices.Items.Any())
-        {
-            throw new Exception(ErrorCode.NOTICES_NOT_FOUND);
-        }
+        //if (paginatedNotices == null || !paginatedNotices.Items.Any())
+        //{
+        //    throw new Exception(ErrorCode.NOTICES_NOT_FOUND);
+        //}
 
         return paginatedNotices;
     }

@@ -1,4 +1,6 @@
-﻿using Domain.Interfaces.IRepositories;
+﻿using AutoMapper;
+using CloudinaryDotNet.Actions;
+using Domain.Interfaces.IRepositories;
 using Domain.Models.DAO;
 using Domain.Models.Entities;
 using Infrastructure.SQLServer;
@@ -18,10 +20,13 @@ namespace Infrastructure.Repositories
     {
         private SqlDBContext _context;
         private IUserRepository _userContext;
-        public MedicalRecordsRepository(SqlDBContext context, IUserRepository user)
+        private readonly IMapper _mapper;
+
+        public MedicalRecordsRepository(SqlDBContext context, IUserRepository user, IMapper mapper)
         {
             _context = context;
             _userContext = user;
+            _mapper = mapper;
         }
 
         public int AddNewHealthProfile(HealthProfile healthProfile)
@@ -32,6 +37,15 @@ namespace Infrastructure.Repositories
 
         public int CreateDocumentProfile(DocumentProfile doc)
         {
+            var hp = _context.HealthProfiles.FirstOrDefault(x => x.Id == doc.PantientId);
+            if (hp == null)
+            {
+                throw new Exception("0");
+            }
+            if (hp.UserId != doc.UserId)
+            {
+                throw new Exception("-1");
+            }
             _context.DocumentProfiles.Add(doc);
             ; return _context.SaveChanges();
         }
@@ -58,14 +72,50 @@ namespace Infrastructure.Repositories
             return list;
         }
 
-        public DocumentProfile GetDocumentProfiles(int type, Guid id, Guid PantientId)
+        public IList<DocumentProfileDTO> GetDocumentProfiles(int type, Guid id, Guid PantientId)
         {
-            var doc = _context.DocumentProfiles.FirstOrDefault(x => x.UserId == id && x.Type == type && x.PantientId == PantientId);
+            var HealthProfile = _context.HealthProfiles.FirstOrDefault(x => x.Id == PantientId);
+            if (HealthProfile == null)
+            {
+                // hồ sơ sức khỏe không tồn tại
+                throw new Exception("0");
+            }
+            if (HealthProfile.SharedStatus == 0)
+            {
+                if (HealthProfile.UserId != id)
+                {
+                    // bạn không có quyền truy cập
+                    throw new Exception("-1");
+                }
+            }
+            string? role = _context.Users.FirstOrDefault(x => x.UserId == id).Role;
+            // nếu không phải admin
+            if (role != "ADMIN")
+            {
+                // nếu 1 thì phải là doctor
+                if (HealthProfile.SharedStatus == 1 && role != "DOCTOR")
+                {
+                    throw new Exception("-1");
+                }
+                if (HealthProfile.SharedStatus == 2 && (role != "CUSTOMER" || role != "DOCTOR"))
+                {
+                    throw new Exception("-1");
+                }
+            }
+
+            List<DocumentProfile> doc = _context.DocumentProfiles.Where(x => x.UserId == id && x.Type == type && x.PantientId == PantientId).ToList();
             if (doc == null)
             {
-                return new DocumentProfile();
+                // không tồn tại
+                throw new Exception("0");
             }
-            return doc;
+            List<DocumentProfileDTO> list = new List<DocumentProfileDTO>();
+            foreach (var item in doc)
+            {
+                var itemNew = _mapper.Map<DocumentProfileDTO>(item);
+                list.Add(itemNew);
+            }
+            return list;
         }
 
         public DocumentProfile GetDocumentProfilesDetailbyId(Guid ids)

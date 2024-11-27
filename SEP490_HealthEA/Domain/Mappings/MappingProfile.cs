@@ -1,4 +1,5 @@
 using AutoMapper;
+using Domain.Models.DAO;
 using Domain.Models.DAO.DailyMetrics;
 using Domain.Models.DAO.Doctor;
 using Domain.Models.DAO.Newses;
@@ -15,12 +16,15 @@ namespace Domain.Mappings
 	{
 		public MappingProfile()
 		{
-			CreateMap<DailyMetric, DailyMetricReturnModel>();
+			CreateMap<HealthProfile, HealthProfileOutputDAO>();
+            CreateMap<DailyMetric, DailyMetricReturnModel>();
+			CreateMap<DocumentProfile, DocumentProfileDTO>();
 			CreateMap<Doctor, DoctorDto>();
 			CreateMap<UserReport, UserReportDto>();
 			CreateMap<UserReportAddDto, UserReport>();
 			CreateMap<DailyMetricAddModel, DailyMetric>();
 			CreateMap<AddOrUpdateNewsDto, News>();
+			CreateMap<User, UserDto>();
 		}
 	}
 }

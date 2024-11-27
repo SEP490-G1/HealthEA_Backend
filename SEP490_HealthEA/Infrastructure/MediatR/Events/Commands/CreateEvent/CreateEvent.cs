@@ -39,6 +39,10 @@ public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Gui
         DateTime reminderDateTime = request.EventDateTime.Date.Add(request.StartTime);
         int interval = request.RepeatInterval > 0 ? request.RepeatInterval : 1;
         Guid originalEventId = Guid.NewGuid();
+        if(reminderDateTime> request.RepeatEndDate)
+        {
+            throw new Exception("ReminDateTime phai nho hon RepeatEndDate");
+        }
         while (reminderDateTime <= request.RepeatEndDate)
         {
             var eventEntity = new Event
