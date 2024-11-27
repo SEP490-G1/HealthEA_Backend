@@ -12,14 +12,16 @@ namespace API.Controllers.Doctor
 	public class DoctorController : ControllerBase
 	{
 		private readonly IDoctorRepository repository;
+		private readonly IUserRepository userRepository;
 		private readonly IUserClaimsService service;
 		private readonly IMapper mapper;
 
-		public DoctorController(IDoctorRepository repository, IMapper mapper, IUserClaimsService service)
+		public DoctorController(IDoctorRepository repository, IMapper mapper, IUserClaimsService service, IUserRepository userRepository)
 		{
 			this.repository = repository;
 			this.mapper = mapper;
 			this.service = service;
+			this.userRepository = userRepository;
 		}
 
 		[HttpGet()]

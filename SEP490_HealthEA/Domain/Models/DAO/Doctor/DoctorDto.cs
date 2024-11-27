@@ -19,5 +19,6 @@ namespace Domain.Models.DAO.Doctor
 		public int NumberOfAppointments { get; set; } = 0;
 		public int NumberOfVideoCalls { get; set; } = 0;
 		public string HistoryOfWork { get; set; } //json
+		public UserDto? User { get; set; }
 	}
 }
