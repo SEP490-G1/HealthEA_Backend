@@ -24,8 +24,8 @@ public class DailyMetricsController {
     @Autowired
     DailyMetricsService dailyMetricsService;
 
-    @PostMapping("/getLatest/{userId}")
-    public ApiResponse<DailyMetricsResponse> sendVerificationLink(@PathVariable String userId) {
+    @PostMapping("/getLatest")
+    public ApiResponse<DailyMetricsResponse> sendVerificationLink() {
         return ApiResponse.<DailyMetricsResponse>builder()
                 .result(dailyMetricsService.getLatestDailyMetrics())
                 .build();
