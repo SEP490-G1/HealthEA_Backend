@@ -23,6 +23,7 @@ namespace Infrastructure.SQLServer
 
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Event> Events { get; set; }
+        public virtual DbSet<TokenCallModel> TokenCalls { get; set; }
         public virtual DbSet<UserEvent> UserEvents { get; set; }
         public virtual DbSet<Reminder> Reminders { get; set; }
         public virtual DbSet<Notice> Notices { get; set; }
