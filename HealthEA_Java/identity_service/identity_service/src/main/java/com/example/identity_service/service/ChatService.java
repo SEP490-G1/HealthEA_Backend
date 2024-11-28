@@ -1,13 +1,19 @@
 package com.example.identity_service.service;
 
 import com.example.identity_service.dto.reponse.DailyMetricsResponse;
+import com.example.identity_service.dto.reponse.UserResponse;
+import com.example.identity_service.entity.ChatMessage;
+import com.example.identity_service.enums.SenderType;
+import com.example.identity_service.repository.ChatMessageRepository;
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -17,6 +23,30 @@ public class ChatService {
 
     @Value("${openai.url}")
     private String apiUrl;
+
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
+
+    @Autowired
+    private UserService userService;
+
+    public ChatMessage saveMessage(String message, SenderType senderType) {
+        UserResponse userResponse = userService.getMyInfo();
+        String userId = userResponse.getId();
+        ChatMessage chatMessage = ChatMessage.builder()
+                .userId(userId)
+                .message(message)
+                .senderType(senderType)
+                .build();
+
+        return chatMessageRepository.save(chatMessage);
+    }
+
+    public List<ChatMessage> getMessagesByUserId() {
+        UserResponse userResponse = userService.getMyInfo();
+        String userId = userResponse.getId();
+        return chatMessageRepository.findByUserIdOrderByCreatedAtAsc(userId);
+    }
 
     public String getDailyMetricsAdvice(DailyMetricsResponse dailyMetricsResponse, String question, String language) throws Exception {
         // Xây dựng prompt dựa trên ngôn ngữ

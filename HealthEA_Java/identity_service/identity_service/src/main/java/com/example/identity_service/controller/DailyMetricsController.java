@@ -27,7 +27,7 @@ public class DailyMetricsController {
     @PostMapping("/getLatest/{userId}")
     public ApiResponse<DailyMetricsResponse> sendVerificationLink(@PathVariable String userId) {
         return ApiResponse.<DailyMetricsResponse>builder()
-                .result(dailyMetricsService.getLatestDailyMetrics(userId))
+                .result(dailyMetricsService.getLatestDailyMetrics())
                 .build();
     }
 }
