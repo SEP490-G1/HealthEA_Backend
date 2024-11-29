@@ -1,5 +1,7 @@
 ﻿
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Domain.Models.Entities
 {
     /// <summary>
@@ -61,10 +63,14 @@ namespace Domain.Models.Entities
         /// Gets or sets the username of the user.
         /// </summary>
         public string Username { get; set; } = null!;
+        [Column("tokencall")]
+        public string TokenCall { get; set; } = null!;
+        [Column("callerid")]
+        public string CallerId { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the associated doctor for this entity.
-        /// </summary>
+        /// </summary> TokenCall
         /// <remarks>
         /// This property represents a relationship to a <see cref="Doctor"/> entity.
         /// It may be <c>null</c> if no doctor is assigned.
