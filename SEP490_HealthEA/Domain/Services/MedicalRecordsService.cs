@@ -481,7 +481,7 @@ namespace Domain.Services
             {
                 var res = _repository.CreateDocumentProfile(doc);
                 var itemNew = _HealprofileMapper.Map<DocumentProfileDTO>(doc);
-                result.data = doc;
+                result.data = itemNew;
             }
             catch (Exception ex)
             {
