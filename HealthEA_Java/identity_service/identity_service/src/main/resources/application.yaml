@@ -5,9 +5,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:sqlserver://gitznoz.database.windows.net:1433;database=DOAN;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;
-    username: sas
-    password: Hoang351681442002
+    url: jdbc:sqlserver://160.25.233.36:1433;databaseName=DOAN
+    username: SA
+    password: Ho@ng321
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
     jpa:

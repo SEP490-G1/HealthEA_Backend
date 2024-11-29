@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Domain.Enum;
 using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
 using Domain.Models;
 using Domain.Models.Common;
+using Domain.Models.DAO;
 using Domain.Models.Entities;
 using Domain.Resources;
 using Microsoft.Extensions.Options;
@@ -17,6 +19,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using static System.Formats.Asn1.AsnWriter;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Domain.Services
 {
@@ -25,17 +30,16 @@ namespace Domain.Services
         #region properties
         private IMedicalRecordRepository _repository;
         private IUserRepository _userRepository;
-        private Mapper _HealprofileMapper;
+        private readonly IMapper _HealprofileMapper;
         #endregion
         #region Constructor
-        public MedicalRecordsService(IMedicalRecordRepository medicalRecordRepository, IUserRepository userRepository)
+        public MedicalRecordsService(IMedicalRecordRepository medicalRecordRepository, IUserRepository userRepository, IMapper mapper)
         {
             _repository = medicalRecordRepository;
             _userRepository = userRepository;
             //auto mapper
-            var _config = new MapperConfiguration(cfg => cfg.CreateMap<HealthProfile, HealthProfileOutput>().ReverseMap());
 
-            _HealprofileMapper = new Mapper(_config);
+            _HealprofileMapper = mapper;
         }
         #endregion
         #region Private Method
@@ -71,19 +75,26 @@ namespace Domain.Services
             var _username = claimAccount(claim);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
-            var guid = _userRepository.GetIdUserByUserName(_username);
+            var guid = _userRepository.GetGuidByUserName(_username);
             return guid;
         }
         #endregion
 
         #region method
+        /**
+         * GetAllHealProfileByToken function
+         * 
+         * @param ClaimsPrincipal claim
+         * 
+         * @return ServiceResult result
+        */
         public ServiceResult GetAllHealProfileByToken(ClaimsPrincipal claim)
         {
             var userName = claimAccount(claim);
             IList<HealthProfile> list = _repository.GetAllHealthProfileByUser(userName);
             string devMsg = DevMsg.GetSuccess;
             string userMsg = UserMsg.GetSuccess;
-            IList<HealthProfileOutput> listResult = new List<HealthProfileOutput>();
+            IList<HealthProfileOutputDAO> listResult = new List<HealthProfileOutputDAO>();
             // if list null userMsg change
             if (!list.Any())
             {
@@ -92,7 +103,7 @@ namespace Domain.Services
             else
             {
                 //mapping 
-                listResult = _HealprofileMapper.Map<List<HealthProfile>, List<HealthProfileOutput>>((List<HealthProfile>)list);
+                listResult = _HealprofileMapper.Map<List<HealthProfile>, List<HealthProfileOutputDAO>>((List<HealthProfile>)list);
             }
             // create result
             ServiceResult result = new ServiceResult()
@@ -106,14 +117,32 @@ namespace Domain.Services
             return result;
         }
 
+        /**
+         * GetCommonInfoHealProfileById function
+         * 
+         * @param ClaimsPrincipal claim
+         * @param Guid id
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult GetCommonInfoHealProfileById(ClaimsPrincipal claim, Guid id)
         {
             string devMsg = DevMsg.GetSuccess;
             string userMsg = UserMsg.GetSuccess;
-            HealthProfile res = null;
+            HealthProfile? res = null;
             HttpStatusCode hr = HttpStatusCode.OK;
             // - lấy health profile
             var healthProfile = _repository.HealthProfileDetailbyID(id);
+            if (healthProfile == null)
+            {
+                return new ServiceResult()
+                {
+                    devMsg = DevMsg.GetError,
+                    userMsg = UserMsg.GetErr,
+                    statusCode = HttpStatusCode.BadRequest,
+                    data = null
+                };
+            }
             // - kiểm tra người dùng có phải tác giả không
             // + lấy id người dùng
             Guid idUser = claimId(claim);
@@ -141,17 +170,18 @@ namespace Domain.Services
                 //lấy role User
                 string role = claimRole(claim);
                 //       - nếu trạng thái only doctor kiem tra có phải doctor không và trả về lỗi (share == 1)
-                if (healthProfile.SharedStatus == 1 && role != "Doctor")
+                if (healthProfile.SharedStatus == 1 && role != RoleConstants.DOCTOR)
                 {
                     throw new UnauthorizedAccessException("You do not have access!");
                 }
                 //       - nếu trạng thái only user trả kiểm tra (share == 2)
-                if (healthProfile.SharedStatus == 2 && (role != "Doctor" || role != "User"))
+                if (healthProfile.SharedStatus == 2 && (role != RoleConstants.DOCTOR || role != RoleConstants.CUSTOMER))
                 {
                     throw new UnauthorizedAccessException("You do not have access!");
                 }
             }
-            var ress = _HealprofileMapper.Map<HealthProfile, HealthProfileOutput>(res);
+
+            var ress = (res == null) ? null : _HealprofileMapper.Map<HealthProfile, HealthProfileOutputDAO>(res);
             return new ServiceResult()
             {
                 devMsg = devMsg,
@@ -161,7 +191,14 @@ namespace Domain.Services
             };
         }
 
-        private KeyValuePair<HealthProfileInput, bool> validateProfile(HealthProfileInput profile)
+        /**
+         * validateProfile function
+         * 
+         * @param HealthProfileInputDAO profile
+         * 
+         * @return KeyValuePair<HealthProfileInputDAO, bool>
+        */
+        private KeyValuePair<HealthProfileInputDAO, bool> validateProfile(HealthProfileInputDAO profile)
         {
             bool prime = true;
             if (!(profile.Gender == 0 || profile.Gender == 1 || profile.Gender == 2))
@@ -179,9 +216,18 @@ namespace Domain.Services
                 profile.FullName = "Tên không được phép có số";
                 prime = false;
             }
-            return new KeyValuePair<HealthProfileInput, bool>(profile, prime);
+            return new KeyValuePair<HealthProfileInputDAO, bool>(profile, prime);
         }
-        public ServiceResult AddNewHealthProfile(ClaimsPrincipal claims, HealthProfileInput profile)
+
+        /**
+         * AddNewHealthProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param HealthProfileInputDAO profile
+         * 
+         * @return ServiceResult
+        */
+        public ServiceResult AddNewHealthProfile(ClaimsPrincipal claims, HealthProfileInputDAO profile)
         {
             string devMsg = DevMsg.AddSuccess;
             string userMsg = UserMsg.AddSuccess;
@@ -205,7 +251,7 @@ namespace Domain.Services
 #pragma warning disable CS8601 // Possible null reference assignment.
             HealthProfile p = new HealthProfile
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 UserId = claimId(claims),
                 ProfileCode = "abc",
                 FullName = profile.FullName,
@@ -239,6 +285,14 @@ namespace Domain.Services
             return result;
         }
 
+        /**
+         * RemoveHealthProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * 
+         * @return ServiceResult
+        */
         public ServiceResult RemoveHealthProfile(ClaimsPrincipal claims, Guid id)
         {
             string devMsg = DevMsg.DeleteSucess;
@@ -275,9 +329,17 @@ namespace Domain.Services
             return result;
         }
 
-        public ServiceResult UpdateShareHealthProfil(ClaimsPrincipal claims, Guid id, int stone)
+        /**
+         * UpdateShareHealthProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * @param int stone
+         * 
+         * @return ServiceResult
+        */
+        public ServiceResult UpdateShareHealthProfile(ClaimsPrincipal claims, Guid id, int stone)
         {
-
             string devMsg = DevMsg.UpdateSuccess;
             string userMsg = UserMsg.UpdateSuccess;
             HttpStatusCode hr = HttpStatusCode.OK;
@@ -308,6 +370,363 @@ namespace Domain.Services
                 statusCode = hr,
                 data = res
             };
+
+            return result;
+        }
+
+        /**
+         * UpdateInfoHealthProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * @param HealthProfileInputDAO profile
+         * 
+         * @return ServiceResult
+        */
+        public ServiceResult UpdateInfoHealthProfile(ClaimsPrincipal claims, Guid id, HealthProfileInputDAO profile)
+        {
+            string devMsg = DevMsg.UpdateSuccess;
+            string userMsg = UserMsg.UpdateSuccess;
+            HttpStatusCode hr = HttpStatusCode.OK;
+            Guid idUser = claimId(claims);
+            int res = 0;
+            // - lấy health profile
+            var healthProfile = _repository.HealthProfileDetailbyID(id);
+            if (healthProfile == null)
+            {
+                devMsg = DevMsg.DeleteSucess;
+                userMsg = UserMsg.DeleteErr;
+                hr = HttpStatusCode.BadRequest;
+            }
+            else
+            {
+                // + kiểm tra có phải tác giả không
+                if (healthProfile.UserId != idUser)
+                {
+                    throw new UnauthorizedAccessException("You do not have access!");
+                }
+                if (profile.FullName == null)
+                {
+
+                    return new ServiceResult()
+                    {
+                        devMsg = DevMsg.AddErr,
+                        userMsg = UserMsg.AddErr,
+                        statusCode = HttpStatusCode.BadRequest,
+                        data = "Không được để fullname trống"
+                    }; ;
+                }
+
+                healthProfile.FullName = profile.FullName;
+
+                healthProfile.DateOfBirth = profile.DateOfBirth;
+
+                healthProfile.Note = profile.Note;
+
+                healthProfile.Residence = profile.Residence;
+
+                healthProfile.Gender = profile.Gender;
+
+                res = _repository.UpdateHealthProfile(healthProfile, id);
+            }
+            if (res == 0)
+            {
+                devMsg = DevMsg.DeleteSucess;
+                userMsg = UserMsg.DeleteErr;
+                hr = HttpStatusCode.BadRequest;
+            }
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = devMsg,
+                userMsg = userMsg,
+                statusCode = hr,
+                data = res
+            };
+
+            return result;
+        }
+
+        /**
+         * createDocumentProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param DocumentProfileInputDAO profile
+         * 
+         * @return ServiceResult
+        */
+        public ServiceResult createDocumentProfile(ClaimsPrincipal claims, DocumentProfileInputDAO profile)
+        {
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = DevMsg.AddSuccess,
+                userMsg = UserMsg.AddSuccess,
+                statusCode = HttpStatusCode.OK,
+                data = null
+            };
+          
+            Guid idUser = claimId(claims);
+            DocumentProfile doc = new DocumentProfile()
+            {
+                Id = Guid.NewGuid(),
+                UserId = idUser,
+                PantientId = profile.HealthProfileId,
+                Type = profile.Type,
+                ContentMedical = profile.ContentMedical,
+                Image = profile.Image,
+                CreateDate = DateTime.Now,
+                LastModifyDate = DateTime.Now,
+                Status = 0,
+            };
+            try
+            {
+                var res = _repository.CreateDocumentProfile(doc);
+                var itemNew = _HealprofileMapper.Map<DocumentProfileDTO>(doc);
+                result.data = doc;
+            }
+            catch (Exception ex)
+            {
+                if(ex.Message == "0")
+                {
+                    result.devMsg = "Không tồn tại dữ liệu";
+                    result.userMsg = "Không tồn tại dữ liệu";
+                    result.statusCode = HttpStatusCode.BadRequest;
+                    result.data = 0;
+                }
+                else if(ex.Message == "-1")
+                {
+                    result.devMsg = "Không có quyền truy cập";
+                    result.userMsg = "Không có quyền truy cập";
+                    result.statusCode = HttpStatusCode.Unauthorized;
+                    result.data = 0;
+                }
+                else
+                {
+                    throw new Exception(ex.Message);    
+                }
+            }
+            return result;
+        }
+
+        /**
+         * GetDocumentProfileDetail function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * 
+         * @return ServiceResult
+        */
+        public ServiceResult GetDocumentProfileDetail(ClaimsPrincipal claims, Guid id)
+        {
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = DevMsg.GetSuccess,
+                userMsg = UserMsg.GetSuccess,
+                statusCode = HttpStatusCode.OK,
+                data = null
+            };
+            DocumentProfile doc = _repository.GetDocumentProfilesDetailbyId(id);
+            if (doc == null || doc == new DocumentProfile())
+            {
+                result.userMsg = UserMsg.GetEmpty;
+                return result;
+            }
+
+
+            // lấy id xét xem user có phải owner
+            Guid idUser = claimId(claims);
+            if (doc.UserId == idUser)
+            {
+                var psaas = _HealprofileMapper.Map<DocumentProfileDTO>(doc); 
+                result.data = psaas;
+                return result;
+            }
+            if (doc.HealthProfile == null)
+            {
+                result.devMsg = DevMsg.GetError;
+                result.userMsg = UserMsg.GetErr;
+                result.statusCode = HttpStatusCode.BadGateway;
+                result.data = null;
+                return result;
+            }
+            int a = doc.HealthProfile.SharedStatus;
+            string role = claimRole(claims);
+            // nếu không phải thì lấy role và xét xem có phù hợp với chia sẻ không
+
+            result.devMsg = checkRole(role, a) ? result.devMsg : DevMsg.GetError;
+            result.userMsg = checkRole(role, a) ? result.userMsg : UserMsg.GetErr;
+            result.statusCode = checkRole(role, a) ? result.statusCode : HttpStatusCode.Unauthorized;
+
+            var pss = _HealprofileMapper.Map<DocumentProfileDTO>(doc);
+            result.data = pss;
+            return result;
+
+        }
+
+        /**
+         * checkRole function
+         * 
+         * @param string role
+         * @param int statusID
+         * 
+         * @return bool
+        */
+        private bool checkRole(string role, int statusID)
+        {
+            if (statusID == 0)
+            {
+                return false;
+            }
+            if (role == "CUSTOMER" && statusID <= 1)
+            {
+                return false;
+            }
+            if (role == null && statusID <= 2)
+            {
+                return false;
+            }
+            if (role == "DOCTOR" && statusID < 1)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * DeleteDocumentProfileByid function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * 
+         * @return ServiceResult
+        */
+        public ServiceResult DeleteDocumentProfileByid(ClaimsPrincipal claims, Guid id)
+        {
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = DevMsg.DeleteSucess,
+                userMsg = UserMsg.DeleteSucess,
+                statusCode = HttpStatusCode.OK,
+                data = null
+            };
+            Guid idUser = claimId(claims);
+            if (idUser == Guid.Empty)
+            {
+                result.devMsg = DevMsg.AuthorizeErr;
+                result.userMsg = UserMsg.AuthorizeErr;
+                result.statusCode = HttpStatusCode.Unauthorized;
+                return result;
+            }
+            int doc = _repository.DeleteDocumentProfilebyId(id, idUser);
+            if (doc <= 0)
+            {
+                result.devMsg = DevMsg.DeleteErr;
+                result.userMsg = UserMsg.DeleteErr;
+                result.statusCode = HttpStatusCode.NotFound;
+                return result;
+            }
+            result.data = doc;
+            return result;
+        }
+
+        /**
+         * UpdateDocumentProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid id
+         * @param DocumentProfileInputDAO doc
+         * 
+         * @return ServiceResult
+        */
+        public ServiceResult UpdateDocumentProfile(ClaimsPrincipal claims, Guid id, DocumentProfileInputDAO doc)
+        {
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = DevMsg.UpdateSuccess,
+                userMsg = UserMsg.UpdateSuccess,
+                statusCode = HttpStatusCode.OK,
+                data = null
+            };
+            Guid idUser = claimId(claims);
+            if (idUser == Guid.Empty)
+            {
+                result.devMsg = DevMsg.AuthorizeErr;
+                result.userMsg = UserMsg.AuthorizeErr;
+                result.statusCode = HttpStatusCode.Unauthorized;
+                return result;
+            }
+
+            int res = _repository.UpdateDocumentProfile(idUser, id, doc);
+            if (res == 0)
+            {
+                result.devMsg = DevMsg.UpdateErr;
+                result.userMsg = UserMsg.UpdateErr;
+                result.statusCode = HttpStatusCode.NotFound;
+                return result;
+            }
+            if(res  == -1)
+            {
+                result.devMsg = "Người dùng không có quyền cập nhật!";
+                result.userMsg = "Người dùng không có quyền cập nhật!";
+                result.statusCode = HttpStatusCode.Unauthorized;
+                return result;
+            }
+
+            result.data = res;
+            return result;
+        }
+
+        /**
+         * GetListDocumentProfile function
+         * 
+         * @param ClaimsPrincipal claims
+         * @param Guid idHealprofile
+         * @param int type
+         * 
+         * @return ServiceResult
+        */
+        public ServiceResult GetListDocumentProfile(ClaimsPrincipal claims, Guid idHealprofile, int type)
+        {
+            ServiceResult result = new ServiceResult()
+            {
+                devMsg = DevMsg.GetSuccess,
+                userMsg = UserMsg.GetSuccess,
+                statusCode = HttpStatusCode.OK,
+                data = null
+            };
+            Guid idUser = claimId(claims);
+            if (idUser == Guid.Empty)
+            {
+                result.devMsg = DevMsg.AuthorizeErr;
+                result.userMsg = UserMsg.AuthorizeErr;
+                result.statusCode = HttpStatusCode.Unauthorized;
+                return result;
+            }
+            try
+            {
+                var res = _repository.GetDocumentProfiles(type, idUser, idHealprofile);
+                result.data = res;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Equals("-1"))
+                {
+                    result.devMsg = "Bạn không có quyền truy cập";
+                    result.userMsg = "Bạn không có quyền truy cập";
+                    result.statusCode = HttpStatusCode.Unauthorized;
+                    result.data = new List<DocumentProfile>();
+                }
+                else if (ex.Message.Equals("0"))
+                {
+                    result.devMsg = "Hồ sơ không tồn tại";
+                    result.userMsg = "Hồ sơ không tồn tại";
+                    result.statusCode = HttpStatusCode.OK;
+                    result.data = new List<DocumentProfile>();
+                }
+                else
+                {
+                    throw new Exception(ex.Message);
+                }
+            }
 
             return result;
         }

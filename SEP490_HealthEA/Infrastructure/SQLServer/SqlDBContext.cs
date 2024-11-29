@@ -1,11 +1,6 @@
-﻿using Domain.Models.Entities;
+﻿
+using Domain.Models.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.SQLServer
 {
@@ -18,40 +13,157 @@ namespace Infrastructure.SQLServer
         public SqlDBContext(DbContextOptions<SqlDBContext> options)
             : base(options)
         {
-
         }
-        /// <summary>
-        /// Create DB set for Entities
-        /// </summary>
-        public DbSet<DocumentProfile> DocumentProfiles { get; set; }
-        public DbSet<HealthProfile> HealthProfiles { get; set; }
-        public DbSet<User> User { get; set; }
 
-        /// <summary>
-        /// config sqlserver    
-        /// </summary>
-        /// <param name="optionsBuilder"></param>
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public virtual DbSet<DocumentProfile> DocumentProfiles { get; set; }
+
+        public virtual DbSet<HealthProfile> HealthProfiles { get; set; }
+
+        public virtual DbSet<InvalidatedToken> InvalidatedTokens { get; set; }
+
+        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Event> Events { get; set; }
+        public virtual DbSet<TokenCallModel> TokenCalls { get; set; }
+        public virtual DbSet<UserEvent> UserEvents { get; set; }
+        public virtual DbSet<Reminder> Reminders { get; set; }
+        public virtual DbSet<Notice> Notices { get; set; }
+        public virtual DbSet<Appointment> Appointments { get; set; }
+        public virtual DbSet<Schedule> Schedules { get; set; }
+        public virtual DbSet<DeviceTokenRequest> DeviceTokens { get; set; }
+        
+        public DbSet<Image> Images { get; set; }
+
+		public DbSet<DailyMetric> DailyMetrics { get; set; }
+
+		public DbSet<Doctor> Doctors { get; set; }
+
+        public DbSet<UserReport> UserReports { get; set; }
+
+		public DbSet<News> News { get; set; }
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
         }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<DocumentProfile>(entity =>
+            {
+                entity.HasIndex(e => e.PantientId, "IX_DocumentProfiles_PantientId");
 
-            modelBuilder.Entity<DocumentProfile>()
-            .HasOne(d => d.PatientProfile)
-            .WithMany(u => u.MedicalRecords)
-            .HasForeignKey(d => d.PantientId)
-            .OnDelete(DeleteBehavior.NoAction);
+                entity.Property(e => e.Id).ValueGeneratedNever();
 
-            modelBuilder.Entity<HealthProfile>()
-                .HasOne(d => d.User)
-                .WithMany(u => u.PatientProfiles)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(d => d.HealthProfile).WithMany(p => p.DocumentProfiles)
+                    .HasForeignKey(d => d.PantientId)
+                    .OnDelete(DeleteBehavior.ClientSetNull);
+            });
 
-        }
+            modelBuilder.Entity<HealthProfile>(entity =>
+            {
+                entity.HasIndex(e => e.UserId, "IX_HealthProfiles_UserId");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.User).WithMany(p => p.healthProfiles)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_HealthProfiles_User_UserId");
+            });
+
+            modelBuilder.Entity<InvalidatedToken>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK__invalida__3213E83F8938BA78");
+
+                entity.ToTable("invalidated_token");
+
+                entity.Property(e => e.Id)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("id");
+                entity.Property(e => e.ExpriryTime)
+                    .HasPrecision(6)
+                    .HasColumnName("expriry_time");
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.UserId).HasName("PK__user__B9BE370F7E22D744");
+
+                entity.ToTable("user");
+
+                entity.HasIndex(e => e.Username, "UK5c856itaihtmi69ni04cmpc4m").IsUnique();
+
+                entity.HasIndex(e => e.Email, "UKhl4ga9r00rh51mdaf20hmnslt").IsUnique();
+
+                entity.Property(e => e.UserId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("user_id");
+                entity.Property(e => e.Dob).HasColumnName("dob");
+                entity.Property(e => e.Email)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("email");
+                entity.Property(e => e.FirstName)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("first_name");
+                entity.Property(e => e.Gender).HasColumnName("gender");
+                entity.Property(e => e.LastName)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("last_name");
+                entity.Property(e => e.Password)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("password");
+                entity.Property(e => e.Phone)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("phone");
+                entity.Property(e => e.Role)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("role");
+                entity.Property(e => e.Status)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("status");
+                entity.Property(e => e.Username)
+                    .HasMaxLength(255)
+                    .IsUnicode(false)
+                    .HasColumnName("username");
+            });
+
+			modelBuilder.Entity<DailyMetric>()
+				.HasOne(dm => dm.User)
+				.WithMany(u => u.DailyMetrics)
+				.HasForeignKey(dm => dm.UserId);
+			modelBuilder.Entity<Doctor>()
+			.HasOne(d => d.User)
+			.WithOne(u => u.Doctor)
+			.HasForeignKey<Doctor>(d => d.UserId)
+			.OnDelete(DeleteBehavior.Cascade);
+
+			modelBuilder.Entity<UserReport>()
+			.HasOne(dr => dr.Reporter)
+			.WithMany()
+			.HasForeignKey(dr => dr.ReporterId)
+			.OnDelete(DeleteBehavior.Restrict);
+
+			modelBuilder.Entity<News>(entity =>
+			{
+				entity.HasKey(n => n.Id);
+				entity.Property(n => n.Id)
+					  .ValueGeneratedOnAdd();
+				entity.Property(n => n.Title)
+					  .IsRequired()
+					  .HasMaxLength(200);
+				entity.Property(n => n.Content)
+					  .IsRequired();
+				entity.Property(n => n.CreatedAt)
+					  .HasDefaultValueSql("GETDATE()");
+			});
+		}
 
 
     }
