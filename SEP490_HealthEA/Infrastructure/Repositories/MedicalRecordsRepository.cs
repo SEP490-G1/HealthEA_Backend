@@ -92,15 +92,15 @@ namespace Infrastructure.Repositories
             // nếu không phải admin
             if (role != "ADMIN")
             {
-                // nếu 1 thì phải là doctor
-                if (HealthProfile.SharedStatus == 1 && role != "DOCTOR")
+                if(role == "DOCTOR" && HealthProfile.SharedStatus < 1)
                 {
                     throw new Exception("-1");
                 }
-                if (HealthProfile.SharedStatus == 2 && (role != "CUSTOMER" || role != "DOCTOR"))
+                if (role == "CUSTOMER" && HealthProfile.SharedStatus < 2)
                 {
                     throw new Exception("-1");
                 }
+              
             }
 
             List<DocumentProfile> doc = _context.DocumentProfiles.Where(x => x.UserId == id && x.Type == type && x.PantientId == PantientId).ToList();

@@ -30,6 +30,8 @@ public class Notice
     /// </summary>
     public DateTime CreatedAt { get; set; }
 
+    public bool HasViewed { get; set; } = false;
+
     /// <summary>
     /// Gets or sets the user associated with the notice.
     /// </summary>

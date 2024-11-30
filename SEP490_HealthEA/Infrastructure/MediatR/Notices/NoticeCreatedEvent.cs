@@ -27,19 +27,19 @@ public class NoticeCreatedEventHandler : INotificationHandler<NoticeCreatedEvent
     public async Task Handle(NoticeCreatedEvent notification, CancellationToken cancellationToken)
     {
         var notice = notification.Notice;
-
-        //var deviceToken = await _context.DeviceTokens
-        //    .Where(dt => dt.UserId == notice.RecipientId)
-        //    .Select(dt => dt.DeviceToken)
-        //    .FirstOrDefaultAsync(cancellationToken);
-         var deviceToken = "cCb2Lu8BpcOCI-_2__HLRp:APA91bGMgVHleh_IZaG51BIaZoYXT8PwyV7PQfa6qlJq9KqVr6cl1zK_62dRO50V55AWjAHQaVF5XkMGtYBGvx1TgpoLUHLkJnu_A22T1oi2wNDzZEbo8_Q";
-
-        if (deviceToken != null)
+        var tokens = await _context.DeviceTokens
+            .Where(t => t.UserId == notice.RecipientId)
+            .Select(t => t.DeviceToken)
+            .ToListAsync();
+        if (tokens != null && tokens.Any())
         {
-            var title = "Thông báo mới!";
-            var body = notice.Message;
+            foreach(var token in tokens)
+            {
+				var title = "Thông báo mới!";
+				var body = notice.Message;
 
-            await _firebaseService.SendNotificationAsync(deviceToken, title, body);
+				await _firebaseService.SendNotificationAsync(token, title, body);
+			}
         }
     }
 }

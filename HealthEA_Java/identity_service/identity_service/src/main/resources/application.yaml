@@ -4,17 +4,21 @@ server:
     context-path: /identity
 
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    show-sql: true
+    generate-ddl: true
+
   datasource:
     url: jdbc:sqlserver://160.25.233.36:1433;databaseName=DOAN
     username: SA
     password: Ho@ng321
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
-    jpa:
-      database-platform: org.hibernate.dialect.SQLServerDialect
-      show-sql: true
-      hibernate:
-        ddl-auto: update
   mail:
     host: smtp.gmail.com
     port: 587
@@ -26,6 +30,7 @@ spring:
           auth: true
           starttls:
             enable: true
+
 jwt:
   signerKey: "U5IeSrMYMWbhjirxzw/OeuPWRgdWPSGueiQVa8Bn5+VSxDx0vDvH0l4fsl1p2EOk"
   valid-duration: 1 #days
