@@ -9,6 +9,8 @@ namespace Infrastructure.MediatR.Appoinment.Queries;
 public class AppointmentDto
 {
     public Guid AppointmentId { get; set; }
+    public Guid CustomerId { get; set; }
+    public Guid DoctorId { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
     public DateTime Date {  get; set; }

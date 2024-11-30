@@ -30,9 +30,16 @@ public class GetAppointmentHandler : IRequestHandler<GetAppointment, PaginatedLi
         {
             throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
         }
+        var user = await _context.Users.FirstOrDefaultAsync(d => d.UserId == doctor.UserId);
+        if (user == null)
+        {
+            throw new Exception(ErrorCode.USER_NOT_FOUND);
+        }
         var query = _context.Appointments.Where(a => a.DoctorId == doctor.Id)
                               .Select(a => new AppointmentDto
                               {
+                                  DoctorId = user.UserId,
+                                  CustomerId = a.UserId,
                                   AppointmentId = a.AppointmentId,
                                   Title = a.Title,
                                   Description = a.Description,

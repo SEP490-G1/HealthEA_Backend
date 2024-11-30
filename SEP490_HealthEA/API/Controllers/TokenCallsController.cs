@@ -26,9 +26,34 @@ namespace API.Controllers
         {
             var userId = userClaimsService.ClaimId(User);
             var inforCaller = await _context.Users.Where(x => x.UserId == userId).FirstOrDefaultAsync();
-            var test = inforCaller.TokenCall;
             return Ok(inforCaller);
         }
+        [HttpPost("call-info")]
+        public async Task<IActionResult> GetCallerAndCalleeInfo([FromBody] CallInfoRequest request)
+        {
+            var caller = await _context.Users
+                .Where(x => x.UserId == request.CallerID)
+                .FirstOrDefaultAsync();
+
+            var callee = await _context.Users
+                .Where(x => x.UserId == request.CalleeUserId)
+                .FirstOrDefaultAsync();
+
+            if (caller == null || callee == null)
+            {
+                return NotFound("Caller or Callee not found");
+            }
+
+            var result = new
+            {
+                tokenCall = caller.TokenCall,
+                callerId = caller.CallerId,
+                calleeId = callee.CallerId,
+            };
+
+            return Ok(result);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateTokenCall()
         {
