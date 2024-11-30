@@ -49,6 +49,7 @@ namespace API.Controllers
                 tokenCall = caller.TokenCall,
                 callerId = caller.CallerId,
                 calleeId = callee.CallerId,
+                nameCallee = callee.FirstName + " " + callee.LastName,
             };
 
             return Ok(result);

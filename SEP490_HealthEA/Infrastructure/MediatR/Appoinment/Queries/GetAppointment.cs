@@ -40,8 +40,10 @@ public class GetAppointmentHandler : IRequestHandler<GetAppointment, PaginatedLi
                               {
                                   DoctorId = user.UserId,
                                   CustomerId = a.UserId,
+                                  CalleeName = user.FirstName + " "+ user.LastName,
                                   AppointmentId = a.AppointmentId,
                                   Title = a.Title,
+                                  Date = a.Date,
                                   Description = a.Description,
                                   StartTime = a.StartTime,
                                   EndTime = a.EndTime,
