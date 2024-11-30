@@ -2,9 +2,11 @@
 using Infrastructure.MediatR.DeviceToken;
 using Infrastructure.MediatR.Notices;
 using Infrastructure.MediatR.Schedules.Queries;
+using Infrastructure.SQLServer;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -15,15 +17,17 @@ public class NotificationController : ControllerBase
     private readonly IMediator _mediator;
     private readonly FirebaseNotificationService _firebaseService;
     private readonly IUserClaimsService userClaimsService;
+    private readonly SqlDBContext context; //Sorry
 
 
-    public NotificationController(FirebaseNotificationService firebaseService, IMediator mediator, IUserClaimsService userClaimsService)
-    {
-        _firebaseService = firebaseService;
-        _mediator = mediator;
-        this.userClaimsService = userClaimsService;
-    }
-    [HttpGet]
+	public NotificationController(FirebaseNotificationService firebaseService, IMediator mediator, IUserClaimsService userClaimsService, SqlDBContext context)
+	{
+		_firebaseService = firebaseService;
+		_mediator = mediator;
+		this.userClaimsService = userClaimsService;
+		this.context = context;
+	}
+	[HttpGet]
     [Authorize]
     public async Task<IActionResult> GetNotices([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
@@ -40,7 +44,29 @@ public class NotificationController : ControllerBase
         return Ok(notices);
     }
 
-    [HttpPost("test-notice")]
+    [HttpGet("any")]
+    [Authorize]
+    public async Task<IActionResult> GetIfThereAreNewNotices()
+    {
+		var userId = userClaimsService.ClaimId(User);
+        var result = await context.Notices.AnyAsync(x => x.RecipientId == userId && !x.HasViewed);
+        return Ok(new {
+            result
+        });
+	}
+
+	[HttpGet("readAll")]
+	[Authorize]
+	public async Task<IActionResult> MarkNotificationsAsRead()
+	{
+		var userId = userClaimsService.ClaimId(User);
+        var result = await context.Notices
+            .Where(n => n.RecipientId == userId)
+            .ExecuteUpdateAsync(n => n.SetProperty(n => n.HasViewed, n => true));
+		return Ok();
+	}
+
+	[HttpPost("test-notice")]
     public async Task<IActionResult> SendNotification([FromBody] string deviceToken)
     {
         string title = "Thông báo mới!";

@@ -26,14 +26,16 @@ public class GetListNoticeHandler : IRequestHandler<GetListNoticeQuery, Paginate
         cancellationToken.ThrowIfCancellationRequested();
 
         var query = _context.Notices
-            .Where(n => n.UserId == request.UserId)
+            .Where(n => n.RecipientId == request.UserId)
             .Include(n => n.Users)
+            .OrderByDescending(n => n.CreatedAt)
             .Select(n => new NoticeDto
             {
                 NoticeId = n.NoticeId,
                 Message = n.Message,
-                RecipientName = $"{n.Users.FirstName} {n.Users.LastName}",
-                CreatedAt = n.CreatedAt
+                SenderName = $"{n.Users.FirstName} {n.Users.LastName}",
+                CreatedAt = n.CreatedAt,
+                HasViewed = n.HasViewed,
             });
 
         var paginatedNotices = await PaginatedList<NoticeDto>.CreateAsync(

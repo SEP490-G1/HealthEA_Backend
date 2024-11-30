@@ -23,7 +23,7 @@ public class RegisterDeviceTokenHandler : IRequestHandler<RegisterDeviceTokenCom
     public async Task<string> Handle(RegisterDeviceTokenCommand request, CancellationToken cancellationToken)
     {
         var existingToken = await _context.DeviceTokens
-            .FirstOrDefaultAsync(dt => dt.UserId == request.UserId && dt.DeviceToken == request.DeviceToken, cancellationToken);
+            .FirstOrDefaultAsync(dt => dt.DeviceToken == request.DeviceToken, cancellationToken);
 
         if (existingToken == null)
         {
@@ -34,6 +34,11 @@ public class RegisterDeviceTokenHandler : IRequestHandler<RegisterDeviceTokenCom
                 DeviceType = request.DeviceType,
             };
             _context.DeviceTokens.Add(newToken);
+        } else
+        {
+            existingToken.UserId = request.UserId;
+            existingToken.DeviceToken = request.DeviceToken;
+            _context.Update(existingToken);
         }
         await _context.SaveChangesAsync(cancellationToken);
 

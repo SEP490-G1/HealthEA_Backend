@@ -96,7 +96,7 @@ public class FirebaseNotificationService
                 message = new
                 {
                     token = deviceToken,
-                    notification = new
+                    data = new
                     {
                         title = title,
                         body = body

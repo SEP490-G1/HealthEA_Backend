@@ -69,6 +69,7 @@ namespace API.Controllers.Doctor
 			doctor.ClinicAddress = data.ClinicAddress;
 			doctor.ClinicCity = data.ClinicCity;
 			doctor.Specialization = data.Specialization;
+			doctor.HistoryOfWork = data.HistoryOfWork;
 			await repository.UpdateDoctorAsync(doctor);
 			return NoContent();
 		}
@@ -99,6 +100,8 @@ namespace API.Controllers.Doctor
 			doctor.Description = model.Description;
 			doctor.ClinicCity = model.ClinicCity;
 			doctor.ClinicAddress = model.ClinicAddress;
+			doctor.Specialization = model.Specialization;
+			doctor.HistoryOfWork = model.HistoryOfWork;
 			await repository.UpdateDoctorAsync(doctor);
 			return NoContent();
 		}
