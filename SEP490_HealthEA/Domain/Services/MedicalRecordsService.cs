@@ -481,7 +481,7 @@ namespace Domain.Services
             {
                 var res = _repository.CreateDocumentProfile(doc);
                 var itemNew = _HealprofileMapper.Map<DocumentProfileDTO>(doc);
-                result.data = doc;
+                result.data = itemNew;
             }
             catch (Exception ex)
             {
@@ -536,8 +536,8 @@ namespace Domain.Services
             Guid idUser = claimId(claims);
             if (doc.UserId == idUser)
             {
-
-                result.data = doc;
+                var psaas = _HealprofileMapper.Map<DocumentProfileDTO>(doc); 
+                result.data = psaas;
                 return result;
             }
             if (doc.HealthProfile == null)
@@ -555,7 +555,9 @@ namespace Domain.Services
             result.devMsg = checkRole(role, a) ? result.devMsg : DevMsg.GetError;
             result.userMsg = checkRole(role, a) ? result.userMsg : UserMsg.GetErr;
             result.statusCode = checkRole(role, a) ? result.statusCode : HttpStatusCode.Unauthorized;
-            result.data = doc;
+
+            var pss = _HealprofileMapper.Map<DocumentProfileDTO>(doc);
+            result.data = pss;
             return result;
 
         }
