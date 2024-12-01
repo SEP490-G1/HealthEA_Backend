@@ -18,13 +18,15 @@ namespace API.Controllers.Customer
 		private readonly IUserClaimsService userClaimsService;
 
 		private readonly IDoctorRepository doctorRepository;
+		private readonly INewsRepository newsRepository;
 
-		public UserReportController(IMapper mapper, IUserReportRepository repository, IUserClaimsService userClaimsService, IDoctorRepository doctorRepository)
+		public UserReportController(IMapper mapper, IUserReportRepository repository, IUserClaimsService userClaimsService, IDoctorRepository doctorRepository, INewsRepository newsRepository)
 		{
 			this.mapper = mapper;
 			this.repository = repository;
 			this.userClaimsService = userClaimsService;
 			this.doctorRepository = doctorRepository;
+			this.newsRepository = newsRepository;
 		}
 
 		[HttpGet("{id}")]
@@ -42,6 +44,14 @@ namespace API.Controllers.Customer
 				{
 					model.Reported = new ReportedObjectDto();
 					model.Reported.Name = obj.DisplayName;
+				}
+			} else if (model.ReportType == "news")
+			{
+				var obj = await newsRepository.GetByIdAsync(model.ReportedId);
+				if (obj != null)
+				{
+					model.Reported = new ReportedObjectDto();
+					model.Reported.Name = obj.Title;
 				}
 			}
 			return Ok(model);
