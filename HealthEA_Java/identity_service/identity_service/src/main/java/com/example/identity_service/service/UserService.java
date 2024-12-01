@@ -80,6 +80,7 @@ public class UserService {
         user.setDob(request.getDob());
         user.setGender(request.getGender());
         user.setPhone(request.getPhone());
+        user.setAvatar(request.getAvatar());
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
