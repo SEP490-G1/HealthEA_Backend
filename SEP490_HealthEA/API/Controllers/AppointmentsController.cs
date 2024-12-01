@@ -35,6 +35,14 @@ public class AppointmentsController : ControllerBase
         query.UserId = userId;
         return await _mediator.Send(query, cancellationToken);
     }
+    [HttpGet("customer")]
+    [Authorize(Roles = "CUSTOMER")]
+    public async Task<ActionResult<PaginatedList<AppointmentDto>>> GetAppointmentWithPaginationByCustomer([FromQuery] GetAppointmentByCustomer query, CancellationToken cancellationToken)
+    {
+        var userId = userClaimsService.ClaimId(User);
+        query.UserId = userId;
+        return await _mediator.Send(query, cancellationToken);
+    }
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetAppointmentsByUserId(Guid userId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {

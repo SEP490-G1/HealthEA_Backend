@@ -3,6 +3,7 @@ using Domain.Models.Entities;
 using Infrastructure.MediatR.Events.Queries;
 using Infrastructure.SQLServer;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.MediatR.Events.Commands.CreateEvent;
 
@@ -36,18 +37,42 @@ public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Gui
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        DateTime reminderDateTime = request.EventDateTime.Date.Add(request.StartTime);
-        int interval = request.RepeatInterval > 0 ? request.RepeatInterval : 1;
-        Guid originalEventId = Guid.NewGuid();
-        if(reminderDateTime> request.RepeatEndDate)
+        DateTime reminderDateTime = request.EventDateTime.Date.Add(request.StartTime); 
+        DateTime reminderEndDateTime = request.RepeatEndDate.Date.Add(request.EndTime); 
+        int interval = request.RepeatInterval > 0 ? request.RepeatInterval : 1; 
+        Guid originalEventId = Guid.NewGuid(); 
+
+        if (reminderDateTime > request.RepeatEndDate)
         {
-            throw new Exception("ReminDateTime phai nho hon RepeatEndDate");
+            throw new Exception("RemindDateTime phải nhỏ hơn RepeatEndDate");
         }
-        while (reminderDateTime <= request.RepeatEndDate)
+
+        if (request.StartTime > request.EndTime)
         {
+            throw new Exception("StartTime phải nhỏ hơn EndTime");
+        }
+
+        while (reminderDateTime <= reminderEndDateTime)
+        {
+            var existingEvent = await _context.Events
+                .Where(e => e.EventDateTime == reminderDateTime && e.StartTime == request.StartTime && e.EndTime == request.EndTime)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (existingEvent != null)
+            {
+                reminderDateTime = request.RepeatFrequency switch
+                {
+                    EventDailyConstants.Daily => reminderDateTime.AddDays(interval),
+                    EventDailyConstants.Weekly => reminderDateTime.AddDays(7 * interval),
+                    EventDailyConstants.Monthly => reminderDateTime.AddMonths(interval),
+                    EventDailyConstants.Yearly => reminderDateTime.AddYears(interval),
+                    _ => request.RepeatEndDate.AddDays(1) 
+                };
+                continue;
+            }
+
             var eventEntity = new Event
             {
-                //UserId = request.UserId,
                 EventId = Guid.NewGuid(),
                 OriginalEventId = originalEventId,
                 Title = request.Title,
