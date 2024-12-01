@@ -64,9 +64,9 @@ namespace Domain.Models.Entities
         /// </summary>
         public string Username { get; set; } = null!;
         [Column("tokencall")]
-        public string TokenCall { get; set; } = null!;
+        public string? TokenCall { get; set; } = null!;
         [Column("callerid")]
-        public string CallerId { get; set; } = null!;
+        public string? CallerId { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the associated doctor for this entity.
