@@ -47,12 +47,12 @@ namespace Domain.Models.Entities
 		/// <summary>
 		/// Gets or sets the address of the doctor's clinic.
 		/// </summary>
-		public string ClinicAddress { get; set; }
+		public string? ClinicAddress { get; set; }
 
 		/// <summary>
 		/// Gets or sets the city where the doctor's clinic is located.
 		/// </summary>
-		public string ClinicCity { get; set; }
+		public string? ClinicCity { get; set; }
 
 		/// <summary>
 		/// Gets or sets the doctor's specialization field.
@@ -60,7 +60,7 @@ namespace Domain.Models.Entities
 		/// <remarks>
 		/// This property indicates the area of expertise.
 		/// </remarks>
-		public string Specialization { get; set; }
+		public string? Specialization { get; set; }
 
 		/// <summary>
 		/// Gets or sets the number of appointments the doctor has handled.
@@ -85,6 +85,6 @@ namespace Domain.Models.Entities
 		/// This property contains details about the doctor's past experience, roles, and achievements.
 		/// Ensure the JSON is well-formed and adheres to the expected schema.
 		/// </remarks>
-		public string HistoryOfWork { get; set; } //json
+		public string? HistoryOfWork { get; set; } //json
 	}
 }
