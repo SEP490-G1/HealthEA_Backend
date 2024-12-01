@@ -89,8 +89,9 @@ namespace Infrastructure.Repositories
                 }
             }
             string? role = _context.Users.FirstOrDefault(x => x.UserId == id).Role;
-            // nếu không phải admin
-            if (role != "ADMIN")
+			// nếu không phải admin
+			// If the document belongs to you then ignore the check
+			if (role != "ADMIN" && (HealthProfile.UserId == PantientId))
             {
                 if(role == "DOCTOR" && HealthProfile.SharedStatus < 1)
                 {
