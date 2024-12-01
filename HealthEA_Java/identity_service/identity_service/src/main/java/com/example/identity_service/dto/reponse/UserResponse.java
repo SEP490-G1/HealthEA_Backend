@@ -23,4 +23,6 @@ public class UserResponse {
     Boolean gender;
     Role role;
     Status status;
+    private String avatar;
+
 }

@@ -17,18 +17,16 @@ import java.time.LocalDate;
 public class UserCreationRequest {
     @Size(min = 4, message = "USERNAME_INVALID")
     String username;
-
     @Size(min = 8, message = "PASSWORD_INVALID")
     String password;
-
     String email;
     String firstName;
     String lastName;
     String phone;
-
     @DobContraints(min = 18, message = "DOB_INVALID")
     LocalDate dob;
     Boolean gender;
     Role role;
     Status status;
+    String avatar;
 }
