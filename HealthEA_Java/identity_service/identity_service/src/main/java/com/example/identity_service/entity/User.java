@@ -19,7 +19,7 @@ import java.util.UUID;
 @Table(name = "[user]")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+//    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id", columnDefinition = "uniqueidentifier")
     String id;
     @Column(name = "username", nullable = false, unique = true)
