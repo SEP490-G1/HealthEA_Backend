@@ -1,5 +1,7 @@
 ﻿using Domain.Interfaces.IRepositories;
+using Domain.Models.Entities;
 using Infrastructure.SQLServer;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +26,11 @@ namespace Infrastructure.Repositories
                 return Guid.Empty;
             }
             return userId.UserId;
+        }
+
+        public async Task<User?> GetUserByIdAsync(Guid userId)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
         }
     }
 }
