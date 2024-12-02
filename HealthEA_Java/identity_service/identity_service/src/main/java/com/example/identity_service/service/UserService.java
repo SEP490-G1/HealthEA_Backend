@@ -58,7 +58,7 @@ public class UserService {
         if(user.getRole().equals(Role.DOCTOR)){
             Doctor doctor = new Doctor();
             doctor.setUserId(userResponse.getId());
-            doctor.setDisplayName(userResponse.getFirstName() + userResponse.getLastName());
+            doctor.setDisplayName(userResponse.getFirstName() + " " + userResponse.getLastName());
             doctorReposity.save(doctor);
         }
 
