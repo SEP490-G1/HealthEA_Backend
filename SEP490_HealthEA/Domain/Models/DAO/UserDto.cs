@@ -18,5 +18,6 @@ namespace Domain.Models.DAO
 		public string? Role { get; set; }
 		public string? Status { get; set; }
 		public string Username { get; set; } = null!;
+		public string? Avatar { get; set; } = null!;
 	}
 }
