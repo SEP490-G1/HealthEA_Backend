@@ -4,12 +4,14 @@ import com.example.identity_service.dto.reponse.UserResponse;
 import com.example.identity_service.dto.request.ChangePassRequest;
 import com.example.identity_service.dto.request.UserCreationRequest;
 import com.example.identity_service.dto.request.UserUpdateRequest;
+import com.example.identity_service.entity.Doctor;
 import com.example.identity_service.entity.User;
 import com.example.identity_service.enums.Role;
 import com.example.identity_service.enums.Status;
 import com.example.identity_service.exception.AppException;
 import com.example.identity_service.exception.ErrorCode;
 import com.example.identity_service.mapper.UserMapper;
+import com.example.identity_service.repository.DoctorReposity;
 import com.example.identity_service.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
+    DoctorReposity doctorReposity;
 
     public UserResponse createRequest(UserCreationRequest request){
         log.info("Service: Create user: " + request);
@@ -43,10 +46,21 @@ public class UserService {
             }
 
             request.setPassword(passwordEncoder.encode(request.getPassword()));
-            request.setRole(Role.CUSTOMER);
-            request.setStatus(Status.INACTIVE);
+            if(request.getRole().describeConstable().isEmpty()){
+                request.setRole(Role.CUSTOMER);
+            }
+            if(request.getStatus().describeConstable().isEmpty()){
+                request.setStatus(Status.INACTIVE);
+            }
 
             User user = userMapper.toUser(request);
+
+            if(user.getRole().equals(Role.DOCTOR)){
+                Doctor doctor = new Doctor();
+                doctor.setUserId(user.getId());
+                doctor.setDisplayName(user.getFirstName() + user.getLastName());
+                doctorReposity.save(doctor);
+            }
 
             return userMapper.toUserResponse(userRepository.save(user));
     }
