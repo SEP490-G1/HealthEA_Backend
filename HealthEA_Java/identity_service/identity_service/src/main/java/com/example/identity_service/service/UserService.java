@@ -46,23 +46,23 @@ public class UserService {
         }
 
         request.setPassword(passwordEncoder.encode(request.getPassword()));
-        if(request.getRole().describeConstable().isEmpty()){
+        if(request.getRole() == null){
             request.setRole(Role.CUSTOMER);
         }
-        if(request.getStatus().describeConstable().isEmpty()){
-            request.setStatus(Status.INACTIVE);
-        }
+        request.setStatus(Status.INACTIVE);
 
         User user = userMapper.toUser(request);
 
+        UserResponse userResponse = userMapper.toUserResponse(userRepository.save(user));
+
         if(user.getRole().equals(Role.DOCTOR)){
             Doctor doctor = new Doctor();
-            doctor.setUserId(user.getId());
-            doctor.setDisplayName(user.getFirstName() + user.getLastName());
+            doctor.setUserId(userResponse.getId());
+            doctor.setDisplayName(userResponse.getFirstName() + userResponse.getLastName());
             doctorReposity.save(doctor);
         }
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        return userResponse;
     }
 
     //    @PreAuthorize("hasRole('ADMIN')") //có role admin mới vào hàm này

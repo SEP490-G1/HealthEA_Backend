@@ -16,7 +16,7 @@ import java.util.UUID;
 public class Doctor {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+//    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "Id", columnDefinition = "uniqueidentifier")
     private String id;
 
@@ -51,4 +51,11 @@ public class Doctor {
     @Lob
     @Column(name = "Specialization")
     private String specialization;
+
+    @PrePersist
+    public void generateId() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();  // Tạo UUID mới nếu chưa có
+        }
+    }
 }
