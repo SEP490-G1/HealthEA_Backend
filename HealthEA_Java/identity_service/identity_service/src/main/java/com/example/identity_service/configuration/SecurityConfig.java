@@ -42,7 +42,7 @@ public class SecurityConfig {
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedOrigin("http://localhost:5173/");
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
 
@@ -78,7 +78,7 @@ public class SecurityConfig {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedOrigin("http://localhost:5173/");
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
@@ -96,16 +96,6 @@ public class SecurityConfig {
 
         return jwtAuthenticationConverter;
     }
-
-//    @Bean
-//    //Research lại về hàm
-//    JwtDecoder jwtDecoder(){
-//        SecretKeySpec secretKeySpec = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
-//        return NimbusJwtDecoder
-//               .withSecretKey(secretKeySpec)
-//               .macAlgorithm(MacAlgorithm.HS512)
-//               .build();
-//    };
 
     @Bean
     PasswordEncoder passwordEncoder(){

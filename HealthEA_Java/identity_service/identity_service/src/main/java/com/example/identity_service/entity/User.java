@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -18,7 +19,7 @@ import java.time.LocalDate;
 @Table(name = "[user]")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id", columnDefinition = "uniqueidentifier")
     String id;
     @Column(name = "username", nullable = false, unique = true)
@@ -43,4 +44,13 @@ public class User {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     Status status;
+    @Column(name = "avatar")
+    String avatar;
+
+    @PrePersist
+    public void generateId() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID().toString();  // Tạo UUID mới nếu chưa có
+        }
+    }
 }

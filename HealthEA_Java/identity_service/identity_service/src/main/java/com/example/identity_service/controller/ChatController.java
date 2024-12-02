@@ -25,27 +25,13 @@ import java.util.List;
 
 public class ChatController {
 
-    private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
     private final DailyMetricsService dailyMetricsService;
 
-    public ChatController(SimpMessagingTemplate messagingTemplate, ChatService chatService, DailyMetricsService dailyMetricsService) {
-        this.messagingTemplate = messagingTemplate;
+    public ChatController( ChatService chatService, DailyMetricsService dailyMetricsService) {
         this.chatService = chatService;
         this.dailyMetricsService = dailyMetricsService;
     }
-
-//    @MessageMapping("/sendMessage")
-//    public void handleMessage(String userId) throws Exception {
-//        // Truy xuất thông tin metrics gần nhất
-//        var latestMetrics = dailyMetricsService.getLatestDailyMetrics(userId);
-//
-//        // Lấy lời khuyên từ AI dựa trên dữ liệu metrics
-//        String advice = chatService.getDailyMetricsAdvice(latestMetrics, "Tinh trang suc khoe dang nhu vao", "vi");
-//
-//        // Gửi lời khuyên tới client qua WebSocket
-//        messagingTemplate.convertAndSend("/topic/public", advice);
-//    }
 
     @PostMapping("/getAiResponse")
     public ApiResponse<String> sendQuestion(@RequestBody String question) throws Exception {

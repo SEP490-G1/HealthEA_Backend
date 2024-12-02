@@ -26,4 +26,5 @@ public class UserUpdateRequest {
     Boolean gender;
     Role role;
     Status status;
+    String avatar;
 }
