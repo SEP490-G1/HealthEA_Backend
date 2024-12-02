@@ -68,7 +68,7 @@ namespace Domain.Models.Entities
 		/// <remarks>
 		/// Defaults to <c>0</c> if no appointments have been recorded.
 		/// </remarks>
-		public int NumberOfAppointments { get; set; } = 0;
+		public int? NumberOfAppointments { get; set; } = 0;
 
 		/// <summary>
 		/// Gets or sets the number of video calls the doctor has conducted.
@@ -76,7 +76,7 @@ namespace Domain.Models.Entities
 		/// <remarks>
 		/// Defaults to <c>0</c> if no video calls have been recorded.
 		/// </remarks>
-		public int NumberOfVideoCalls { get; set; } = 0;
+		public int? NumberOfVideoCalls { get; set; } = 0;
 
 		 /// <summary>
 		/// Gets or sets the history of the doctor's work in JSON format.
