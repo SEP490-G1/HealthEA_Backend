@@ -13,11 +13,11 @@ namespace Domain.Models.DAO.Doctor
 		public Guid UserId { get; set; }
 		public string DisplayName { get; set; }
 		public string? Description { get; set; }
-		public string Specialization { get; set; }
-		public string ClinicAddress { get; set; }
-		public string ClinicCity { get; set; }
-		public int NumberOfAppointments { get; set; } = 0;
-		public int NumberOfVideoCalls { get; set; } = 0;
+		public string? Specialization { get; set; }
+		public string? ClinicAddress { get; set; }
+		public string? ClinicCity { get; set; }
+		public int? NumberOfAppointments { get; set; } = 0;
+		public int? NumberOfVideoCalls { get; set; } = 0;
 		public string HistoryOfWork { get; set; } //json
 		public UserDto? User { get; set; }
 	}
