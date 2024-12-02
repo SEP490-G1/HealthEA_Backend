@@ -1,5 +1,7 @@
+using Domain.Interfaces;
 using Domain.Interfaces.IRepositories;
 using Domain.Models.Entities;
+using Infrastructure.Services;
 using Infrastructure.SQLServer;
 using Microsoft.EntityFrameworkCore;
 using System;
