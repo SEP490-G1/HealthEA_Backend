@@ -15,7 +15,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 namespace API.Controllers;
 
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Roles = "DOCTOR,CUSTOMER")]
 [ApiController]
 public class AppointmentsController : ControllerBase
 {
@@ -28,7 +28,7 @@ public class AppointmentsController : ControllerBase
         this.userClaimsService = userClaimsService;
     }
 	[HttpGet]
-    [Authorize(Roles = "DOCTOR")]
+    [Authorize]
     public async Task<ActionResult<PaginatedList<AppointmentDto>>> GetAppointmentWithPagination([FromQuery] GetAppointment query, CancellationToken cancellationToken)
     {
         var userId = userClaimsService.ClaimId(User);

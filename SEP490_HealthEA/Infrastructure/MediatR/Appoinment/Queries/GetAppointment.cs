@@ -25,22 +25,22 @@ public class GetAppointmentHandler : IRequestHandler<GetAppointment, PaginatedLi
     public async Task<PaginatedList<AppointmentDto>> Handle(GetAppointment request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var doctor =await _context.Doctors.FirstOrDefaultAsync(d => d.UserId == request.UserId);
+        var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.UserId == request.UserId);
+        var user = await _context.Users.FirstOrDefaultAsync(d => d.UserId == doctor.UserId);
         if (doctor == null)
         {
-            throw new Exception(ErrorCode.DOCTOR_NOT_FOUND);
+            if (user == null)
+            {
+                throw new Exception(ErrorCode.USER_NOT_FOUND);
+            }
         }
-        var user = await _context.Users.FirstOrDefaultAsync(d => d.UserId == doctor.UserId);
-        if (user == null)
-        {
-            throw new Exception(ErrorCode.USER_NOT_FOUND);
-        }
+
         var query = _context.Appointments.Where(a => a.DoctorId == doctor.Id)
                               .Select(a => new AppointmentDto
                               {
                                   DoctorId = user.UserId,
                                   CustomerId = a.UserId,
-                                  CalleeName = user.FirstName + " "+ user.LastName,
+                                  CalleeName = user.FirstName + " " + user.LastName,
                                   AppointmentId = a.AppointmentId,
                                   Title = a.Title,
                                   Date = a.Date,
