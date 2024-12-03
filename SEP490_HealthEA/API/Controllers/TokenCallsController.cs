@@ -35,8 +35,11 @@ namespace API.Controllers
                 .Where(x => x.UserId == request.CallerID)
                 .FirstOrDefaultAsync();
 
+            var doctor = await _context.Doctors
+                .Where(x => x.Id == request.CalleeUserId)
+                .FirstOrDefaultAsync();
             var callee = await _context.Users
-                .Where(x => x.UserId == request.CalleeUserId)
+                .Where(x => x.UserId == doctor.UserId)
                 .FirstOrDefaultAsync();
 
             if (caller == null || callee == null)
@@ -54,7 +57,35 @@ namespace API.Controllers
 
             return Ok(result);
         }
+        [HttpPost("doctor-call")]
+        public async Task<IActionResult> DoctorCall([FromBody] CallInfoRequest request)
+        {
+            var caller = await _context.Users
+                .Where(x => x.UserId == request.CallerID)
+                .FirstOrDefaultAsync();
 
+            var doctor = await _context.Doctors
+                .Where(x => x.UserId == request.CalleeUserId)
+                .FirstOrDefaultAsync();
+            var callee = await _context.Users
+                .Where(x => x.UserId == doctor.UserId)
+                .FirstOrDefaultAsync();
+
+            if (caller == null || callee == null)
+            {
+                return NotFound("Caller or Callee not found");
+            }
+
+            var result = new
+            {
+                tokenCall = caller.TokenCall,
+                callerId = caller.CallerId,
+                calleeId = callee.CallerId,
+                nameCallee = caller.FirstName + " " + caller.LastName,
+            };
+
+            return Ok(result);
+        }
         [HttpPost]
         public async Task<IActionResult> CreateTokenCall()
         {
@@ -68,8 +99,8 @@ namespace API.Controllers
             {
                 var user = new User
                 {
-                    TokenCall = calls.TokenCall, 
-                    CallerId = calls.CallerId    
+                    TokenCall = calls.TokenCall,
+                    CallerId = calls.CallerId
                 };
 
                 _context.Users.Add(user);
