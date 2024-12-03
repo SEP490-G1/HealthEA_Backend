@@ -161,7 +161,7 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent
                 EventDailyConstants.Weekly => currentDateTime.AddDays(7 * repeatInterval),
                 EventDailyConstants.Monthly => currentDateTime.AddMonths(repeatInterval),
                 EventDailyConstants.Yearly => currentDateTime.AddYears(repeatInterval),
-                _ => currentDateTime 
+                _ => currentDateTime
             };
         }
 

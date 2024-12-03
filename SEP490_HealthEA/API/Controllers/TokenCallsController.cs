@@ -99,8 +99,8 @@ namespace API.Controllers
             {
                 var user = new User
                 {
-                    TokenCall = calls.TokenCall, 
-                    CallerId = calls.CallerId    
+                    TokenCall = calls.TokenCall,
+                    CallerId = calls.CallerId
                 };
 
                 _context.Users.Add(user);
