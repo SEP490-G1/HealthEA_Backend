@@ -38,7 +38,6 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // Fetch all events matching either the EventId or the OriginalEventId
             var eventEntities = await _context.Events
                 .Include(e => e.Reminders)
                 .Where(e => e.EventId == request.EventId || e.OriginalEventId == request.OriginalEventId)
@@ -47,7 +46,6 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent
             if (!eventEntities.Any())
                 throw new Exception(ErrorCode.EVENT_NOT_FOUND);
 
-            // Check user access
             var userEvents = await _context.UserEvents
                 .Where(ue => ue.EventId == request.EventId && ue.UserId == request.UserId)
                 .ToListAsync(cancellationToken);
@@ -57,7 +55,6 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent
 
             var originalEvent = eventEntities.FirstOrDefault(e => e.EventId == request.EventId) ?? eventEntities.First();
 
-            // Update event details
             originalEvent.Title = request.Title ?? originalEvent.Title;
             originalEvent.Description = request.Description ?? originalEvent.Description;
             originalEvent.EventDateTime = request.EventDateTime?.Date ?? originalEvent.EventDateTime;
@@ -69,7 +66,6 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent
             originalEvent.RepeatInterval = request.RepeatInterval ?? originalEvent.RepeatInterval;
             originalEvent.RepeatEndDate = request.RepeatEndDate ?? originalEvent.RepeatEndDate;
 
-            // Remove old events, user-events and reminders
             var eventIdsToDelete = eventEntities.Select(e => e.EventId).ToList();
             var userEventsToDelete = await _context.UserEvents
                 .Where(ue => eventIdsToDelete.Contains(ue.EventId))
@@ -79,7 +75,6 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent
             _context.UserEvents.RemoveRange(userEventsToDelete);
             _context.Events.RemoveRange(eventEntities.Where(e => e.OriginalEventId == request.OriginalEventId));
 
-            // Check for time validity
             DateTime reminderDateTime = originalEvent.EventDateTime.Date.Add(originalEvent.StartTime);
             DateTime reminderEndDateTime = originalEvent.RepeatEndDate.Date.Add(originalEvent.EndTime);
             int interval = originalEvent.RepeatInterval > 0 ? originalEvent.RepeatInterval : 1;
@@ -90,22 +85,18 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent
             if (originalEvent.StartTime > originalEvent.EndTime)
                 throw new Exception("StartTime phải nhỏ hơn EndTime");
 
-            // Generate new events based on repeat frequency
             while (reminderDateTime <= reminderEndDateTime)
             {
-                // Check if an event with the same time already exists
                 var existingEvent = await _context.Events
                     .Where(e => e.EventDateTime == reminderDateTime && e.StartTime == request.StartTime && e.EndTime == request.EndTime)
                     .FirstOrDefaultAsync(cancellationToken);
 
                 if (existingEvent != null)
                 {
-                    // If event exists, skip to the next time slot
                     reminderDateTime = GetNextEventDateTime(reminderDateTime, request.RepeatFrequency, interval);
                     continue;
                 }
 
-                // Create new event clone
                 var eventClone = new Event
                 {
                     EventId = Guid.NewGuid(),
@@ -125,7 +116,6 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent
 
                 await _context.Events.AddAsync(eventClone, cancellationToken);
 
-                // Create user event link
                 var userEvent = new UserEvent
                 {
                     UserEventId = Guid.NewGuid(),
@@ -137,7 +127,6 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent
 
                 await _context.UserEvents.AddAsync(userEvent, cancellationToken);
 
-                // Create reminders for the new event
                 foreach (var reminderOffsetDto in request.ReminderOffsets)
                 {
                     var reminderTime = CalculateReminderTime(reminderDateTime, reminderOffsetDto);
@@ -156,17 +145,14 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent
                     await _context.Reminders.AddAsync(reminder, cancellationToken);
                 }
 
-                // Update the reminder date time for the next iteration
                 reminderDateTime = GetNextEventDateTime(reminderDateTime, originalEvent.RepeatFrequency, originalEvent.RepeatInterval);
             }
 
-            // Save changes to the database
             await _context.SaveChangesAsync(cancellationToken);
 
             return originalEvent.OriginalEventId;
         }
 
-        // Calculate next event time based on frequency
         private DateTime GetNextEventDateTime(DateTime currentDateTime, EventDailyConstants? repeatFrequency, int repeatInterval)
         {
             return repeatFrequency switch
@@ -175,11 +161,10 @@ namespace Infrastructure.MediatR.Events.Commands.UpdateEvent
                 EventDailyConstants.Weekly => currentDateTime.AddDays(7 * repeatInterval),
                 EventDailyConstants.Monthly => currentDateTime.AddMonths(repeatInterval),
                 EventDailyConstants.Yearly => currentDateTime.AddYears(repeatInterval),
-                _ => currentDateTime // No repeat or invalid repeat frequency
+                _ => currentDateTime 
             };
         }
 
-        // Calculate reminder time based on offset
         private DateTime CalculateReminderTime(DateTime eventDateTime, ReminderOffsetDto reminderOffsetDto)
         {
             return reminderOffsetDto.OffsetUnit switch
