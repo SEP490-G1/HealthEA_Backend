@@ -42,7 +42,7 @@ public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Gui
         int interval = request.RepeatInterval > 0 ? request.RepeatInterval : 1; 
         Guid originalEventId = Guid.NewGuid(); 
 
-        if (reminderDateTime > request.RepeatEndDate)
+        if (reminderDateTime > reminderEndDateTime)
         {
             throw new Exception("RemindDateTime phải nhỏ hơn RepeatEndDate");
         }
