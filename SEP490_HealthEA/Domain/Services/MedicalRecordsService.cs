@@ -248,6 +248,7 @@ namespace Domain.Services
                 };
             }
             //create new Data
+            var time = DateTime.UtcNow.AddHours(7);
 #pragma warning disable CS8601 // Possible null reference assignment.
             HealthProfile p = new HealthProfile
             {
@@ -260,8 +261,8 @@ namespace Domain.Services
                 Residence = profile.Residence,
                 Note = profile.Note,
                 SharedStatus = 0,
-                CreateDate = DateTime.Now,
-                LastModifyDate = DateTime.Now,
+                CreateDate = DateTime.UtcNow.AddHours(7),
+                LastModifyDate = DateTime.UtcNow.AddHours(7),
 
             };
 #pragma warning restore CS8601 // Possible null reference assignment.
