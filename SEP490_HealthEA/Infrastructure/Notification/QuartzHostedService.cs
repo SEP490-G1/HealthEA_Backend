@@ -35,16 +35,10 @@
 //        }
 //    }
 //}
-using Infrastructure.Services;
-using Infrastructure.SQLServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Quartz;
-using System;
 using System.Globalization;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Notification
 {
@@ -64,11 +58,9 @@ namespace Infrastructure.Notification
         {
             try
             {
-                // Lấy scheduler và bắt đầu
                 _scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
                 await _scheduler.Start(cancellationToken);
 
-                // Tạo các trigger cho job
                 await CreateTriggers(cancellationToken);
             }
             catch (Exception ex)
@@ -81,20 +73,16 @@ namespace Infrastructure.Notification
         {
             using (var scope = _scopeFactory.CreateScope())
             {
-                // Lấy ReminderService từ scope
                 var reminderService = scope.ServiceProvider.GetRequiredService<ReminderService>();
 
-                // Lấy tất cả các thời gian reminder từ cơ sở dữ liệu
                 var reminderTimes = reminderService.GetReminderTimes();
 
                 var jobKey = new JobKey("reminderJob");
 
-                // Tạo job cho ReminderJob
                 var jobDetail = JobBuilder.Create<ReminderJob>()
                     .WithIdentity(jobKey)
                     .Build();
 
-                // Tạo trigger cho từng thời gian reminder
                 foreach (var reminderTime in reminderTimes)
                 {
                     string cronExpression = $"0 {reminderTime.Minute} {reminderTime.Hour} * * ?";
@@ -106,7 +94,6 @@ namespace Infrastructure.Notification
                         .WithCronSchedule(cronExpression)
                         .Build();
 
-                    // Đăng ký trigger vào scheduler
                     await _scheduler.ScheduleJob(trigger, cancellationToken);
                 }
             }

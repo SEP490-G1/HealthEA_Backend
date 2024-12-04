@@ -17,7 +17,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Quartz;
-using System.Globalization;
 using System.Reflection;
 using System.Text;
 
@@ -120,20 +119,17 @@ builder.Services.AddScoped<EmailService>();
 //});
 builder.Services.AddQuartz(q =>
 {
-    q.UseMicrosoftDependencyInjectionJobFactory();  // Dùng DI container của Microsoft cho Quartz
+    q.UseMicrosoftDependencyInjectionJobFactory();  
 
-    // Cấu hình job ReminderJob
     var jobKey = new JobKey("reminderJob");
     q.AddJob<ReminderJob>(opts => opts.WithIdentity(jobKey));
 
-    // Đảm bảo scope để lấy ReminderService
     q.AddTrigger(opts =>
     {
-        // Tạo scope để lấy ReminderService
         opts
             .ForJob(jobKey)
             .WithIdentity("reminderTrigger")
-            .WithCronSchedule("0/5 * * * * ?"); // ví dụ Cron expression, tùy chỉnh theo logic của bạn
+            .WithCronSchedule("0/5 * * * * ?");
     });
 });
 
