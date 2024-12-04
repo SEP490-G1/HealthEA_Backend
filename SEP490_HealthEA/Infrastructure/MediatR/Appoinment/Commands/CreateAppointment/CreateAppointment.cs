@@ -150,15 +150,13 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
                 Console.WriteLine($"Error sending emails: {ex.Message}");
             }
         });
-
-        emailThread.Start();
+		await _context.SaveChangesAsync(cancellationToken);
+		emailThread.Start();
         Thread.Sleep(100);
         firebaseThread.Start();
         Thread.Sleep(100);
         //emailThread.Join();
         //firebaseThread.Join();
-        await _context.SaveChangesAsync(cancellationToken);
-
         return appointment.AppointmentId;
     }
     private async Task SendFirebaseNotificationsAsync(User user, User doctor)
