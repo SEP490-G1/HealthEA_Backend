@@ -96,7 +96,12 @@ namespace Infrastructure.Services
                     Console.WriteLine("No users found for the specified reminder time.");
                     return;
                 }
-
+                var reminder = _context.Reminders.FirstOrDefault(r => r.ReminderId == reminderId);
+                if (reminder.IsSent)
+                {
+                    Console.WriteLine("This reminder has already been sent.");
+                    return;
+                }
                 using (var smtpClient = new SmtpClient(_emailSettings.SmtpHost, _emailSettings.SmtpPort))
                 {
                     smtpClient.Credentials = new NetworkCredential(_emailSettings.SenderEmail, _emailSettings.SenderPassword);

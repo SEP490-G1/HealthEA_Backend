@@ -79,7 +79,8 @@ public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Gui
                     OffsetUnit = r.OffsetUnit,
                     ReminderTime = reminderTime,
                     ReminderOffset = r.OffsetValue,
-                    Message = $"Reminder for event: {eventEntity.Title}"
+                    IsSent = false,
+                Message = $"Reminder for event: {eventEntity.Title}"
                 };
             }).ToList();
 

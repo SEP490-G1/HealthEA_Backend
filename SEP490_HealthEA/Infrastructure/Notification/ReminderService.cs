@@ -17,14 +17,3 @@ public class ReminderService
         return reminderTimes;
     }
 }
-//var reminderTimes = new List<DateTime>
-//{
-//    DateTime.Today.AddHours(10).AddMinutes(57),
-//    DateTime.Today.AddHours(10).AddMinutes(58),
-//    DateTime.Today.AddHours(09).AddMinutes(07),
-//    DateTime.Today.AddHours(09).AddMinutes(08),
-//    DateTime.Today.AddHours(09).AddMinutes(11),
-//    DateTime.Today.AddHours(09).AddMinutes(18),
-//    DateTime.Today.AddHours(09).AddMinutes(19),
-//    DateTime.Today.AddHours(09).AddMinutes(07)
-//};

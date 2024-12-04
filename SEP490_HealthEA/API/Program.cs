@@ -1,31 +1,25 @@
 ﻿
 using API.Middlewares;
+using Domain.Interfaces;
 using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
+using Domain.Mappings;
 using Domain.Services;
+using Infrastructure.MediatR.Events.Commands.CreateEvent;
+using Infrastructure.Notification;
 using Infrastructure.Repositories;
-using Domain.Common;
-using Domain.Interfaces;
+using Infrastructure.Services;
+using Infrastructure.Services.Ocr;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
-using System;
-using System.Text;
-using Infrastructure.Services.Ocr;
-using Infrastructure.Services;
-using System.Reflection;
-using Infrastructure.MediatR.Events.Commands.CreateEvent;
-using Domain.Mappings;
-using Infrastructure.Notification;
 using Quartz;
 using System.Globalization;
-using Infrastructure.MediatR.Notices;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.DependencyInjection;
-using Infrastructure.MediatR.Appoinment.Commands.CreateAppointment;
+using System.Reflection;
+using System.Text;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -96,35 +90,68 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 builder.Services.AddScoped<EmailService>();
 
 
+//builder.Services.AddQuartz(q =>
+//{
+//    q.UseMicrosoftDependencyInjectionJobFactory();
+
+//    var jobKey = new JobKey("reminderJob");
+//    q.AddJob<ReminderJob>(opts => opts.WithIdentity(jobKey));
+
+//    // Tạo scope để lấy dữ liệu từ ReminderService
+//    using (var scope = builder.Services.BuildServiceProvider().CreateScope())
+//    {
+//        var reminderService = scope.ServiceProvider.GetRequiredService<ReminderService>();
+//        var reminderTimes = reminderService.GetReminderTimes();
+
+//        foreach (var reminderTime in reminderTimes)
+//        {
+//            // Tạo cron expression từ giờ và phút trong reminderTime
+//            string cronExpression = $"0 {reminderTime.Minute} {reminderTime.Hour} * * ?";
+
+//            // Tạo trigger cho từng ReminderTime
+//            q.AddTrigger(opts => opts
+//                .ForJob(jobKey)
+//                .WithIdentity($"reminderTrigger-{reminderTime:HHmm}")
+//                .UsingJobData("reminderTime", reminderTime.ToString("HH:mm", CultureInfo.InvariantCulture))
+//                .WithCronSchedule(cronExpression));
+//        }
+
+//    }
+//});
 builder.Services.AddQuartz(q =>
 {
-    q.UseMicrosoftDependencyInjectionJobFactory();
+    q.UseMicrosoftDependencyInjectionJobFactory();  // Dùng DI container của Microsoft cho Quartz
 
+    // Cấu hình job ReminderJob
     var jobKey = new JobKey("reminderJob");
     q.AddJob<ReminderJob>(opts => opts.WithIdentity(jobKey));
 
-    // Tạo scope để lấy dữ liệu từ ReminderService
-    using (var scope = builder.Services.BuildServiceProvider().CreateScope())
+    // Đảm bảo scope để lấy ReminderService
+    q.AddTrigger(opts =>
     {
-        var reminderService = scope.ServiceProvider.GetRequiredService<ReminderService>();
-        var reminderTimes = reminderService.GetReminderTimes();
-
-        foreach (var reminderTime in reminderTimes)
-        {
-            // Tạo cron expression từ giờ và phút trong reminderTime
-            string cronExpression = $"0 {reminderTime.Minute} {reminderTime.Hour} * * ?";
-
-            // Tạo trigger cho từng ReminderTime
-            q.AddTrigger(opts => opts
-                .ForJob(jobKey)
-                .WithIdentity($"reminderTrigger-{reminderTime:HHmm}")
-                .UsingJobData("reminderTime", reminderTime.ToString("HH:mm", CultureInfo.InvariantCulture))
-                .WithCronSchedule(cronExpression));
-        }
-
-    }
+        // Tạo scope để lấy ReminderService
+        opts
+            .ForJob(jobKey)
+            .WithIdentity("reminderTrigger")
+            .WithCronSchedule("0/5 * * * * ?"); // ví dụ Cron expression, tùy chỉnh theo logic của bạn
+    });
 });
-// Đăng ký Quartz như một Hosted Service
+
+
+//builder.Services.AddQuartz(q =>
+//{
+//    q.UseMicrosoftDependencyInjectionJobFactory();  // Dùng DI container của Microsoft cho Quartz
+
+//    // Đăng ký ReminderJob nếu bạn sử dụng QuartzJob
+//    q.AddJob<ReminderJob>(opts => opts.WithIdentity("reminderJob"));
+//});
+
+//builder.Services.AddQuartzHostedService(options =>
+//{
+//    options.WaitForJobsToComplete = true;  // Đảm bảo Quartz chờ các job hoàn thành khi dừng
+//});
+
+
 builder.Services.AddSingleton<IHostedService, QuartzHostedService>();
 
 //config service
