@@ -78,12 +78,12 @@ namespace Infrastructure.Services
             }
         }
 
-        public void SendEmailToAllUsers(Email email, DateTime reminderTime)
+        public void SendEmailToAllUsers(Email email, Guid reminderId)
         {
             try
             {
                 var recipientEmails = _context.Reminders
-                .Where(r => r.ReminderTime == reminderTime) 
+                .Where(r => r.ReminderId == reminderId) 
                 .Include(r => r.Events)
                     .ThenInclude(e => e.UserEvents) 
                     .ThenInclude(ue => ue.Users) 

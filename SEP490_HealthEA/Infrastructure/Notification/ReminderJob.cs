@@ -26,6 +26,7 @@ public class ReminderJob : IJob
 
         foreach (var reminder in reminders)
         {
+            Guid reminderId = reminder.ReminderId;
             var email = new Email
             {
                 SenderEmail = "doan24fa@gmail.com",
@@ -33,8 +34,9 @@ public class ReminderJob : IJob
                 Subject = $"Reminder for event",
                 Body = reminder.Message
             };
+            
 
-            _emailService.SendEmailToAllUsers(email, currentTime);
+            _emailService.SendEmailToAllUsers(email, reminderId);
 
             reminder.IsSent = true;
         }
