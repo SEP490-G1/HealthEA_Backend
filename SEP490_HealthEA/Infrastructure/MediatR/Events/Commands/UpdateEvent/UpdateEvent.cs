@@ -1,4 +1,5 @@
 ﻿using Domain.Common.Exceptions;
+using Domain.Enum;
 using Domain.Models.Entities;
 using Infrastructure.MediatR.Events.Queries;
 using Infrastructure.SQLServer;
@@ -17,7 +18,7 @@ public class UpdateEventCommand : IRequest<Guid>
     public TimeSpan? StartTime { get; set; }
     public TimeSpan? EndTime { get; set; }
     public string? Location { get; set; }
-    public List<ReminderOffsetDto>? ReminderOffsetDtos { get; set; }
+    public List<ReminderOffsetDto>? ReminderOffsets { get; set; }
 }
 
 public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Guid>
@@ -54,20 +55,52 @@ public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Gui
         eventEntity.EndTime = request.EndTime ?? eventEntity.EndTime;
         eventEntity.Location = request.Location ?? eventEntity.Location;
 
-        if (request.ReminderOffsetDtos != null && request.ReminderOffsetDtos.Any())
+        if (request.ReminderOffsets != null && request.ReminderOffsets.Any())
         {
             _context.Reminders.RemoveRange(eventEntity.Reminders);
 
-            var newReminders = request.ReminderOffsetDtos.Select(r => new Reminder
+            var eventStartTime = eventEntity.EventDateTime.Date.Add(eventEntity.StartTime);
+
+            var newReminders = request.ReminderOffsets.Select(r =>
             {
-                ReminderId = Guid.NewGuid(),
-                EventId = eventEntity.EventId,
-                OffsetUnit = r.OffsetUnit,
-                ReminderOffset = r.OffsetValue
+                var reminderTime = r.OffsetUnit switch
+                {
+                    OffsetUnitContants.minutes => eventStartTime.AddMinutes(-r.OffsetValue), 
+                    OffsetUnitContants.hours => eventStartTime.AddHours(-r.OffsetValue),  
+                    OffsetUnitContants.days => eventStartTime.AddDays(-r.OffsetValue),
+                    //OffsetUnitContants.weeks => eventStartTime.AddDays(-r.OffsetValue),
+                    _ => eventStartTime 
+                };
+
+                return new Reminder
+                {
+                    ReminderId = Guid.NewGuid(),
+                    EventId = eventEntity.EventId,
+                    OffsetUnit = r.OffsetUnit,
+                    ReminderTime = reminderTime,
+                    ReminderOffset = r.OffsetValue,
+                    IsSent = false,
+                Message = $"Reminder for event: {eventEntity.Title}"
+                };
             }).ToList();
 
             await _context.Reminders.AddRangeAsync(newReminders, cancellationToken);
         }
+        else
+        {
+            _context.Reminders.RemoveRange(eventEntity.Reminders);
+            var defaultReminder = new Reminder
+            {
+                ReminderId = Guid.NewGuid(),
+                EventId = eventEntity.EventId,
+                ReminderTime = eventEntity.EventDateTime.Date.Add(eventEntity.StartTime),  
+                Message = $"Reminder for event: {eventEntity.Title}"
+            };
+
+            await _context.Reminders.AddAsync(defaultReminder, cancellationToken);
+        }
+
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return eventEntity.EventId;

@@ -17,27 +17,32 @@ public class ReminderJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-         var currentTime = DateTime.Now;
+        var currentTime = DateTime.Now;
 
         var reminders = _context.Reminders
             .Where(r => r.ReminderTime <= currentTime &&
                         r.ReminderTime > currentTime.AddMinutes(-1)) // Sai số 1 phút
             .ToList();
-
-        foreach (var reminder in reminders)
+        if (reminders.Count > 0)
         {
-            var email = new Email
+            foreach (var reminder in reminders)
             {
-                SenderEmail = "doan24fa@gmail.com",
-                SenderPassword = "aeay nhir mlgk nazg", // Bảo mật mật khẩu
-                Subject = $"Reminder for event",
-                Body = reminder.Message
-            };
+                Guid reminderId = reminder.ReminderId;
+                var email = new Email
+                {
+                    SenderEmail = "doan24fa@gmail.com",
+                    SenderPassword = "aeay nhir mlgk nazg", // Bảo mật mật khẩu
+                    Subject = $"Reminder for event",
+                    Body = reminder.Message
+                };
 
-            _emailService.SendEmailToAllUsers(email, currentTime);
 
-            reminder.IsSent = true;
+                _emailService.SendEmailToAllUsers(email, reminderId);
+
+                reminder.IsSent = true;
+            }
         }
+       
 
         await _context.SaveChangesAsync();
 
