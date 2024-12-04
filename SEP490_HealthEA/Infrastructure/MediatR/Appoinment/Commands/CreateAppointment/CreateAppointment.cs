@@ -1,4 +1,5 @@
 ﻿using Domain.Common.Exceptions;
+using Domain.Interfaces.IServices;
 using Domain.Models.Entities;
 using FluentValidation;
 using Google;
@@ -28,15 +29,15 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
 
     private readonly SqlDBContext _context;
     private readonly EmailService _emailService;
-    private readonly FirebaseNotificationService _firebaseNotificationService;
+    private readonly INoticeService noticeService;
 
-    public CreateAppointmentHandler(SqlDBContext context, EmailService emailService, FirebaseNotificationService firebaseNotificationService)
-    {
-        _context = context;
-        _emailService = emailService;
-        _firebaseNotificationService = firebaseNotificationService;
-    }
-    public async Task<Guid> Handle(CreateAppointmentCommand request, CancellationToken cancellationToken)
+	public CreateAppointmentHandler(SqlDBContext context, EmailService emailService, INoticeService noticeService)
+	{
+		_context = context;
+		_emailService = emailService;
+		this.noticeService = noticeService;
+	}
+	public async Task<Guid> Handle(CreateAppointmentCommand request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var doctorExists = await _context.Doctors.FirstOrDefaultAsync(d => d.Id.Equals(request.DoctorId), cancellationToken);
@@ -119,11 +120,11 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
         //        $"Cuộc hẹn với bác sĩ {doctor.FirstName} {doctor.LastName} đã được xác nhận."
         //    );
         //}
-        Thread firebaseThread = new Thread(() =>
+        Thread firebaseThread = new Thread(async () =>
         {
             try
             {
-                 SendFirebaseNotificationsAsync(user, doctor);
+                 await SendFirebaseNotificationsAsync(user, doctor);
             }
             catch (Exception ex)
             {
@@ -131,18 +132,18 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
             }
         });
 
-        Thread emailThread = new Thread(() =>
+        Thread emailThread = new Thread(async () =>
         {
             try
             {
                 if (user != null && doctor != null)
                 {
-                    _emailService.SendAppointmentEmailsAsync(
+                    await _emailService.SendAppointmentEmailsAsync(
                         userEmail: user.Email,
                         doctorEmail: doctor.Email,
                         userName: $"{user.FirstName} {user.LastName}",
                         doctorName: $"{doctor.FirstName} {doctor.LastName}"
-                    ).Wait();
+                    );
                 }
             }
             catch (Exception ex)
@@ -161,33 +162,28 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
     }
     private async Task SendFirebaseNotificationsAsync(User user, User doctor)
     {
-        var doctorDeviceToken = await _context.DeviceTokens
-            .Where(dt => dt.UserId == doctor.UserId)
-            .Select(dt => dt.DeviceToken)
-            .FirstOrDefaultAsync();
-
-        var userDeviceToken = await _context.DeviceTokens
-            .Where(dt => dt.UserId == user.UserId)
-            .Select(dt => dt.DeviceToken)
-            .FirstOrDefaultAsync();
-
-        if (!string.IsNullOrEmpty(doctorDeviceToken))
+		//Send to user
+		Notice userNotice = new Notice()
+		{
+			CreatedAt = DateTime.Now,
+			Message = $"Cuộc hẹn với bác sĩ {doctor.FirstName} {doctor.LastName} đã được xác nhận.",
+			HasViewed = false,
+			NoticeId = new Guid(),
+			RecipientId = user.UserId,
+			UserId = doctor.UserId,
+		};
+		await noticeService.CreateAndSendNoticeAsync(userNotice, "Cuộc hẹn của bạn đã được tạo");
+		//Send to doctor
+		Notice doctorNotice = new Notice()
         {
-            await _firebaseNotificationService.SendNotificationAsync(
-                doctorDeviceToken,
-                "Cuộc hẹn mới",
-                $"Bạn có một cuộc hẹn mới với bệnh nhân {user.FirstName} {user.LastName}."
-            );
-        }
-
-        if (!string.IsNullOrEmpty(userDeviceToken))
-        {
-            await _firebaseNotificationService.SendNotificationAsync(
-                userDeviceToken,
-                "Cuộc hẹn của bạn đã được tạo",
-                $"Cuộc hẹn với bác sĩ {doctor.FirstName} {doctor.LastName} đã được xác nhận."
-            );
-        }
+            CreatedAt = DateTime.Now,
+            Message = $"Bạn có một cuộc hẹn mới với bệnh nhân {user.FirstName} {user.LastName}.",
+            HasViewed = false,
+            NoticeId = new Guid(),
+            RecipientId = doctor.UserId,
+            UserId = user.UserId,
+		};
+        await noticeService.CreateAndSendNoticeAsync(doctorNotice, "Cuộc hẹn mới");
     }
 
 }
