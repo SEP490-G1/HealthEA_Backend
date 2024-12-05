@@ -48,8 +48,9 @@ public class GetAppointmentHandler : IRequestHandler<GetAppointment, PaginatedLi
                                   StartTime = a.StartTime,
                                   EndTime = a.EndTime,
                                   Location = a.Location,
-                                  Status = a.Status
-                              });
+                                  Status = a.Status,
+                                  CreatedAt = a.CreatedAt
+                              }).OrderByDescending(x=>x.CreatedAt);
 
         var result = await PaginatedList<AppointmentDto>.CreateAsync(query, request.PageNumber, request.PageSize);
         return result;

@@ -19,4 +19,5 @@ public class AppointmentDto
     public TimeSpan? EndTime { get; set; }
     public string Location { get; set; }
     public string Status { get; set; }
+    public DateTime CreatedAt { get; set; }
 }
