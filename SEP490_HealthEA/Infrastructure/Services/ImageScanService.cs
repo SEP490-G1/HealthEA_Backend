@@ -91,21 +91,21 @@ namespace Infrastructure.Services
 		public async Task<string> GetPrescriptionAsync(MemoryStream stream)
 		{
 			var base64Image = ConvertStreamToBase64(stream);
-			var instruction = "Extract all the prescribed items in this prescription and return them in JSON format. It should be a list of items, with the item having name, amount, unit, and frequency.";
+			var instruction = "Extract all the prescribed items in this prescription and return them in JSON format. It should be a list of items, with the item having name, amount, unit, and frequency. Return the list as a json list: '[]'.";
 			return await SendRequestToOpenAIAsync(base64Image, instruction);
 		}
 
 		public async Task<string> GetBloodTestAsync(MemoryStream stream)
 		{
 			var base64Image = ConvertStreamToBase64(stream);
-			var instruction = "Extract the blood test info in this prescription and return them in JSON format. It should be a list of items, with the item having name, value, unit, and result.";
+			var instruction = "Extract the blood test info in this prescription and return them in JSON format. It should be a list of items, with the item having name, value, unit, and result. . Return the list as a json list: '[]'.";
 			return await SendRequestToOpenAIAsync(base64Image, instruction);
 		}
 
 		public async Task<string> GetUrinalystAsync(MemoryStream stream)
 		{
 			var base64Image = ConvertStreamToBase64(stream);
-			var instruction = "Extract the urinalyst info in this prescription and return them in JSON format. It should be a list of items, with the item having name, value, unit, and result.";
+			var instruction = "Extract the urinalyst info in this prescription and return them in JSON format. It should be a list of items, with the item having name, value, unit, and result. . Return the list as a json list: '[]'.";
 			return await SendRequestToOpenAIAsync(base64Image, instruction);
 		}
 	}
