@@ -88,10 +88,12 @@ namespace Infrastructure.Repositories
                     throw new Exception("-1");
                 }
             }
-            string? role = _context.Users.FirstOrDefault(x => x.UserId == id).Role;
-			// nếu không phải admin
-			// If the document belongs to you then ignore the check
-			if (role != "ADMIN" && (HealthProfile.UserId == PantientId))
+            User? user = _context.Users.FirstOrDefault(x => x.UserId == id);
+            string role = user != null ? user.Role : null;
+           
+            // nếu không phải admin
+            // If the document belongs to you then ignore the check
+            if (role != "ADMIN" && (HealthProfile.UserId == PantientId))
             {
                 if(role == "DOCTOR" && HealthProfile.SharedStatus < 1)
                 {
@@ -103,8 +105,11 @@ namespace Infrastructure.Repositories
                 }
               
             }
-
-            List<DocumentProfile> doc = _context.DocumentProfiles.Where(x => x.UserId == id && x.Type == type && x.PantientId == PantientId).ToList();
+            else if(role ==  null && HealthProfile.SharedStatus != 3)
+            {
+                throw new Exception("-1");
+            }
+            List<DocumentProfile> doc = _context.DocumentProfiles.Where(x => x.Type == type && x.PantientId == PantientId).ToList();
             if (doc == null)
             {
                 // không tồn tại
