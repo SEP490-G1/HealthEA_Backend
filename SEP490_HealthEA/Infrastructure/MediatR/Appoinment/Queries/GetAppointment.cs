@@ -35,12 +35,13 @@ public class GetAppointmentHandler : IRequestHandler<GetAppointment, PaginatedLi
             }
         }
 
-        var query = _context.Appointments.Where(a => a.DoctorId == doctor.Id)
+        var query = _context.Appointments.Where(a => a.DoctorId == doctor.Id).Include(a => a.Users)
                               .Select(a => new AppointmentDto
                               {
                                   DoctorId = user.UserId,
                                   CustomerId = a.UserId,
                                   CalleeName = user.FirstName + " " + user.LastName,
+                                  NameCustomer = a.Users.FirstName + " " + a.Users.LastName,
                                   AppointmentId = a.AppointmentId,
                                   Title = a.Title,
                                   Date = a.Date,
