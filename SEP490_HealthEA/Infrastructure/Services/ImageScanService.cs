@@ -27,7 +27,7 @@ namespace Infrastructure.Services
 			return Convert.ToBase64String(imageBytes);
 		}
 
-		private async Task<string> SendRequestToOpenAIAsync(string base64Image, string instruction)
+		private async Task<string> SendScanRequestToOpenAIAsync(string base64Image, string instruction)
 		{
 			using (var client = new HttpClient())
 			{
@@ -40,7 +40,8 @@ namespace Infrastructure.Services
 					},
 					new {
 						type = "text",
-						text = "Please return the JSON object as plain text, with no additional formatting or Markdown.",
+						text = "Please return the JSON object as plain text, with no additional formatting or Markdown. Should you not find any appropriate value for any corresponding fields, have its value as null. " +
+						"Any value corresponding to positive or negative should be returned as boolean true or false.",
 					},
 					new
 					{
@@ -91,22 +92,29 @@ namespace Infrastructure.Services
 		public async Task<string> GetPrescriptionAsync(MemoryStream stream)
 		{
 			var base64Image = ConvertStreamToBase64(stream);
-			var instruction = "Extract all the prescribed items in this prescription and return them in JSON format. It should be a list of items, with the item having name, amount, unit, and frequency. Return the list as a json list: '[]'.";
-			return await SendRequestToOpenAIAsync(base64Image, instruction);
+			var instruction = "Extract all the prescribed items in this prescription and return them in JSON format. It should be a list of items, with the item having name, amount, unit, and frequency. " +
+				"Return the list as a json list: '[]'.";
+			return await SendScanRequestToOpenAIAsync(base64Image, instruction);
 		}
 
 		public async Task<string> GetBloodTestAsync(MemoryStream stream)
 		{
 			var base64Image = ConvertStreamToBase64(stream);
-			var instruction = "Extract the blood test info in this prescription and return them in JSON format. It should be a list of items, with the item having name, value, unit, and result. . Return the list as a json list: '[]'.";
-			return await SendRequestToOpenAIAsync(base64Image, instruction);
+			var instruction = "Extract the blood test info in this prescription and return them in JSON format. It should be a list of items, with the item having name, value, unit, and reference. " +
+				"For the 'reference' property, return an object that, if the reference is a range of number (i.e 14-17.2), the object should have two properties min and max, and if it's a set value (i.e Negative or Positive), the object should have a property named value with that value. " +
+				"The 'reference' object should also have a 'type' property, equal either 'range' or 'value' corresponding to the instruction. " +
+				"Return the list as a json list: '[]'.";
+			return await SendScanRequestToOpenAIAsync(base64Image, instruction);
 		}
 
 		public async Task<string> GetUrinalystAsync(MemoryStream stream)
 		{
 			var base64Image = ConvertStreamToBase64(stream);
-			var instruction = "Extract the urinalyst info in this prescription and return them in JSON format. It should be a list of items, with the item having name, value, unit, and result. . Return the list as a json list: '[]'.";
-			return await SendRequestToOpenAIAsync(base64Image, instruction);
+			var instruction = "Extract the urinalyst info in this prescription and return them in JSON format. It should be a list of items, with the item having name, value, unit, and reference. " +
+				"For the 'reference' property, return an object that, if the reference is a range of number  (i.e 14-17.2), the object should have two properties min and max, and if it's a set value (i.e Negative or Positive), the object should have a property named value with that value. " +
+				"The 'reference' object should also have a 'type' property, equal either 'range' or 'value' corresponding to the instruction. " +
+				"Return the list as a json list: '[]'.";
+			return await SendScanRequestToOpenAIAsync(base64Image, instruction);
 		}
 	}
 }
