@@ -29,10 +29,9 @@ namespace Infrastructure.Services
 
 		private async Task<string> SendScanRequestToOpenAIAsync(string base64Image, string instruction)
 		{
-			using (var client = new HttpClient())
-			{
-				client.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiKey}");
-				var content = new List<object>()
+			using var client = new HttpClient();
+			client.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiKey}");
+			var content = new List<object>()
 				{
 					new {
 						type = "text",
@@ -52,40 +51,39 @@ namespace Infrastructure.Services
 						}
 					}
 				};
-				// Build the request body
-				var requestBody = new
+			// Build the request body
+			var requestBody = new
+			{
+				model = "gpt-4o",
+				messages = new[]
 				{
-					model = "gpt-4o",
-					messages = new[]
-					{
 						new
 						{
 							role = "user",
 							content = content.ToArray()
 						}
 					}
-				};
+			};
 
-				// Serialize the request body to JSON
-				string jsonRequestBody = JsonConvert.SerializeObject(requestBody);
+			// Serialize the request body to JSON
+			string jsonRequestBody = JsonConvert.SerializeObject(requestBody);
 
-				// Create the content for the HTTP request
-				var postContent = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
+			// Create the content for the HTTP request
+			var postContent = new StringContent(jsonRequestBody, Encoding.UTF8, "application/json");
 
-				// Send the request to OpenAI API
-				HttpResponseMessage response = await client.PostAsync("https://api.openai.com/v1/chat/completions", postContent);
+			// Send the request to OpenAI API
+			HttpResponseMessage response = await client.PostAsync("https://api.openai.com/v1/chat/completions", postContent);
 
-				// Read and output the response
-				if (response.IsSuccessStatusCode)
-				{
-					string responseContent = await response.Content.ReadAsStringAsync();
-					var responseObject = JsonConvert.DeserializeObject<dynamic>(responseContent);
-					return responseObject.choices[0].message.content.ToString();
-				}
-				else
-				{
-					return $"Error: {response.StatusCode} - {response.ReasonPhrase}";
-				}
+			// Read and output the response
+			if (response.IsSuccessStatusCode)
+			{
+				string responseContent = await response.Content.ReadAsStringAsync();
+				var responseObject = JsonConvert.DeserializeObject<dynamic>(responseContent);
+				return responseObject.choices[0].message.content.ToString();
+			}
+			else
+			{
+				return $"Error: {response.StatusCode} - {response.ReasonPhrase}";
 			}
 		}
 
