@@ -1,4 +1,5 @@
-﻿using Domain.Models.Entities;
+﻿using Domain.Interfaces.IServices;
+using Domain.Models.Entities;
 using Google;
 using Infrastructure.SQLServer;
 using MediatR;
@@ -13,16 +14,14 @@ public class CreateNoticeCommand : IRequest<string>
 }
 public class CreateNoticeCommandHandler : IRequestHandler<CreateNoticeCommand, string>
 {
-    private readonly SqlDBContext _context;
-    private readonly IMediator _mediator;
+    private readonly INoticeService _noticeService;
 
-    public CreateNoticeCommandHandler(SqlDBContext context, IMediator mediator)
-    {
-        _context = context;
-        _mediator = mediator;
-    }
+	public CreateNoticeCommandHandler(INoticeService noticeService)
+	{
+		_noticeService = noticeService;
+	}
 
-    public async Task<string> Handle(CreateNoticeCommand request, CancellationToken cancellationToken)
+	public async Task<string> Handle(CreateNoticeCommand request, CancellationToken cancellationToken)
     {
         var notice = new Notice
         {
@@ -33,10 +32,7 @@ public class CreateNoticeCommandHandler : IRequestHandler<CreateNoticeCommand, s
             CreatedAt = DateTime.Now
         };
 
-        _context.Notices.Add(notice);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        await _mediator.Publish(new NoticeCreatedEvent(notice), cancellationToken);
+        await _noticeService.CreateAndSendNoticeAsync(notice, "Thông báo mới!");
 
         return "Notice created and notification sent!";
     }
