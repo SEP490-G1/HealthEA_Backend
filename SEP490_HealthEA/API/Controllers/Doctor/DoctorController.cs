@@ -27,9 +27,9 @@ namespace API.Controllers.Doctor
 		}
 
 		[HttpGet()]
-		public async Task<IActionResult> GetAllDoctor([FromQuery] string? name, string? city)
+		public async Task<IActionResult> GetAllDoctor([FromQuery] string? name, [FromQuery] string? city, [FromQuery] string? getAll)
 		{
-			var doctors = await repository.GetAllDoctors(name, city);
+			var doctors = await repository.GetAllDoctors(name, city, getAll);
 			var result = mapper.Map<IList<DoctorDto>>(doctors);
 			return Ok(result);
 		}
