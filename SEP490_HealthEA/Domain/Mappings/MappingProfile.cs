@@ -25,6 +25,7 @@ namespace Domain.Mappings
 			CreateMap<DailyMetricAddModel, DailyMetric>();
 			CreateMap<AddOrUpdateNewsDto, News>();
 			CreateMap<User, UserDto>();
+			CreateMap<DocumentChatMessage, DocumentChatMessageDto>();
 		}
 	}
 }

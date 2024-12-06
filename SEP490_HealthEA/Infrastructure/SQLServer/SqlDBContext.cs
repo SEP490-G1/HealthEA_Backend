@@ -1,6 +1,7 @@
 ﻿
 using Domain.Models.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Infrastructure.SQLServer
 {
@@ -40,6 +41,8 @@ namespace Infrastructure.SQLServer
         public DbSet<UserReport> UserReports { get; set; }
 
 		public DbSet<News> News { get; set; }
+
+		public DbSet<DocumentChatMessage> DocumentChatMessages { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -163,6 +166,19 @@ namespace Infrastructure.SQLServer
 				entity.Property(n => n.CreatedAt)
 					  .HasDefaultValueSql("GETDATE()");
 			});
+
+            modelBuilder.Entity<DocumentChatMessage>(entity =>
+            {
+                entity.HasKey(n => n.Id);
+				entity.Property(n => n.Id)
+					  .ValueGeneratedOnAdd();
+                entity.HasOne(n => n.User)
+                .WithMany(u => u.DocumentChatMessages)
+                .OnDelete(DeleteBehavior.Cascade);
+				entity.Property(n => n.CreatedAt)
+					  .HasDefaultValueSql("GETDATE()");
+			});
+
 		}
 
 

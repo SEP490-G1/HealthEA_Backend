@@ -63,7 +63,6 @@ public class AppointmentsController : ControllerBase
     public async Task<IActionResult> CreateAppointment([FromBody] CreateAppointmentCommand command, CancellationToken cancellationToken)
     {
         var userId = userClaimsService.ClaimId(User);
-        var userRole = userClaimsService.ClaimRole(User);
         command.UserId = userId;
         Console.WriteLine(command.UserId);
         try

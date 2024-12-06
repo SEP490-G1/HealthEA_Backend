@@ -112,7 +112,8 @@ namespace Domain.Models.Entities
         /// </remarks>
         public virtual ICollection<Appointment> Appointments { get; set; }
         public virtual ICollection<Notice> Notices { get; set; }
-    }
+		public virtual ICollection<DocumentChatMessage> DocumentChatMessages { get; set; }
+	}
 
 }
 
