@@ -19,16 +19,20 @@ namespace Infrastructure.Repositories
 			this.context = context;
 		}
 
-		public async Task<IList<Doctor>> GetAllDoctors(string? nameQuery, string? cityQuery)
+		public async Task<IList<Doctor>> GetAllDoctors(string? nameQuery, string? cityQuery, bool? getAll)
 		{
 			IQueryable<Doctor> doctors = context.Doctors.Include(d => d.User);
+			if (!getAll.HasValue || !getAll.Value)
+			{
+				doctors = doctors.Where(d => d.User!.Status == "ACTIVE");
+			}
 			if (nameQuery != null)
 			{
 				doctors = doctors.Where(d => d.DisplayName.Contains(nameQuery));
 			}
 			if (cityQuery != null)
 			{
-				doctors = doctors.Where(d => d.ClinicCity.Contains(cityQuery));
+				doctors = doctors.Where(d => d.ClinicCity != null && d.ClinicCity.Contains(cityQuery));
 			}
 			return await doctors.ToListAsync();
 		}
