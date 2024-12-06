@@ -30,15 +30,11 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
 {
 
     private readonly SqlDBContext _context;
-    private readonly EmailService _emailService;
-    private readonly INoticeService noticeService;
     private readonly IBackgroundTaskQueue queue;
 
-	public CreateAppointmentHandler(SqlDBContext context, EmailService emailService, INoticeService noticeService, IBackgroundTaskQueue queue)
+	public CreateAppointmentHandler(SqlDBContext context, IBackgroundTaskQueue queue)
 	{
 		_context = context;
-		_emailService = emailService;
-		this.noticeService = noticeService;
 		this.queue = queue;
 	}
 	public async Task<Guid> Handle(CreateAppointmentCommand request, CancellationToken cancellationToken)

@@ -1,9 +1,11 @@
 ﻿using Domain.Common.Exceptions;
 using Domain.Models.Entities;
 using Infrastructure.Services;
+using Infrastructure.Services.Background;
 using Infrastructure.SQLServer;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.MediatR.Appoinment.Commands.CreateAppointment;
 
@@ -15,16 +17,16 @@ public class ApproveAppointmentCommand : IRequest<bool>
 public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentCommand, bool>
 {
     private readonly SqlDBContext _context;
-    private readonly EmailService _emailService;
+	private readonly IBackgroundTaskQueue queue;
 
-    public ApproveAppointmentHandler(SqlDBContext context, EmailService emailService)
-    {
-        _context = context;
-        _emailService = emailService;
-    }
+	public ApproveAppointmentHandler(SqlDBContext context, IBackgroundTaskQueue queue)
+	{
+		_context = context;
+		this.queue = queue;
+	}
 
 
-    public async Task<bool> Handle(ApproveAppointmentCommand request, CancellationToken cancellationToken)
+	public async Task<bool> Handle(ApproveAppointmentCommand request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -91,16 +93,34 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
         var doctorName = doctors?.DisplayName ?? "Bác sĩ";
         string appointmentDate = appointment?.Date != null ? appointment.Date.ToString("dd/MM/yyyy") : "Chưa xác định";
         string appointmentTime = appointment?.StartTime != null ? appointment.StartTime.ToString(@"hh\:mm") : "Chưa xác định";
-        Thread thread = new Thread(async () =>
+        //Queue
+        queue.QueueBackgroundWorkItem(async (provider, token) =>
         {
-            try
+            var emailService = provider.GetRequiredService<EmailService>();
+			var context = provider.GetRequiredService<SqlDBContext>();
+            var appointment = await context.Appointments.FirstOrDefaultAsync(a => a.AppointmentId == request.AppointmentId, token);
+            if (appointment == null)
             {
-                await _emailService.SendEmailAsync(
-                    user?.Email ?? "",
+                return;
+            }
+            var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == appointment.UserId, cancellationToken);
+			if (user == null)
+			{
+				return;
+			}
+            var doctor = await context.Doctors.FirstOrDefaultAsync(d => d.Id == appointment.DoctorId, token);
+            if (doctor == null)
+            {
+                return;
+            }
+			try
+            {
+                await emailService.SendEmailAsync(
+                    user.Email ?? "",
                     "PHẢN HỒI LỊCH KHÁM",
                     $@"
-<h2>Xin chào {userName},</h2>
-<p>Chúng tôi vui mừng thông báo rằng <b>lịch khám</b> của bạn đã được bác sĩ <b>{doctorName}</b> chấp nhận.</p>
+<h2>Xin chào {user.FirstName} {user.LastName},</h2>
+<p>Chúng tôi vui mừng thông báo rằng <b>lịch khám</b> của bạn đã được bác sĩ <b>{doctor.DisplayName}</b> chấp nhận.</p>
 <p>Dưới đây là thông tin chi tiết về lịch hẹn của bạn:</p>
 <ul>
     <li><b>Loại cuộc hẹn:</b> {appointment?.Type ?? "Chưa xác định"}</li>
@@ -117,9 +137,8 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
             {
                 Console.WriteLine($"Failed to send email: {ex.Message}");
             }
-        });
 
-        thread.Start();
+        });
 
 
         var eventEntity = new Event
