@@ -35,7 +35,7 @@ namespace API.Controllers.Customer
 			var userId = userClaimsService.ClaimId(User);
 			var messages = await context.DocumentChatMessages
 				.Where(x => x.UserId == userId)
-				.OrderByDescending(x => x.CreatedAt)
+				.OrderBy(x => x.CreatedAt)
 				.ToListAsync();
 			var result = mapper.Map<List<DocumentChatMessageDto>>(messages);
 			return Ok(result);

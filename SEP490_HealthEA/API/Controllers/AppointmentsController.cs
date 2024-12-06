@@ -6,6 +6,7 @@ using Infrastructure.MediatR.Appoinment.Queries;
 using Infrastructure.MediatR.Common;
 using Infrastructure.MediatR.Reminders.Commands.CreateReminder;
 using Infrastructure.Services;
+using Infrastructure.Services.Background;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

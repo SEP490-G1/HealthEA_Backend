@@ -5,9 +5,11 @@ using FluentValidation;
 using Google;
 using Infrastructure.MediatR.Notices;
 using Infrastructure.Services;
+using Infrastructure.Services.Background;
 using Infrastructure.SQLServer;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System.Numerics;
 
 namespace Infrastructure.MediatR.Appoinment.Commands.CreateAppointment;
@@ -28,14 +30,12 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
 {
 
     private readonly SqlDBContext _context;
-    private readonly EmailService _emailService;
-    private readonly INoticeService noticeService;
+    private readonly IBackgroundTaskQueue queue;
 
-	public CreateAppointmentHandler(SqlDBContext context, EmailService emailService, INoticeService noticeService)
+	public CreateAppointmentHandler(SqlDBContext context, IBackgroundTaskQueue queue)
 	{
 		_context = context;
-		_emailService = emailService;
-		this.noticeService = noticeService;
+		this.queue = queue;
 	}
 	public async Task<Guid> Handle(CreateAppointmentCommand request, CancellationToken cancellationToken)
     {
@@ -93,74 +93,61 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == appointment.UserId, cancellationToken);
         var doctor = await _context.Users.Include(u => u.Doctor).FirstOrDefaultAsync(u => u.Doctor!.Id == appointment.DoctorId, cancellationToken);
 
-        //var doctorDeviceToken = await _context.DeviceTokens
-        //   .Where(dt => dt.UserId == doctor.UserId)
-        //   .Select(dt => dt.DeviceToken)
-        //   .FirstOrDefaultAsync();
+		//var doctorDeviceToken = await _context.DeviceTokens
+		//   .Where(dt => dt.UserId == doctor.UserId)
+		//   .Select(dt => dt.DeviceToken)
+		//   .FirstOrDefaultAsync();
 
-        //var userDeviceToken = await _context.DeviceTokens
-        //    .Where(dt => dt.UserId == user.UserId)
-        //    .Select(dt => dt.DeviceToken)
-        //    .FirstOrDefaultAsync();
+		//var userDeviceToken = await _context.DeviceTokens
+		//    .Where(dt => dt.UserId == user.UserId)
+		//    .Select(dt => dt.DeviceToken)
+		//    .FirstOrDefaultAsync();
 
-        //if (!string.IsNullOrEmpty(doctorDeviceToken))
-        //{
-        //    await _firebaseNotificationService.SendNotificationAsync(
-        //        doctorDeviceToken,
-        //        "Cuộc hẹn mới",
-        //        $"Bạn có một cuộc hẹn mới với bệnh nhân {user.FirstName} {user.LastName}."
-        //    );
-        //}
+		//if (!string.IsNullOrEmpty(doctorDeviceToken))
+		//{
+		//    await _firebaseNotificationService.SendNotificationAsync(
+		//        doctorDeviceToken,
+		//        "Cuộc hẹn mới",
+		//        $"Bạn có một cuộc hẹn mới với bệnh nhân {user.FirstName} {user.LastName}."
+		//    );
+		//}
 
-        //if (!string.IsNullOrEmpty(userDeviceToken))
-        //{
-        //    await _firebaseNotificationService.SendNotificationAsync(
-        //        userDeviceToken,
-        //        "Cuộc hẹn của bạn đã được tạo",
-        //        $"Cuộc hẹn với bác sĩ {doctor.FirstName} {doctor.LastName} đã được xác nhận."
-        //    );
-        //}
-        Thread firebaseThread = new Thread(async () =>
-        {
-            try
-            {
-                 await SendFirebaseNotificationsAsync(user, doctor);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error sending emails: {ex.Message}");
-            }
-        });
-
-        Thread emailThread = new Thread(async () =>
-        {
-            try
-            {
-                if (user != null && doctor != null)
-                {
-                    await _emailService.SendAppointmentEmailsAsync(
-                        userEmail: user.Email,
-                        doctorEmail: doctor.Email,
-                        userName: $"{user.FirstName} {user.LastName}",
-                        doctorName: $"{doctor.FirstName} {doctor.LastName}"
-                    );
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error sending emails: {ex.Message}");
-            }
-        });
+		//if (!string.IsNullOrEmpty(userDeviceToken))
+		//{
+		//    await _firebaseNotificationService.SendNotificationAsync(
+		//        userDeviceToken,
+		//        "Cuộc hẹn của bạn đã được tạo",
+		//        $"Cuộc hẹn với bác sĩ {doctor.FirstName} {doctor.LastName} đã được xác nhận."
+		//    );
+		//}
 		await _context.SaveChangesAsync(cancellationToken);
-		emailThread.Start();
-        Thread.Sleep(100);
-        firebaseThread.Start();
-        Thread.Sleep(100);
-        //emailThread.Join();
-        //firebaseThread.Join();
+		//Queue
+		queue.QueueBackgroundWorkItem(async (provider, token) =>
+        {
+            Console.WriteLine("Executing...\n\n\n\n\n\n");
+			var emailService = provider.GetRequiredService<EmailService>();
+            var noticeService = provider.GetRequiredService<INoticeService>();
+            var context = provider.GetRequiredService<SqlDBContext>();
+
+			var user = await context.Users.FirstOrDefaultAsync(u => u.UserId == request.UserId, token);
+			var doctor = await context.Users.Include(u => u.Doctor)
+											  .FirstOrDefaultAsync(u => u.Doctor!.Id == request.DoctorId, token);
+            Console.WriteLine(user?.UserId);
+            Console.WriteLine(doctor?.UserId);
+			if (user != null && doctor != null)
+			{
+				await emailService.SendAppointmentEmailsAsync(
+					userEmail: user.Email,
+					doctorEmail: doctor.Email,
+					userName: $"{user.FirstName} {user.LastName}",
+					doctorName: $"{doctor.FirstName} {doctor.LastName}"
+				);
+				await SendFirebaseNotificationsAsync(noticeService, user, doctor, token);
+			}
+		});
         return appointment.AppointmentId;
     }
-    private async Task SendFirebaseNotificationsAsync(User user, User doctor)
+    private async Task SendFirebaseNotificationsAsync(INoticeService noticeService, User user, User doctor, CancellationToken token)
     {
 		//Send to user
 		Notice userNotice = new Notice()
