@@ -9,6 +9,7 @@ using Infrastructure.MediatR.Events.Commands.CreateEvent;
 using Infrastructure.Notification;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
+using Infrastructure.Services.Background;
 using Infrastructure.Services.Ocr;
 using Infrastructure.SQLServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -193,6 +194,9 @@ builder.Services.AddScoped<IUserClaimsService, UserClaimsService>();
 builder.Services.AddScoped<IDoctorRepository,DoctorRepository>();
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+//Background Service
+builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+builder.Services.AddHostedService<HeavyTaskBackgroundService>();
 //another
 builder.Services.AddControllers();
 
