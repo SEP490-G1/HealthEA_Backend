@@ -28,7 +28,7 @@ public class AppointmentsController : ControllerBase
 		_mediator = mediator;
         this.userClaimsService = userClaimsService;
     }
-	[HttpGet]
+    [HttpGet]
     [Authorize]
     public async Task<ActionResult<PaginatedList<AppointmentDto>>> GetAppointmentWithPagination([FromQuery] GetAppointment query, CancellationToken cancellationToken)
     {

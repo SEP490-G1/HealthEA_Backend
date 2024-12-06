@@ -172,15 +172,25 @@ namespace Domain.Services
                 //       - nếu trạng thái only doctor kiem tra có phải doctor không và trả về lỗi (share == 1)
                 if (healthProfile.SharedStatus == 1 && role != RoleConstants.DOCTOR)
                 {
-                    throw new UnauthorizedAccessException("You do not have access!");
+                    devMsg = DevMsg.AuthorizeErr;
+                    userMsg = UserMsg.AuthorizeErr;
+                    hr = HttpStatusCode.Unauthorized;
+
+
                 }
+            
                 //       - nếu trạng thái only user trả kiểm tra (share == 2)
-                if (healthProfile.SharedStatus == 2 && (role != RoleConstants.DOCTOR || role != RoleConstants.CUSTOMER))
+                if (healthProfile.SharedStatus == 2 && (role != RoleConstants.DOCTOR && role != RoleConstants.CUSTOMER))
                 {
-                    throw new UnauthorizedAccessException("You do not have access!");
+                    devMsg = DevMsg.AuthorizeErr;
+                    userMsg = UserMsg.AuthorizeErr;
+                    hr = HttpStatusCode.Unauthorized;
                 }
             }
-
+            if (hr == HttpStatusCode.OK)
+            {
+                res = healthProfile;
+            }
             var ress = (res == null) ? null : _HealprofileMapper.Map<HealthProfile, HealthProfileOutputDAO>(res);
             return new ServiceResult()
             {
@@ -464,7 +474,7 @@ namespace Domain.Services
                 statusCode = HttpStatusCode.OK,
                 data = null
             };
-          
+
             Guid idUser = claimId(claims);
             DocumentProfile doc = new DocumentProfile()
             {
@@ -486,14 +496,14 @@ namespace Domain.Services
             }
             catch (Exception ex)
             {
-                if(ex.Message == "0")
+                if (ex.Message == "0")
                 {
                     result.devMsg = "Không tồn tại dữ liệu";
                     result.userMsg = "Không tồn tại dữ liệu";
                     result.statusCode = HttpStatusCode.BadRequest;
                     result.data = 0;
                 }
-                else if(ex.Message == "-1")
+                else if (ex.Message == "-1")
                 {
                     result.devMsg = "Không có quyền truy cập";
                     result.userMsg = "Không có quyền truy cập";
@@ -502,7 +512,7 @@ namespace Domain.Services
                 }
                 else
                 {
-                    throw new Exception(ex.Message);    
+                    throw new Exception(ex.Message);
                 }
             }
             return result;
@@ -537,7 +547,7 @@ namespace Domain.Services
             Guid idUser = claimId(claims);
             if (doc.UserId == idUser)
             {
-                var psaas = _HealprofileMapper.Map<DocumentProfileDTO>(doc); 
+                var psaas = _HealprofileMapper.Map<DocumentProfileDTO>(doc);
                 result.data = psaas;
                 return result;
             }
@@ -552,12 +562,15 @@ namespace Domain.Services
             int a = doc.HealthProfile.SharedStatus;
             string role = claimRole(claims);
             // nếu không phải thì lấy role và xét xem có phù hợp với chia sẻ không
-
-            result.devMsg = checkRole(role, a) ? result.devMsg : DevMsg.GetError;
-            result.userMsg = checkRole(role, a) ? result.userMsg : UserMsg.GetErr;
+            
+            result.devMsg = checkRole(role, a) ? result.devMsg : "Bạn không có quyền truy cập vào tài liệu này!";
+            result.userMsg = checkRole(role, a) ? result.userMsg : "Bạn không có quyền truy cập vào tài liệu này!";
             result.statusCode = checkRole(role, a) ? result.statusCode : HttpStatusCode.Unauthorized;
-
             var pss = _HealprofileMapper.Map<DocumentProfileDTO>(doc);
+            if(result.statusCode == HttpStatusCode.Unauthorized)
+            {
+                pss = null;
+            }
             result.data = pss;
             return result;
 
@@ -581,7 +594,7 @@ namespace Domain.Services
             {
                 return false;
             }
-            if (role == null && statusID <= 2)
+            if (string.IsNullOrEmpty(role) && statusID <= 2)
             {
                 return false;
             }
@@ -664,7 +677,7 @@ namespace Domain.Services
                 result.statusCode = HttpStatusCode.NotFound;
                 return result;
             }
-            if(res  == -1)
+            if (res == -1)
             {
                 result.devMsg = "Người dùng không có quyền cập nhật!";
                 result.userMsg = "Người dùng không có quyền cập nhật!";
@@ -675,16 +688,6 @@ namespace Domain.Services
             result.data = res;
             return result;
         }
-
-        /**
-         * GetListDocumentProfile function
-         * 
-         * @param ClaimsPrincipal claims
-         * @param Guid idHealprofile
-         * @param int type
-         * 
-         * @return ServiceResult
-        */
         public ServiceResult GetListDocumentProfile(ClaimsPrincipal claims, Guid idHealprofile, int type)
         {
             ServiceResult result = new ServiceResult()
@@ -695,13 +698,13 @@ namespace Domain.Services
                 data = null
             };
             Guid idUser = claimId(claims);
-            if (idUser == Guid.Empty)
-            {
-                result.devMsg = DevMsg.AuthorizeErr;
-                result.userMsg = UserMsg.AuthorizeErr;
-                result.statusCode = HttpStatusCode.Unauthorized;
-                return result;
-            }
+            //if (idUser == Guid.Empty)
+            //{
+            //    result.devMsg = DevMsg.AuthorizeErr;
+            //    result.userMsg = UserMsg.AuthorizeErr;
+            //    result.statusCode = HttpStatusCode.Unauthorized;
+            //    return result;
+            //}
             try
             {
                 var res = _repository.GetDocumentProfiles(type, idUser, idHealprofile);
