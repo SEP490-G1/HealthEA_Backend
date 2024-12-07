@@ -14,6 +14,6 @@ namespace Domain.Interfaces.IRepositories
 		Task AddDoctorAsync(Doctor doctor);
 		Task UpdateDoctorAsync(Doctor doctor);
 		Task DeleteDoctorAsync(Guid doctorId);
-		Task<IList<Doctor>> GetAllDoctors(string? nameQuery, string? cityQuery);
+		Task<IList<Doctor>> GetAllDoctors(string? nameQuery, string? cityQuery, bool? getAll);
 	}
 }

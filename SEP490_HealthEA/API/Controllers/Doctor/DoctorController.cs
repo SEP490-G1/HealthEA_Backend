@@ -2,6 +2,7 @@
 using Domain.Interfaces.IRepositories;
 using Domain.Interfaces.IServices;
 using Domain.Models.DAO.Doctor;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace API.Controllers.Doctor
 {
 	[Route("api/[controller]")]
 	[ApiController]
+	[Authorize]
 	public class DoctorController : ControllerBase
 	{
 		private readonly IDoctorRepository repository;
@@ -25,9 +27,9 @@ namespace API.Controllers.Doctor
 		}
 
 		[HttpGet()]
-		public async Task<IActionResult> GetAllDoctor([FromQuery] string? name, string? city)
+		public async Task<IActionResult> GetAllDoctor([FromQuery] string? name, [FromQuery] string? city, [FromQuery] bool? getAll)
 		{
-			var doctors = await repository.GetAllDoctors(name, city);
+			var doctors = await repository.GetAllDoctors(name, city, getAll);
 			var result = mapper.Map<IList<DoctorDto>>(doctors);
 			return Ok(result);
 		}
@@ -57,19 +59,20 @@ namespace API.Controllers.Doctor
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateDoctorById(Guid id, [FromBody] DoctorUpdateDto data)
+		[Authorize(Roles = "ADMIN")]
+		public async Task<IActionResult> UpdateDoctorById(Guid id, [FromBody] DoctorUpdateDto model)
 		{
 			var doctor = await repository.GetDoctorByIdAsync(id);
 			if (doctor == null)
 			{
 				return BadRequest();
 			}
-			doctor.Description = data.Description;
-			doctor.DisplayName = data.DisplayName;
-			doctor.ClinicAddress = data.ClinicAddress;
-			doctor.ClinicCity = data.ClinicCity;
-			doctor.Specialization = data.Specialization;
-			doctor.HistoryOfWork = data.HistoryOfWork;
+			doctor.DisplayName = model.DisplayName;
+			doctor.Description = model.Description;
+			doctor.ClinicCity = model.ClinicCity;
+			doctor.ClinicAddress = model.ClinicAddress;
+			doctor.Specialization = model.Specialization;
+			doctor.HistoryOfWork = model.HistoryOfWork;
 			await repository.UpdateDoctorAsync(doctor);
 			return NoContent();
 		}
