@@ -70,5 +70,19 @@ namespace Infrastructure.Repositories
 				await context.SaveChangesAsync();
 			}
 		}
+
+		public async Task<List<string>?> GetDaysWithSchedulesOfDoctorAsync(Guid doctorId)
+		{
+			var doctor = await GetDoctorByIdAsync(doctorId);
+			if (doctor == null)
+			{
+				return null;
+			}
+			return await context.Schedules
+				.Where(s => s.Date >= DateTime.Now && s.DoctorId == doctorId && s.Status == "Available")
+				.Select(s => s.Date.ToString("yyyy-MM-dd"))
+				.Distinct()
+				.ToListAsync();
+		}
 	}
 }
