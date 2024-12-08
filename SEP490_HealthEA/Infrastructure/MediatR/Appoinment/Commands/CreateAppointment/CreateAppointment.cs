@@ -1,4 +1,6 @@
-﻿using Domain.Common.Exceptions;
+﻿using Azure.Core;
+using CloudinaryDotNet;
+using Domain.Common.Exceptions;
 using Domain.Interfaces.IServices;
 using Domain.Models.Entities;
 using FluentValidation;
@@ -10,7 +12,9 @@ using Infrastructure.SQLServer;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualBasic;
 using System.Numerics;
+using System.Text.Json.Serialization;
 
 namespace Infrastructure.MediatR.Appoinment.Commands.CreateAppointment;
 
@@ -20,6 +24,8 @@ public class CreateAppointmentCommand : IRequest<Guid>
     public Guid UserId { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
+    //[JsonPropertyName("selectedProfileId")]
+    public Guid SelectedProfileId { get; set; }
     public string? Type { get; set; }
     public DateTime Date { get; set; }
     public TimeSpan StartTime { get; set; }
@@ -60,6 +66,8 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
         string address = doctorExists.ClinicAddress;
         string location = "test";
 
+        var Uri = $"/profileHealth/medical_record/information/{request.SelectedProfileId}";
+
         var appointment = new Appointment
         {
             DoctorId = request.DoctorId,
@@ -70,6 +78,7 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
             StartTime = request.StartTime,
             EndTime = schedule.EndTime,
             Type = request.Type,
+            Uri = Uri ,
             //Location = location,
             Status = request.Status,
             CreatedAt = DateTime.UtcNow

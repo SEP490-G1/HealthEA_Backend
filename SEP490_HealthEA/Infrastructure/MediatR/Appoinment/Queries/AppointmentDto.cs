@@ -12,6 +12,7 @@ public class AppointmentDto
     public Guid CustomerId { get; set; }
     public string? NameCustomer { get; set; }
     public string? CalleeName { get; set; }
+    public string? Uri { get; set; }
     public Guid DoctorId { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
