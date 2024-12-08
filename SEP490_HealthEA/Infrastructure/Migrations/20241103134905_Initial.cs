@@ -151,7 +151,7 @@ namespace Infrastructure.Migrations
                         name: "FK_DocumentProfiles_HealthProfiles_PantientId",
                         column: x => x.PantientId,
                         principalTable: "HealthProfiles",
-                        principalColumn: "Id");
+                        principalColumn: "SelectedProfileId");
                 });
 
             migrationBuilder.CreateIndex(

@@ -56,7 +56,7 @@ namespace Infrastructure.Migrations
                         name: "FK_Appointments_Doctors_DoctorId",
                         column: x => x.DoctorId,
                         principalTable: "Doctors",
-                        principalColumn: "Id",
+                        principalColumn: "SelectedProfileId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Appointments_Events_EventId",
@@ -90,7 +90,7 @@ namespace Infrastructure.Migrations
                         name: "FK_Schedules_Doctors_DoctorId",
                         column: x => x.DoctorId,
                         principalTable: "Doctors",
-                        principalColumn: "Id",
+                        principalColumn: "SelectedProfileId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -144,7 +144,7 @@ namespace Infrastructure.Migrations
                 table: "UserReports",
                 column: "DoctorId",
                 principalTable: "Doctors",
-                principalColumn: "Id");
+                principalColumn: "SelectedProfileId");
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.Doctor", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("SelectedProfileId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -42,7 +42,7 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("SelectedProfileId");
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -52,7 +52,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.DocumentProfile", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("SelectedProfileId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ContentMedical")
@@ -79,7 +79,7 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("SelectedProfileId");
 
                     b.HasIndex(new[] { "PantientId" }, "IX_DocumentProfiles_PantientId");
 
@@ -88,7 +88,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.HealthProfile", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("SelectedProfileId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
@@ -123,7 +123,7 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                    b.HasKey("SelectedProfileId");
 
                     b.HasIndex(new[] { "UserId" }, "IX_HealthProfiles_UserId");
 
@@ -132,11 +132,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.Image", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("SelectedProfileId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SelectedProfileId"));
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
@@ -146,14 +146,14 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("SelectedProfileId");
 
                     b.ToTable("Images");
                 });
 
             modelBuilder.Entity("Domain.Models.Entities.InvalidatedToken", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("SelectedProfileId")
                         .HasMaxLength(255)
                         .IsUnicode(false)
                         .HasColumnType("varchar(255)")
@@ -164,7 +164,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2(6)")
                         .HasColumnName("expriry_time");
 
-                    b.HasKey("Id")
+                    b.HasKey("SelectedProfileId")
                         .HasName("PK__invalida__3213E83F8938BA78");
 
                     b.ToTable("invalidated_token", (string)null);
@@ -249,7 +249,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Models.Entities.YourNamespace.Models.DailyMetric", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("SelectedProfileId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -280,7 +280,7 @@ namespace Infrastructure.Migrations
                     b.Property<double?>("Weight")
                         .HasColumnType("float");
 
-                    b.HasKey("Id");
+                    b.HasKey("SelectedProfileId");
 
                     b.HasIndex("UserId");
 

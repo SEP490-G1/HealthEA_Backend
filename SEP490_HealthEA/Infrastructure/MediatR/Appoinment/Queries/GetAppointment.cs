@@ -42,6 +42,7 @@ public class GetAppointmentHandler : IRequestHandler<GetAppointment, PaginatedLi
                                   CustomerId = a.UserId,
                                   CalleeName = user.FirstName + " " + user.LastName,
                                   NameCustomer = a.Users.FirstName + " " + a.Users.LastName,
+                                  Uri = a.Uri,
                                   AppointmentId = a.AppointmentId,
                                   Title = a.Title,
                                   Date = a.Date,

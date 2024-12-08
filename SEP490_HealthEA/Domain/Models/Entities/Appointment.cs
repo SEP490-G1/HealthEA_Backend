@@ -1,4 +1,6 @@
-﻿namespace Domain.Models.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Domain.Models.Entities;
 
 public class Appointment
 {
@@ -11,6 +13,8 @@ public class Appointment
     public TimeSpan StartTime { get; set; }
     public TimeSpan? EndTime { get; set; }
     public string? Location { get; set; }
+    [Column("url")]
+    public string? Uri { get; set; }
     public string Status { get; set; } = "Pending";
     public string? Type { get; set; } 
     public DateTime CreatedAt { get; set; } = DateTime.Now;

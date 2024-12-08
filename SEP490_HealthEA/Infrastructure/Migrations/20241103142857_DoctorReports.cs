@@ -31,12 +31,12 @@ namespace Infrastructure.Migrations
                         name: "FK_DoctorReports_Doctors_DoctorId",
                         column: x => x.DoctorId,
                         principalTable: "Doctors",
-                        principalColumn: "Id");
+                        principalColumn: "SelectedProfileId");
                     table.ForeignKey(
                         name: "FK_DoctorReports_Doctors_ReportedDoctorId",
                         column: x => x.ReportedDoctorId,
                         principalTable: "Doctors",
-                        principalColumn: "Id",
+                        principalColumn: "SelectedProfileId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_DoctorReports_user_ReporterId",

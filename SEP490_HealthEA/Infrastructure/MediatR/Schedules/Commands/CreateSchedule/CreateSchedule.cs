@@ -32,7 +32,7 @@ public class CreateScheduleHandler : IRequestHandler<CreateScheduleCommand, List
             throw new Exception("Không thể tạo lịch cho ngày trong quá khứ.");
         }
 
-        //var doctorExists = await _context.Doctors.AnyAsync(d => d.Id == request.DoctorId, cancellationToken);
+        //var doctorExists = await _context.Doctors.AnyAsync(d => d.SelectedProfileId == request.DoctorId, cancellationToken);
         var doctorExists = await _context.Doctors
             .FirstOrDefaultAsync(d => d.UserId == request.UserId, cancellationToken);
         if (doctorExists == null)
