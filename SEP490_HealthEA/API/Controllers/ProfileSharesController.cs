@@ -29,7 +29,7 @@ public class ProfileSharesController : ControllerBase
         var userId = _userClaimsService.ClaimId(User);
 
         var profiles = await _context.HealthProfiles
-            .Where(x => x.UserId == userId)
+            .Where(x => x.UserId == userId && x.SharedStatus > 0)
             .Select(x => new ProfileShareDto
             {
                 Id = x.Id,
