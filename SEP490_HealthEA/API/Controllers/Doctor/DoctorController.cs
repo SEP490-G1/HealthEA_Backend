@@ -27,6 +27,7 @@ namespace API.Controllers.Doctor
 		}
 
 		[HttpGet()]
+		[AllowAnonymous]
 		public async Task<IActionResult> GetAllDoctor([FromQuery] string? name, [FromQuery] string? city, [FromQuery] bool? getAll)
 		{
 			var doctors = await repository.GetAllDoctors(name, city, getAll);

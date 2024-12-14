@@ -27,6 +27,17 @@ public class SchedulesController : ControllerBase
 		this.doctorRepository = doctorRepository;
 	}
 
+    [HttpGet("doctor/{doctorId}")]
+    public async Task<IActionResult> GetDaysWithSchedulesOfDoctor(Guid doctorId)
+    {
+        var list = await doctorRepository.GetDaysWithSchedulesOfDoctorAsync(doctorId);
+        if (list == null)
+        {
+            return BadRequest("Not a doctor.");
+        }
+        return Ok(list);
+    }
+
 	[HttpGet("by-day")]
     public async Task<IActionResult> GetSchedulesByDay([FromQuery] DateTime date, [FromQuery] Guid doctorId)
     {
