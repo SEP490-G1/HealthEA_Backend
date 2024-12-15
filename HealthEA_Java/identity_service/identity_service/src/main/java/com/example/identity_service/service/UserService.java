@@ -95,6 +95,11 @@ public class UserService {
         user.setGender(request.getGender());
         user.setPhone(request.getPhone());
         user.setAvatar(request.getAvatar());
+        if(request.getStatus() == null){
+            user.setStatus(Status.ACTIVE);
+        }else {
+            user.setStatus(request.getStatus());
+        }
 
         return userMapper.toUserResponse(userRepository.save(user));
     }

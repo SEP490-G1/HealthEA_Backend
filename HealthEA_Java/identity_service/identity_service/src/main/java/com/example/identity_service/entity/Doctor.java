@@ -24,15 +24,15 @@ public class Doctor {
     private String userId;
 
     @Lob
-    @Column(name = "Description")
+    @Column(name = "Description" , columnDefinition = "nvarchar(MAX)")
     private String description;
 
     @Lob
-    @Column(name = "ClinicAddress")
+    @Column(name = "ClinicAddress" , columnDefinition = "nvarchar(MAX)")
     private String clinicAddress;
 
     @Lob
-    @Column(name = "ClinicCity")
+    @Column(name = "ClinicCity" , columnDefinition = "nvarchar(MAX)")
     private String clinicCity;
 
     @Column(name = "DisplayName", nullable = false)
@@ -49,7 +49,7 @@ public class Doctor {
     private Integer numberOfVideoCalls;
 
     @Lob
-    @Column(name = "Specialization")
+    @Column(name = "Specialization", columnDefinition = "nvarchar(MAX)")
     private String specialization;
 
     @PrePersist

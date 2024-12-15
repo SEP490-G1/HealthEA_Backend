@@ -86,14 +86,11 @@ public class UserController {
                 .build();
     }
 
-    @GetMapping("/search")
+    @PostMapping ("/search")
     public ApiResponse<List<UserResponse>> searchUsers(
-            @RequestParam(required = false) String username,
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String role) {
+            @RequestBody UserSearchRequest userSearchRequest) {
         return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.searchUsers(username, email, status, role))
+                .result(userService.searchUsers(userSearchRequest.getUsername(), userSearchRequest.getEmail(), userSearchRequest.getStatus(), userSearchRequest.getRole()))
                 .build();
     }
 

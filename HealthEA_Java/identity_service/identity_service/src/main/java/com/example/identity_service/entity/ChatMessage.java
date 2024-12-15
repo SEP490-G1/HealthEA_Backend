@@ -29,7 +29,7 @@ public class ChatMessage {
     @Column(name = "senderType", nullable = false)
     private SenderType senderType;  // Enum cho kiểu người gửi (AI, USER)
 
-    @Column(name = "message", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "message", nullable = false, columnDefinition = "nvarchar(MAX)")
     private String message;
 
     @Column(name = "created_at", nullable = false)
