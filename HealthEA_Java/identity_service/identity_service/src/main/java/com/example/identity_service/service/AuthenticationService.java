@@ -56,7 +56,7 @@ public class AuthenticationService {
     public AuthenticationResponse authenticate(AuthenticationRequest request){
         var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        if(user.getStatus().toString().equals("INACTIVE")){
+        if(user.getStatus().toString().equals("INACTIVE") || user.getStatus().toString().equals("BANNED")){
             throw new AppException(ErrorCode.USER_NOT_VERIFIED);
         }
 
