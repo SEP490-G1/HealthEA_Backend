@@ -100,6 +100,7 @@ public class AppointmentsController : ControllerBase
             return BadRequest(new { Success = false, Message = ex.Message });
         }
     }
+
     [HttpPost("reject/{appointmentId}")]
     [Authorize(Roles = "DOCTOR,ADMIN")]
     public async Task<IActionResult> RejectAppointment([FromBody] RejectAppointmentCommand command, CancellationToken cancellationToken)

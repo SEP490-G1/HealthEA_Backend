@@ -79,7 +79,6 @@ public class CreateAppointmentHandler : IRequestHandler<CreateAppointmentCommand
             EndTime = schedule.EndTime,
             Type = request.Type,
             Uri = Uri ,
-            //Location = location,
             Status = request.Status,
             CreatedAt = DateTime.UtcNow
         };
