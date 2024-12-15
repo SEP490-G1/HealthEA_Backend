@@ -1,4 +1,5 @@
 ﻿using Domain.Common.Exceptions;
+using Domain.Interfaces.IServices;
 using Domain.Models.Entities;
 using Infrastructure.Services;
 using Infrastructure.Services.Background;
@@ -69,6 +70,7 @@ public class RejectAppointmentHandler : IRequestHandler<RejectAppointmentCommand
 		{
 			var emailService = provider.GetRequiredService<EmailService>();
 			var context = provider.GetRequiredService<SqlDBContext>();
+			var firebase = provider.GetRequiredService<INoticeService>();
 			var appointment = await context.Appointments.FirstOrDefaultAsync(a => a.AppointmentId == request.AppointmentId, token);
 			if (appointment == null)
 			{
@@ -79,6 +81,12 @@ public class RejectAppointmentHandler : IRequestHandler<RejectAppointmentCommand
 			{
 				return;
 			}
+			var doctor = await context.Doctors.Include(d => d.User).FirstOrDefaultAsync(d => d.Id == appointment.DoctorId, token);
+			if (doctor == null)
+			{
+				return;
+			}
+			var doctorUser = doctor.User;
 			try
 			{
 				await emailService.SendEmailAsync(
@@ -92,6 +100,16 @@ public class RejectAppointmentHandler : IRequestHandler<RejectAppointmentCommand
     <p><b>G1_SEP490</b></p>
     "
 );
+				Notice userNotice = new Notice()
+				{
+					CreatedAt = DateTime.Now,
+					Message = $"Cuộc hẹn với bác sĩ {doctorUser!.FirstName} {doctorUser.LastName} đã bị từ chối.",
+					HasViewed = false,
+					NoticeId = new Guid(),
+					RecipientId = user.UserId,
+					UserId = doctor.UserId,
+				};
+				await firebase.CreateAndSendNoticeAsync(userNotice, "Thông báo về lịch hẹn.");
 			}
 			catch (Exception ex)
 			{

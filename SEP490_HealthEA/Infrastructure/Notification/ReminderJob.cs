@@ -1,4 +1,6 @@
-﻿using Infrastructure.Services;
+﻿using Domain.Interfaces.IServices;
+using Domain.Models.Entities;
+using Infrastructure.Services;
 using Infrastructure.SQLServer;
 using Quartz;
 
@@ -8,8 +10,9 @@ public class ReminderJob : IJob
 {
     private readonly EmailService _emailService;
     private readonly SqlDBContext _context;
+ 
 
-    public ReminderJob(EmailService emailService, SqlDBContext context)
+	public ReminderJob(EmailService emailService, SqlDBContext context)
     {
         _emailService = emailService;
         _context = context;
@@ -32,12 +35,13 @@ public class ReminderJob : IJob
                 {
                     SenderEmail = "doan24fa@gmail.com",
                     SenderPassword = "aeay nhir mlgk nazg", // Bảo mật mật khẩu
-                    Subject = $"Reminder for event",
+                    Subject = $"Nhắc nhở sự kiện mới.",
                     Body = reminder.Message
                 };
+				//Notif
 
 
-                _emailService.SendEmailToAllUsers(email, reminderId);
+				await _emailService.SendEmailToAllUsers(email, reminderId);
 
                 reminder.IsSent = true;
             }

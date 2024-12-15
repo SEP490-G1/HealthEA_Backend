@@ -19,7 +19,7 @@ namespace Infrastructure.Repositories
 			this.context = context;
 		}
 
-		public async Task<IList<Doctor>> GetAllDoctors(string? nameQuery, string? cityQuery, bool? getAll)
+		public async Task<IList<Doctor>> GetAllDoctors(string? nameQuery, string? cityQuery, bool? getAll, string? specialization)
 		{
 			IQueryable<Doctor> doctors = context.Doctors.Include(d => d.User);
 			if (!getAll.HasValue || !getAll.Value)
@@ -33,6 +33,10 @@ namespace Infrastructure.Repositories
 			if (cityQuery != null)
 			{
 				doctors = doctors.Where(d => d.ClinicCity != null && d.ClinicCity.Contains(cityQuery));
+			}
+			if (specialization != null && specialization.Length > 0)
+			{
+				doctors = doctors.Where(d => d.Specialization != null && d.Specialization == specialization);
 			}
 			return await doctors.ToListAsync();
 		}
@@ -81,6 +85,16 @@ namespace Infrastructure.Repositories
 			return await context.Schedules
 				.Where(s => s.Date >= DateTime.Now && s.DoctorId == doctorId && s.Status == "Available")
 				.Select(s => s.Date.ToString("yyyy-MM-dd"))
+				.Distinct()
+				.ToListAsync();
+		}
+
+		public async Task<List<string?>> GetListOfSpecialization()
+		{
+			return await context.Doctors
+				.Where(s => s.Specialization != null)
+				.Select(s => s.Specialization)
+				.OrderBy(s => s)
 				.Distinct()
 				.ToListAsync();
 		}
