@@ -1,4 +1,6 @@
-﻿using Infrastructure.SQLServer;
+﻿using Domain.Interfaces.IServices;
+using Domain.Models.Entities;
+using Infrastructure.SQLServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -10,13 +12,15 @@ namespace Infrastructure.Services
     {
         private readonly EmailSettings _emailSettings;
         private readonly SqlDBContext _context;
+		private readonly INoticeService service;
 
-        public EmailService(IOptions<EmailSettings> emailSettings, SqlDBContext context)
-        {
-            _emailSettings = emailSettings.Value;
-            _context = context;
-        }
-        public async Task SendAppointmentEmailsAsync(string userEmail, string doctorEmail, string userName, string doctorName)
+		public EmailService(IOptions<EmailSettings> emailSettings, SqlDBContext context, INoticeService service)
+		{
+			_emailSettings = emailSettings.Value;
+			_context = context;
+			this.service = service;
+		}
+		public async Task SendAppointmentEmailsAsync(string userEmail, string doctorEmail, string userName, string doctorName)
         {
             try
             {
@@ -78,7 +82,7 @@ namespace Infrastructure.Services
             }
         }
 
-        public void SendEmailToAllUsers(Email email, Guid reminderId)
+        public async Task SendEmailToAllUsers(Email email, Guid reminderId)
         {
             try
             {
@@ -91,7 +95,31 @@ namespace Infrastructure.Services
                 .Distinct()
                 .ToList();
 
-                if (!recipientEmails.Any())
+                var userLists = _context.Reminders
+                    .Where(r => r.ReminderId == reminderId)
+                    .Include(r => r.Events)
+                    .ThenInclude(e => e.UserEvents)
+                    .ThenInclude(ue => ue.Users)
+                .SelectMany(r => r.Events.UserEvents.Select(ue => ue.Users))
+				.Distinct()
+				.ToList();
+
+                foreach (var user in userLists)
+                {
+					Notice userNotice = new Notice()
+					{
+						CreatedAt = DateTime.Now,
+						Message = $"{email.Body}",
+						HasViewed = false,
+						NoticeId = new Guid(),
+						RecipientId = user.UserId,
+						UserId = user.UserId,
+					};
+					await service.CreateAndSendNoticeAsync(userNotice, "Nhắc nhở!");
+                }
+
+
+				if (!recipientEmails.Any())
                 {
                     Console.WriteLine("No users found for the specified reminder time.");
                     return;
@@ -119,7 +147,7 @@ namespace Infrastructure.Services
 
                         mailMessage.To.Add(recipient);
 
-                        smtpClient.Send(mailMessage);
+                        await smtpClient.SendMailAsync(mailMessage);
                         Console.WriteLine($"Email sent to {recipient}");
                     }
                 }
