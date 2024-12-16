@@ -11,7 +11,7 @@ public class EmailService {
     private JavaMailSender javaMailSender;
 
     public void sendVerificationEmail(String toUser, String token) {
-        String verifyUrl = "https://fe.healthea.click/#//client/verify?token=" + token;
+        String verifyUrl = "https://fe.healthea.click/#/client/verify?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toUser);
