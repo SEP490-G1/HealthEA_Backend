@@ -47,10 +47,10 @@ public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Gui
             throw new Exception("RemindDateTime phải nhỏ hơn RepeatEndDate");
         }
 
-        if (request.StartTime > request.EndTime)
-        {
-            throw new Exception("StartTime phải nhỏ hơn EndTime");
-        }
+        //if (request.StartTime > request.EndTime)
+        //{
+        //    throw new Exception("StartTime phải nhỏ hơn EndTime");
+        //}
 
         while (reminderDateTime <= reminderEndDateTime)
         {

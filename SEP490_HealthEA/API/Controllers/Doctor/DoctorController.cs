@@ -28,10 +28,17 @@ namespace API.Controllers.Doctor
 
 		[HttpGet()]
 		[AllowAnonymous]
-		public async Task<IActionResult> GetAllDoctor([FromQuery] string? name, [FromQuery] string? city, [FromQuery] bool? getAll)
+		public async Task<IActionResult> GetAllDoctor([FromQuery] string? name, [FromQuery] string? city, [FromQuery] bool? getAll, [FromQuery] string? specialization)
 		{
-			var doctors = await repository.GetAllDoctors(name, city, getAll);
+			var doctors = await repository.GetAllDoctors(name, city, getAll, specialization);
 			var result = mapper.Map<IList<DoctorDto>>(doctors);
+			return Ok(result);
+		}
+
+		[HttpGet("specializations")]
+		public async Task<IActionResult> GetAllSpecializations()
+		{
+			var result = await repository.GetListOfSpecialization();
 			return Ok(result);
 		}
 

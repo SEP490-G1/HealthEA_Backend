@@ -1,4 +1,5 @@
 ﻿using Domain.Common.Exceptions;
+using Domain.Interfaces.IServices;
 using Domain.Models.Entities;
 using Infrastructure.Services;
 using Infrastructure.Services.Background;
@@ -98,6 +99,7 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
         {
             var emailService = provider.GetRequiredService<EmailService>();
 			var context = provider.GetRequiredService<SqlDBContext>();
+            var firebase = provider.GetRequiredService<INoticeService>();
             var appointment = await context.Appointments.FirstOrDefaultAsync(a => a.AppointmentId == request.AppointmentId, token);
             if (appointment == null)
             {
@@ -108,11 +110,12 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
 			{
 				return;
 			}
-            var doctor = await context.Doctors.FirstOrDefaultAsync(d => d.Id == appointment.DoctorId, token);
+            var doctor = await context.Doctors.Include(d => d.User).FirstOrDefaultAsync(d => d.Id == appointment.DoctorId, token);
             if (doctor == null)
             {
                 return;
             }
+            var doctorUser = doctor.User;
 			try
             {
                 await emailService.SendEmailAsync(
@@ -132,7 +135,19 @@ public class ApproveAppointmentHandler : IRequestHandler<ApproveAppointmentComma
 <p>Trân trọng,</p>
 <p><b>G1_SEP490</b></p>"
                 );
-            }
+				//Notice
+				Notice userNotice = new Notice()
+				{
+					CreatedAt = DateTime.Now,
+					Message = $"Cuộc hẹn với bác sĩ {doctorUser!.FirstName} {doctorUser.LastName} đã được chấp nhận.",
+					HasViewed = false,
+					NoticeId = new Guid(),
+					RecipientId = user.UserId,
+					UserId = doctor.UserId,
+				};
+                await firebase.CreateAndSendNoticeAsync(userNotice, "Thông báo về lịch hẹn.");
+
+			}
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to send email: {ex.Message}");
